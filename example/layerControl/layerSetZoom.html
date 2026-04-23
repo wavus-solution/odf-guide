@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<p>지도 줌 레벨을 변경해주세요.</p>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*wfs 레이어 생성*/
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+	wfsLayer.fit();
+
+	//레이어 가시범위 설정
+	wfsLayer.setMinZoom(10);
+	wfsLayer.setMaxZoom(18);
+</script>
+</html>

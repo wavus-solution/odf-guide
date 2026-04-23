@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>
+		※ vWorld 오픈 API 사용 방법<br>
+		① <a href="https://www.vworld.kr/dev/v4api.do">vWorld 오픈 API</a> 회원가입 및 로그인<br>
+		② <a href="https://www.vworld.kr/dev/v4dv_wmsguide2_s001.do">vWorld WMS/WFS API 2.0 레퍼런스</a>을 확인하여 필요한 데이터 찾기<br>
+		③ API 신청 및 승인 대기<br>
+		④ 승인된 API 키 입력하여 사용하기<br>
+		&nbsp;&nbsp;&nbsp;※ 사용 서비스의 요청변수 목록을 잘 확인하고 레이어 생성 옵션에 적절히 추가하여 사용
+  	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	 //vWorld 오픈 api > wms/wfs api 2.0 레퍼런스
+	var apiLayer = odf.LayerFactory.produce('api', {
+		service: 'tms',
+		projection: 'EPSG:3857',
+		server:{
+			url:'https://api.vworld.kr/req/tms/1.0.0/::vWorldApiKey::/Base/{{z}}/{{-y-1}}/{{x}}.png',
+			proxyURL : 'proxyUrl.jsp',
+			proxyParam : 'url',
+		} ,// API 주소
+		tileGrid: {
+			origin: [-20037508.3427890, -20037508.3427890],
+			resolutions: [156543.0383, 78271.51913, 39135.75956, 19567.87978, 9783.939891, 4891.969946, 2445.984973, 1222.992486, 611.4962432, 305.7481216, 152.8740608, 76.4370304, 38.2185152, 19.109257, 9.5546285, 4.7773143, 2.3886571, 1.1943286, 0.5971643, ],
+		},
+	});
+	apiLayer.setMap(map);
+	map.setZoom(14);
+</script>
+</html>

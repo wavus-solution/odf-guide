@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>
+		※style의 geometry 속성을 이용하여 위치 변경 가능<br>
+		※이 예제는 집계 대상 데이터들과 집계된 포인트를 같은 색상으로 표현하도록 하였습니다.<br>
+  	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* 분석 결과 레이어 추가*/
+	var clusterLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::', // 분석결과 레이어가 발행된 주소
+		layer : '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'cluster',
+		distance : 50, //미입력시 default 50
+	});
+	clusterLayer.setMap(map);
+	clusterLayer.fit();
+	map.setZoom(11);
+
+	/*분석 스타일 생성*/
+	var clusterStyle = odf.StyleFactory.produceFunction([{
+		seperatorFunc: "default",
+		style: [
+			{
+				//집계대상 도형 표현
+				geometry: (feature) => {
+					//집계대상 도형
+					return odf.GeometryFactory.produce({
+						geometryType: 'multipoint',
+						coordinates: feature.get('features').map(feature => {
+							return feature.getGeometry().getCoordinates()
+						})
+					});;
+				},
+				image: {
+					circle: {
+						radius: 5,//크기
+						fill: {
+							color: [86, 223, 33, 1]
+						},//채우기
+						stroke: {
+							color: '#fff',
+						},//윤곽선
+					}
+				},
+			},
+			{
+				geometry: (feature) => {
+					//집계대상 도형
+					//feature.get('features')
+
+					//중심
+					var position = feature.getCenterPoint();
+					//첫번째 포인트
+					//var position = feature.getGeometry().getFirstCoordinate();
+					//마지막 포인트
+					//var position = feature.getGeometry().getLastCoordinate();
+					return odf.GeometryFactory.produce({
+						geometryType: 'point',
+						coordinates: position
+					});;
+				},
+				image: {
+					circle: {
+						radius: 10,//크기
+						fill: {
+							color: [86, 223, 33, 1]
+						},//채우기
+						stroke: {
+							color: '#fff',
+						},//윤곽선
+					}
+				},
+				text: {
+					font: 'bold 14px Courier New',
+					fill: {
+						color: '#000'
+					},
+				}
+			},
+		],
+		callbackFunc: function (style, feature, resolution) {
+			var size = feature.get('features').length;
+			style[1].getText().setText(size.toString());
+
+			var randomColor = odf.ColorFactory.produceRandomColor(1, 1)[0];
+			console.log(randomColor.toString())
+			style[1].getImage().getFill().setColor(randomColor);
+			style[0].getImage().getStroke().setColor(randomColor);
+			style[0].getImage().getFill().setColor(randomColor);
+		},
+	}]);
+	clusterLayer.setStyle(clusterStyle);
+</script>
+</html>
+

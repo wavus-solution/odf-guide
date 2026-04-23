@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" style="height:550px;"></div>
+	<div style="margin-top: 15px;">
+		<input type="button" id="changeStrictMode" class="onoffBtn toggle" onclick="changeStrictMode()" value="strict모드 변경">
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	var basemapControl = new odf.BasemapControl();
+	basemapControl.setMap(map);
+
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+	"::viewOption::"
+	"::zoomOption::"
+
+	//스와이퍼 컨트롤 추가
+	var swiperControl = new odf.SwiperControl({
+		/**기존 사용중이던 레이어를 swiper레이어로 이용
+		 - true : 현재 지도에서 사용중인 레이어를 왼쪽 영영에 표출(기본값)
+		 - false : 왼쪽/오른쪽 영역 표출 레이어 직접 지정
+		*/
+		useOriginalLayerFlag : true,//원본레이어를 왼쪽영역에 나타낼지 여부, 기본값 true
+
+		/** 엄격한 모드 사용 여부
+		   ※ useOriginalLayerFlag 값이 true 일경우에만 적용
+		 - true : 배경지도를 제외한 레이어를 왼쪽 영역에만 표출
+		 - false : 배경지도를 제외한 레이어를 모든 영역에 표출(기본값)
+		*/
+		swipeStrictFlag : false,
+
+		// 스와이퍼 컨트롤의 슬라이더 너비 (픽셀)
+		// default값 100. 최소 0, 최대 2000
+		size : 200,
+
+		/**스와이퍼로 나타낼 레이어 배열
+		 - [레이어1, 레이어2, ...] : useOriginalLayerFlag가 true일때 이와 같은 양식 적용.
+		  						 오른쪽 영역에 표출할 레이어 목록 정의
+		 - [[레이어1, 레이어2, ...],[레이어5, 레이어6, ...]] : useOriginalLayerFlag가 false일때 이와 같은 양식 적용.
+		 											  [왼쪽 영역에 표출할 레이어 배열, 오른쪽 영역에 표출할 레이어 배열]
+		*/
+		layers : [ basemapControl.getBaseLayer('::basemap_air::') ],
+	});
+	swiperControl.setMap(map);
+
+	//layers 값 셋팅
+	//swiperControl.setLayers([ basemapControl.getBaseLayer('::basemap_color::') ]);
+
+	//SwiperControl의 슬라이더 값 셋팅
+	//swiperControl.setSliderValue(30/*셋팅할 슬라이더 값 (0~100사이의 숫자)*/);
+
+	//SwiperControl의 슬라이더 값 조회
+	//console.log(swiperControl.getSliderValue());
+
+	//SwiperControl에 엄격모드 적용
+	//swiperControl.setSwipeStrictFlag(true);
+
+	//슬라이더 적용 여부 정의
+	//swiperControl.setState(true/*슬라이더 적용 여부(true=>적용/false=>미적용)*/);
+
+	//슬라이더 적용 여부 조회
+	//console.log(swiperControl.getState());
+
+
+	var strictMode = false;
+	function changeStrictMode() {
+		//SwiperControl에 엄격모드 적용
+		swiperControl.setSwipeStrictFlag(strictMode);
+		strictMode = !strictMode;
+	}
+</script>
+</html>

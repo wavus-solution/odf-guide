@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<p>지도에서 피처를 클릭해보세요</p>
+
+	<div class="infoArea" style="margin-top: 15px;">
+		<div id="featureInfo"></div>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*wfs 레이어 생성*/
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+	wfsLayer.fit();
+
+	// wfs 레이어 스타일 생성
+	var wfsstyle = odf.StyleFactory.produce({
+		fill : {
+			color : [ 255, 255, 255, 0 ],
+		},
+		stroke : {
+			color : 'red',
+			width : 3,
+		},
+	});
+	wfsLayer.setStyle(wfsstyle);
+
+	//지도 클릭시 클릭한 위치에 있는 feature 정보 조회
+	odf.event.addListener(map, 'click', function(evt) {
+		//클릭한 위치의 feature 정보 조회
+		var featureObject = map.selectFeatureOnClick(evt);
+
+		if(featureObject.length===0){
+			return;
+		}
+
+		if (document.getElementById('creDiv')) {
+			var creDiv = document.getElementById('creDiv');
+			creDiv.innerText = 'DGM_NM	 = ' + featureObject[0].feature.getProperties().DGM_NM;
+		} else {
+			var creDiv = document.createElement('div');
+			creDiv.setAttribute('id', 'creDiv');
+			creDiv.innerText = 'DGM_NM	 = ' + featureObject[0].feature.getProperties().DGM_NM;
+		}
+
+		document.getElementById('featureInfo').append(creDiv);
+
+		//iframe 크기 조절
+		if (parent.window.containerResize) parent.window.containerResize();
+	}.bind(this));
+</script>
+</html>

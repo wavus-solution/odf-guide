@@ -1,0 +1,236 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<style>
+  #popup {
+	background-color: white;
+	padding : 5px;
+  }
+  #popup div{
+  	display:none;
+  }
+
+  #popup div.active{
+  	display:block;
+  }
+
+  #popup ul{
+  	margin-bottom: 5px;
+    list-style: none;
+    display: flex;
+  }
+  #popup li{
+  	font-weight : bold;
+    padding: 0px 5px;
+  }
+  #popup li.active{
+  	color : blue;
+  }
+  #popup table{
+  	width:100%
+  }
+  #popup td {
+  	border: 1px solid #949494 !important;
+    padding: 3px !important;
+    text-align: center;
+  }
+</style>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* 분석 결과 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::', // 분석결과 레이어가 발행된 주소
+		layer : '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'cluster',
+		distance : 50, //미입력시 default 50
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+
+
+	/*분석 스타일 생성*/
+	var clusterStyle = odf.StyleFactory.produceFunction([
+		{
+			seperatorFunc :  "default",
+			style : {
+				image : {
+					icon : {
+						scale : 1.2,
+						src : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1RjI5MTdFNjgzMTlFQjExQTI4NUU2MEIzOEZDQzE2MyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpDOEQ4ODc0QzE5OEIxMUVCQjY3QjhBQjZCRTgzNEI0MiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpDOEQ4ODc0QjE5OEIxMUVCQjY3QjhBQjZCRTgzNEI0MiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjJFNzFEOTYyODgxOUVCMTFBMjg1RTYwQjM4RkNDMTYzIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjVGMjkxN0U2ODMxOUVCMTFBMjg1RTYwQjM4RkNDMTYzIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+qmaSsgAAAUJJREFUeNpi/P//PwM28Dk3AJnLA8QZQBwCxNpAzAjEV4B4DRDPAOIvMIW8kzdgmMXCQBhoATFIpyqauDkUpwExyEXXcBnARMACISDeicUCZKAKVSNAriXFQCwDZf8C4nQg5obidKgYA1RNMbmWhCCxa4B4FhB/g+JZUDEYCCXXEhUk9k4s8juQ2ArkWvIOia2IRV4Jif2eXEt2IbF7gFgWiS8LFYOB/bgMIZSEO6DxwgYNuhtIhjkCMRdSomgn1yeXoanoD5QPMtQbimEW/AXiTKhasiwBgQVQV5/AIncCKjcPnwHE5HgQOALElqB4uCCtkwUSMHh6ZTqQekSMZmItgYHHZ2X1L0MteUSsJkZcBSQ6mLB0NYwZBaWXgYiC6FCCepkY6ABGLRm1ZNSSQWIJqWWXJrSgBIHzQHydGE0AAQYAjGk/1OMQ+L8AAAAASUVORK5CYII='
+					}
+				},
+				text : {
+					font : 'bold 15px Courier New',
+					fill : {
+						color : '#000'
+					},
+                  	padding : [5,5,5,5],
+					backgroundStroke : {
+						color : 'black'
+					},
+					backgroundFill : {
+						color : 'white'
+					},
+					offsetY : -35,
+				}
+			},
+			callbackFunc : function(style, feature, resolution) {
+				var size = feature.get('features').length;
+				var innerFeatureText = `${feature.get('features')[0].getProperties().SHELTER_NM}${size>1?`(+${size-1})`:''}` ;
+				style.getText().setText(innerFeatureText);
+
+			},
+		}
+	]);
+	pointLayer.setStyle(clusterStyle);
+
+	var marker;
+
+	//마우스 아래 도형이 있으면 커서 포인터로 변경
+	 odf.event.addListener(map, 'pointermove', function (evt) {
+		var hit = map.hasFeatureAtPixel(evt);
+		map.getTarget().style.cursor = hit ? 'pointer' : '';
+	 })
+
+	 /*지도 클릭시 해당 위치의 feature를 조회하도록 이벤트 리스너 추가*/
+	 odf.event.addListener(map, 'click', function (evt) {
+
+		//피처 조회
+		//해당 기능은 옵션이 많으니, 지도문서를 통해 상세한 옵션을 확인학세요.
+		var result = map.selectFeatureOnClick(evt);
+
+		if(result.length===0){
+			marker.removeMap();
+			marker=undefined;
+			return;
+		}
+
+		//마커로 올릴 html element 생성
+		var content =constructInfoDiv(result);
+
+		if(marker&& marker.getMap()){
+			marker.removeMap();
+		}
+		//사용자정의 마커생성
+		marker = new odf.Marker({
+		  //마커를 올릴 좌표
+	      position: evt.coordinate, //마우스 클릭 좌표
+	      style: { //마커의 스타일 설정
+	    	  	element: content
+	      },
+	      //드래그 여부
+	      draggable: false,
+	      //마커 영역에서 클릭시 이벤트 버블링 차단
+	      stopEvent : true,
+	    });
+		marker.setMap(map);
+
+
+		//탭 클릭시 active 영역 전환
+		document.querySelectorAll('#popup li').forEach(li=>{
+			li.addEventListener('click',function(evt){
+
+				var parentDiv = evt.target.parentElement.parentElement;
+				var removeActiveTarget = parentDiv;
+				var addActiveClassTarget = [];
+				addActiveClassTarget.push(evt.target);
+				addActiveClassTarget.push(parentDiv.querySelector(`div#${evt.target.innerHTML}`));
+
+				//기활성화된 tab 비활성화
+				removeActiveTarget.querySelectorAll('#popup .active').forEach(activeItem=>{
+					activeItem.classList.remove('active');
+				});
+
+				//클릭한 영역 활성화
+				addActiveClassTarget.forEach(activeTarget=>{
+					activeTarget.classList.add('active');
+				});
+			})
+		})
+	}.bind(this));
+
+
+
+	//레이어 정보 html element 생성
+	function constructInfoDiv(featureList) {
+
+		var featureCount = 0;
+		var content = document.createElement('div');
+		content.id='popup';
+
+		for (var i = 0; i < featureList.length; i++) {
+
+			var {feature, layer} = featureList[i];
+			var featureTabUl = document.createElement('ul');
+			featureTabUl.classList.add('featureTabUl');
+			content.append(featureTabUl);
+			feature.get('features').forEach((feature,idx)=>{
+
+				var featureDiv = document.createElement('div');
+				featureDiv.classList.add('featureDiv');
+				featureDiv.id = 'f'+(idx+1);
+
+				var featureTabLi = document.createElement('li');
+				featureTabLi.innerHTML =  'f'+(idx+1);
+				featureTabUl.append(featureTabLi);
+
+				if(idx===0){
+					featureTabLi.classList.add('active');
+					featureDiv.classList.add('active');
+				}
+				constructFeatureInfoTable(feature,featureDiv)
+				content.append(featureDiv);
+			})
+		}
+
+		return content;
+	}
+
+
+	//도형 정보 html element 생성
+	function constructFeatureInfoTable(feature, target) {
+
+		var featureTable = document.createElement('table');
+		var properties = Object.entries(feature.getProperties());
+		var tbody = document.createElement('tbody');
+
+		var headerRow = document.createElement('tr');
+		var bodyRow = document.createElement('tr');
+
+		for (var i = 0; i < properties.length; i++) {
+			if(properties[i][0]!=='geometry'){
+				var row = document.createElement('tr');
+
+				var headerTd =  document.createElement('td');
+				headerTd.innerText = properties[i][0];
+				row.append(headerTd);
+
+				var bodyTd = document.createElement('td');
+				bodyTd.innerText = properties[i][1]?properties[i][1]:'-';
+				row.append(bodyTd);
+				tbody.append(row);
+			}
+		}
+
+		featureTable.append(tbody);
+		target.append(featureTable);
+	}
+</script>
+</html>
+

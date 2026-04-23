@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px">
+		<button onclick="defineQueryFn('wms', true);" class="onoffOnlyBtn toggle grp1">wms 필터 적용</button>
+		<button onclick="defineQueryFn('wms', false);" class="onoffOnlyBtn toggle grp1">wms 필터 초기화</button>
+		<button onclick="defineQueryFn('wfs', true);" class="onoffOnlyBtn toggle grp2">wfs 필터 적용</button>
+		<button onclick="defineQueryFn('wfs', false);" class="onoffOnlyBtn toggle grp2">wfs 필터 초기화</button>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/* wms 레이어 생성 */
+	var wmsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wms',
+	});
+	wmsLayer.setMap(map);
+	wmsLayer.fit();
+
+	/* wfs 레이어 생성 */
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer2::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+
+
+	//필터 정보 셋팅
+	function defineQueryFn(type, bools) {
+
+		if (type === 'wms') {
+			if (bools === true) {
+				/* 파라미터 : 조건, odfId */
+				wmsLayer.defineQuery({
+					condition : `"DRAWING_NO"=1`, // 필터(질의문) 조건 (cql 형식)
+				});
+			}
+			else if (bools === false) {
+				/* 파라미터 : 조건, odfId */
+				wmsLayer.defineQuery({});
+			}
+		} else if (type === 'wfs') {
+			if (bools === true) {
+				/* 파라미터 : 조건, odfId */
+				wfsLayer.defineQuery({
+					condition : `"objectid"=641.0`, // 필터(질의문) 조건 (cql 형식)
+				});
+
+			}
+			else if (bools === false) {
+				/* 파라미터 : 조건, odfId */
+				wfsLayer.defineQuery({});
+			}
+		}
+	}
+</script>
+</html>

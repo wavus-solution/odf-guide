@@ -1,0 +1,267 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=::kakaoAppKey::"></script>
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			height: 100vh;
+			font-family:
+					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+		}
+
+		.container {
+			display: flex;
+			width: 100%;
+			height: 100%;
+		}
+
+		.map-section,
+		.roadview-section {
+			width: 50%;
+			height: 100%;
+		}
+	</style>
+	<body>
+		<!-- 화면 분할 컨테이너 -->
+		<div class="container">
+			<!-- 좌측: ODF 지도 영역 -->
+			<div id="map" class="odf-view map-section"></div>
+
+			<!-- 우측: 카카오 로드뷰 영역 -->
+			<div id="roadview" class="roadview-section"></div>
+		</div>
+	</body>
+<script>
+	/**
+	 * ====================================================================
+	 * ODF 지도 + 카카오 로드뷰 연동 샘플
+	 * ====================================================================
+	 *
+	 * 기능 설명:
+	 * 1. ODF 지도와 카카오 로드뷰를 좌우로 분할하여 동시에 표시
+	 * 2. ODF 지도에서 더블클릭 또는 마커 드래그 시 로드뷰 위치 동기화
+	 * 3. 로드뷰에서 위치 변경 시 ODF 지도 마커 위치 동기화
+	 * 4. 서로 다른 좌표계(EPSG:5186 ↔ EPSG:4326) 간 변환 처리
+	 */
+
+	// ====================================================================
+	// 1. ODF 지도 초기화
+	// ====================================================================
+
+	/**
+	 * 초기 중심 좌표 설정 (EPSG:5186 좌표계)
+	 * 예제 위치: 에이스 하이엔드2차 타워 앞
+	 */
+	var initialCenter = [190760.41465726733, 542385.215336354];
+
+	/**
+	 * ODF 지도 옵션 설정
+	 */
+	var mapOptions = {
+		center: new odf.Coordinate(initialCenter[0], initialCenter[1]),
+		zoom: 17,
+		projection: "EPSG:5186", // 한국 중부원점 좌표계
+		proxyURL: "proxyUrl.jsp",  // 외부 배포 시 프록시 설정 필요
+		proxyParam: "url",
+		baroEMapURL: "http://geon.wavus.co.kr:14062/map/api/map/baroemap",
+		baroEMapAirURL: "http://geon.wavus.co.kr:14062/map/api/map/ngisair",
+		basemap: {
+			baroEMap: ["eMapBasic", "eMapAIR", "eMapColor", "eMapWhite"],
+		},
+	};
+
+	/**
+	 * ODF 지도 객체 생성
+	 */
+	var mapContainer = document.getElementById("map");
+	var map = new odf.Map(mapContainer, mapOptions);
+
+	var roadviewLayer = odf.LayerFactory.produce('api', {
+		service : 'xyz',
+		projection:"EPSG:5181",
+		extent:[-30000, -60000, 494288, 988576],
+		tileGrid:{
+			origin:[-30000,-60000],
+			resolutions:[4096,2048,1024,512,256,128,64,32,16,8,4,2,1,0.5,0.25,0.125],
+			matrixIds:["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"]
+		},
+		server :{
+			url : '::DeveloperUrl::/proxyUrl.jsp?url=https://map.daumcdn.net/map_k3f_prod/bakery/image_map_png/PNGSD_RV01/v16_o9kb2/{{15-z}}/{{-y-1}}/{{x}}.png',
+		}
+	});
+	roadviewLayer.setMap(map);
+
+	// ====================================================================
+	// 2. 마커 생성 및 설정
+	// ====================================================================
+
+	/**
+	 * 위치를 나타낼 마커 생성
+	 */
+	var marker = new odf.Marker({
+		position: new odf.Coordinate(initialCenter[0], initialCenter[1]),
+		style: {
+			width: "50px",
+			height: "50px",
+			src: "images/map-marker.png",
+		},
+		draggable: true, // 드래그 가능하도록 설정
+	});
+
+	// 지도에 마커 추가
+	marker.setMap(map);
+
+	// 더블클릭 줌 기능 비활성화 (더블클릭 이벤트를 위치 변경에 사용하기 위함)
+	map.setDoubleClickZoomable(false);
+
+	// ====================================================================
+	// 3. 카카오 로드뷰 초기화
+	// ====================================================================
+
+	var roadview = null;
+	var roadviewClient = null;
+
+	/**
+	 * 카카오 API 로드 확인 및 초기화
+	 */
+	if (typeof kakao !== "undefined" && kakao.maps) {
+		// EPSG:5186 → EPSG:4326 좌표 변환 (초기 위치)
+		var projection = map.getProjection();
+		var center4326 = projection.unproject(initialCenter, "4326");
+
+		/**
+		 * 카카오 로드뷰 생성
+		 */
+		var roadviewContainer = document.getElementById("roadview");
+		roadview = new kakao.maps.Roadview(roadviewContainer);
+
+		/**
+		 * 카카오 로드뷰 클라이언트 생성
+		 * - 특정 위치의 로드뷰 파노라마 ID를 검색하는 데 사용
+		 */
+		roadviewClient = new kakao.maps.RoadviewClient();
+
+		/**
+		 * 초기 위치의 로드뷰 설정
+		 */
+		var kakaoPosition = new kakao.maps.LatLng(
+				center4326[1],
+				center4326[0],
+		);
+
+		roadviewClient.getNearestPanoId(kakaoPosition, 50, function (panoId) {
+			if (panoId === null) {
+				console.warn("초기 위치에 로드뷰가 없습니다.");
+			} else {
+				roadview.setPanoId(panoId, kakaoPosition);
+			}
+		});
+
+		/**
+		 * 로드뷰 위치 변경 이벤트 처리
+		 * - 사용자가 로드뷰에서 이동 시 ODF 지도 마커 위치 동기화
+		 */
+		kakao.maps.event.addListener(roadview, "position_changed", function () {
+			var position = roadview.getPosition();
+			var latLng = [position.getLng(), position.getLat()];
+
+			// EPSG:4326 → EPSG:5186 좌표 변환
+			var projection = map.getProjection();
+			var position5186 = projection.project(latLng, "4326");
+
+			// ODF 지도 마커 위치 업데이트
+			marker.setPosition(position5186);
+
+			// 옵션: 지도 중심도 함께 이동하려면 아래 주석 해제
+			// map.setCenter(new odf.Coordinate(position5186[0], position5186[1]));
+		});
+	} else {
+		console.error("카카오 지도 API가 로드되지 않았습니다.");
+	}
+
+	// ====================================================================
+	// 4. ODF 지도 이벤트 처리 (지도 → 로드뷰)
+	// ====================================================================
+
+	/**
+	 * ODF 지도에서 위치 변경 시 처리 함수
+	 * - 더블클릭 또는 마커 드래그 시 호출됨
+	 * - 카카오 로드뷰 위치를 동기화
+	 *
+	 * @param {Event} evt - ODF 이벤트 객체
+	 */
+	var handleOdfPositionChange = (evt) => {
+		if (!roadview || !roadviewClient) return;
+
+		// 클릭/드래그된 좌표 추출
+		var position = evt.getPosition?.()
+				? [evt.getPosition()._x, evt.getPosition()._y]
+				: evt.coordinate;
+
+		// 마커 위치 업데이트
+		marker.setPosition(position);
+
+		// EPSG:5186 → EPSG:4326 좌표 변환
+		var projection = map.getProjection();
+		var latLng = projection.unproject(position, "4326");
+
+		// 카카오 로드뷰 위치 동기화
+		var kakaoPosition = new kakao.maps.LatLng(latLng[1], latLng[0]);
+
+		// 해당 위치 근처의 로드뷰 파노라마 ID 검색 (반경 50m)
+		roadviewClient.getNearestPanoId(kakaoPosition, 50, function (panoId) {
+			if (panoId === null) {
+				alert("해당 위치에 로드뷰가 없습니다.");
+			} else {
+				roadview.setPanoId(panoId, kakaoPosition);
+			}
+		});
+	};
+
+	/**
+	 * 이벤트 리스너 등록
+	 */
+	// 마커 드래그 종료 시
+	odf.event.addListener(marker, "markerdragend", handleOdfPositionChange);
+
+	// 지도 더블클릭 시
+	odf.event.addListener(map, "dblclick", handleOdfPositionChange);
+
+	// ====================================================================
+	// 참고사항
+	// ====================================================================
+	/**
+	 * 좌표계 변환 정보:
+	 * - EPSG:5186: 한국 중부원점 TM 좌표계 (ODF 지도 기본)
+	 * - EPSG:4326: WGS84 경위도 좌표계 (카카오 지도 사용)
+	 *
+	 * 주요 메서드:
+	 * - projection.unproject(coord, targetEPSG): 좌표계 변환 (5186→4326)
+	 * - projection.project(coord, sourceEPSG): 좌표계 변환 (4326→5186)
+	 * - marker.setPosition(coord): 마커 위치 설정
+	 * - roadview.setPanoId(panoId, position): 로드뷰 위치 설정
+	 * - roadviewClient.getNearestPanoId(): 특정 위치 근처 로드뷰 검색
+	 *
+	 * 카카오 로드뷰 특징:
+	 * - 파노라마 ID(panoId)를 통해 로드뷰 위치를 지정
+	 * - getNearestPanoId()로 좌표 근처의 로드뷰를 검색 (반경 지정 가능)
+	 * - 로드뷰가 없는 위치는 null 반환
+	 *
+	 * 커스터마이징:
+	 * - 마커 아이콘 변경: marker 옵션의 src 속성 수정
+	 * - 초기 위치 변경: initialCenter 배열 값 수정
+	 * - 로드뷰 검색 반경 조정: getNearestPanoId() 두 번째 인자 수정 (기본 50m)
+	 */
+</script>
+
+</html>

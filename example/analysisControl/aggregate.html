@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/* 분석 대상 폴리곤 레이어 추가*/
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::', // 분석결과 레이어가 발행된 주소
+		layer : '::polygonLayer1::',
+		service : 'aggregate',
+		target : 'DRAWING_NO',
+	});
+	polygonLayer.setMap(map);
+	polygonLayer.fit();
+
+	/*분석 스타일 생성*/
+	var aggregateStyle = odf.StyleFactory.produceFunction([ {
+		seperatorFunc : "default",
+		style : [ {
+			stroke : {
+				color : [ 132, 229, 252, 0.95 ],
+				width : 4
+			},
+			text : {
+				font : '20pt Calibri,sans-serif',
+				fill : {
+					color : '#000000'
+				},
+			}
+		},
+		//전체도형의 중심에 라벨생성
+		{
+			geometry : function(feature) {
+				var geometry = feature.getGeometry();
+				return geometry.getInteriorPoints();
+			},
+			image : {
+				circle : {
+					fill : {
+						color : '#CC70B4'
+					},
+					stroke : {
+						color : "#CC70B4",
+						width : 1
+					}
+				},
+			},
+		} ],
+		callbackFunc : function(style, feature, resolution) {
+			var maxRadius = 5;
+			var sizeDegree = Number(feature.get("sizeDgree"));
+			var radius = maxRadius * sizeDegree;
+			var count = feature.get("DRAWING_NO");
+			style[0].getText().setText(count + "");
+			style[1].getImage().setRadius(radius);
+		},
+	} ]);
+	polygonLayer.setStyle(aggregateStyle);
+</script>
+</html>
+

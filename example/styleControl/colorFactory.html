@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		속성 : <select class="selectCustom" id="attributes" onChange="setStyle()">
+			<option value="">선택</option>
+		</select>
+		색상 : <select class="selectCustom" id="colorType" onChange="setStyle()"></select>
+		필요 색상 개수 : <select class="selectCustom" id="needColorNum" onChange="setStyle()"></select>
+		투명도 : <select class="selectCustom" id="alpha" onChange="setStyle()"></select>
+		색표현방식 : <select class="selectCustom" id="order" onChange="setStyle()">
+			<option value="true">옅은색->진한색</option>
+			<option value="false">진한색->옅은색</option>
+		</select>
+	</div>
+</body>
+<script>
+
+	//색 종류 set
+	var colorType = Object.keys(odf.ColorFactory.colorPallet);
+	for (var i = 0; i < colorType.length; i++) {
+		var color = colorType[i];
+
+		var option = document.createElement('option');
+		option.value = color;
+		option.innerHTML = color;
+
+		document.getElementById('colorType').appendChild(option);
+	}
+
+	//필요 색상 갯수 종류 set
+	for (var i = 1; i < 51; i++) {
+		var color = colorType[i];
+
+		var option = document.createElement('option');
+		option.value = i;
+		option.innerHTML = i;
+
+		document.getElementById('needColorNum').appendChild(option);
+	}
+
+	//투명도 set
+	var alphaValue = 1;
+	for (var i = 0; i < 11; i++) {
+		var color = colorType[i];
+
+		var option = document.createElement('option');
+		option.value = alphaValue.toFixed(1);
+		option.innerHTML = alphaValue.toFixed(1);
+
+		document.getElementById('alpha').appendChild(option);
+		alphaValue -= 0.1;
+	}
+
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey: '::crtfckey::',
+		service: 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	//레이어의 속성 종류 조회 -wfs레이어만 가능
+	var attributes = pointLayer.getAttributes(['int']);//INT 타입의 속성만 조회
+	for (var i = 0; i < attributes.length; i++) {
+		var attr = attributes[i];
+
+		var option = document.createElement('option');
+		option.value = attr.name;
+		option.innerHTML = attr.name;
+
+		document.getElementById('attributes').appendChild(option);
+	}
+
+	/*동적 스타일 생성*/
+	function setStyle() {
+		var attr = document.getElementById('attributes').value;
+		if (attr === "") {
+			return;
+		}
+
+		//값의 종류 조회
+		var range = pointLayer.getAttributesFeaturesValueRange(document.getElementById('attributes').value);
+		//색 계열
+		var colorType = document.getElementById('colorType').value;
+		//선택된 필요색상개수
+		var needColorNum = Number(document.getElementById('needColorNum').value);
+		//투명도 값
+		var alpha = Number(document.getElementById('alpha').value);
+		//선택된 필요색상개수
+		var order = document.getElementById('order').value === 'true' ? true : false;
+
+		//선택된 색상계열로 feature의 개수 만큼 색 생성
+		var colorList = odf.ColorFactory.produce(
+			colorType, //색 계열 'red', 'blue', 'yellow', 'green', 'purple', 'brown', 'black', 'random' 중 하나
+			needColorNum, // 1~50 사이의 정수
+			alpha,//alpha값(투명도) 0~1 사이의 실수
+			order
+		);
+
+		//동적 스타일 생성
+		var styleFunction = odf.StyleFactory.produceFunction([
+			//기본스타일
+			{
+				seperatorFunc: 'default',
+				style: {
+					image: {
+						circle: {
+							fill: {
+								color: [0, 0, 0, 0.5]
+							}, //채우기
+							stroke: {
+								color: 'black',
+								width: 2
+							}, //윤곽선
+							radius: 10,
+						},
+					},
+				},
+				callbackFunc: function (style, feature, resolution) {
+					var gap = (range.max - range.min + 1) / needColorNum;
+					for (var i = 0; i < needColorNum; i++) {
+						if (gap * i <= feature.getProperties().id && gap * (i + 1) > feature.getProperties().id) {
+
+							//기본 style opption
+							var circleOption = this.style.image.circle;
+							//생성된 색상으로 채우기 값 변경
+							circleOption.fill.color = colorList[i];
+							//새로운 circle옵션으로 circle 스타일 생성하여 set--circle 스타일은 새로 생성하여 setImage해야 적용됨
+							style.setImage(odf.StyleFactory.produceCircle(circleOption));
+						}
+					}
+				},
+			}
+		]);
+		pointLayer.setStyle(styleFunction);
+	}
+</script>
+
+</html>

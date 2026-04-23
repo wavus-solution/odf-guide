@@ -1,0 +1,178 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div id="evtChk"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/* 그리기 도구 컨트롤 생성 */
+	var drawControl = new odf.DrawControl({
+		tools : [
+			'text',//텍스트 그리기 툴
+			'polygon',//다각형 그리기 툴
+			'lineString',//선 그리기 툴
+			'box',//사각형 그리기 툴
+			'point',//점 그리기 툴
+			'circle',//원 그리기 툴
+			'curve',//곡선 그리기 툴
+			'buffer',//버퍼 그리기 툴
+		],
+		style: [
+			/* 메인 스타일
+			 * 일반적으로 적용되는 스타일
+			*/
+			{
+				// 다각형/사각형/원 채우기 스타일 (내부 스타일)
+				fill: {
+					color: [222, 120, 252, 0.2]
+				},
+				// 다각형/사각형/원/곡선/선 윤곽선 스타일
+				stroke: {
+					color: [222, 120, 252, 0.95],
+					lineCap: 'round',
+					lineJoin: 'round',
+					width: 2
+				},
+				// 점 스타일
+				image: {
+					circle: {
+						radius: 5,
+						fill: { color: [111, 60, 126, 1] },
+						stroke: { color: [222, 120, 252, 1], width: 1 }
+					}
+				},
+				// 텍스트 스타일
+				text: {
+					fill: { color: [0, 0, 0, 0.95] },
+					stroke: { color: [255, 255, 255, 0.8], width: 5 },
+					font: '20px sans-serif',
+				}
+			},
+			{
+				/* 버텍스(꼭짓점) 스타일
+        		 * 본래 geometry(다각형/사각형/선)를 꼭짓점 좌표 기반의 MultiPoint로 변환하여
+                 * 버텍스(꼭짓점) 마커를 렌더링
+        		*/
+				geometry: function(feature) {
+					if (feature.getGeometry().getType() === 'Polygon') {
+						return odf.GeometryFactory.produce({
+							geometryType: 'multipoint',
+							coordinates: feature.getGeometry().getCoordinates()[0]
+						});
+					} else {
+						return odf.GeometryFactory.produce({
+							geometryType: 'multipoint',
+							coordinates: feature.getGeometry().getCoordinates()
+						});
+					}
+				},
+				image: {
+					circle: {
+						radius: 5,
+						fill: { color: [111, 60, 126, 1] },
+						stroke: { color: [222, 120, 252, 1], width: 1 }
+					}
+				},
+			}
+		],
+		bufferStyle : {
+			stroke : {
+				color : [ 255, 255, 159, 1 ],
+				width : 2
+			},
+			fill : {
+				color : [ 255, 255, 159, 0.2 ],
+			},
+		}
+	});
+	// 지도 객체와 연결 (컨트롤 ui 생성)
+	drawControl.setMap(map);
+
+
+	/* 측정 도구 컨트롤 생성 */
+	var measureControl = new odf.MeasureControl({
+		tools : [
+			'distance',// 거리 측정 툴
+			'area',// 면적측정 툴
+			'round',// 원의 면적측정 툴
+			'spot',// 좌표 측정 툴
+		],
+		style: [
+			/* 메인 스타일
+         	 * 일반적으로 적용되는 스타일
+         	 */
+			{
+				// 거리/면적/원 채우기 스타일
+				fill: {
+					color: [222, 120, 252, 0.2]
+				},
+				// 거리/면적/원 윤곽선 스타일
+				stroke: {
+					color: [222, 120, 252, 0.95],
+					lineCap: 'round',
+					lineJoin: 'round',
+					width: 2
+				},
+				// 좌표 측정 스타일
+				image: {
+					circle: {
+						radius: 5,
+						fill: { color: [111, 60, 126, 1] },
+						stroke: { color: [222, 120, 252, 1], width: 1 }
+					}
+				},
+				//거리/면적/원/좌표측정 텍스트 스타일
+				text: {
+					fill: { color: [0, 0, 0, 0.95] },
+					stroke: { color: [255, 255, 255, 0.8], width: 5 },
+					font: '20px sans-serif',
+				}
+			},
+			{
+				/* 버텍스(꼭짓점) 스타일
+        		 * 본래 geometry를 꼭짓점 좌표 기반의 MultiPoint로 변환하여
+                 * 버텍스(꼭짓점) 마커를 렌더링
+        		*/
+				geometry: function(feature) {
+					if (feature.getGeometry().getType() === 'Polygon') {
+						return odf.GeometryFactory.produce({
+							geometryType: 'multipoint',
+							coordinates: feature.getGeometry().getCoordinates()[0]
+						});
+					} else {
+						return odf.GeometryFactory.produce({
+							geometryType: 'multipoint',
+							coordinates: feature.getGeometry().getCoordinates()
+						});
+					}
+				},
+				image: {
+					circle: {
+						radius: 5,
+						fill: { color: [111, 60, 126, 1] },
+						stroke: { color: [222, 120, 252, 1], width: 1 }
+					}
+				},
+			}
+		],
+	});
+	measureControl.setMap(map);
+
+	/*그리기 초기화 컨트롤 생성*/
+	var clearControl = new odf.ClearControl();
+	clearControl.setMap(map);
+</script>
+</html>

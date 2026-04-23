@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<textarea id="eventLog" style="width: 100%; height: 200px;"></textarea>
+	<div class="btnLogArea">
+		<div class="innerBox">
+			<input type="button" class="onoffBtn" value="로그 초기화" id="clearLog" />
+			<div>
+				wms 이벤트 로깅 여부 변경 :
+				<input type="button" class="onoffBtn toggle" value="precomposeWms" id="precomposeFlagWms" title="레이어를 그리기 시작하기 전 트리거 " />
+				<input type="button" class="onoffBtn toggle" value="postcomposeWms" id="postcomposeFlagWms" title="레이어를 모두 그린 후 트리거 " />
+				<input type="button" class="onoffBtn" value="propertychangeWms" id="propertychangeFlagWms" title="속성이 변경되면 트리거 " />
+			</div>
+			<br>
+			<div>
+				wfs 이벤트 로깅 여부 변경 :
+				<input type="button" class="onoffBtn toggle" value="renderWfs" id="renderFlagWfs" title="지도 프레임에 레이어가 렌더링 된 후에 트리거" />
+				<input type="button" class="onoffBtn toggle" value="changeWfs" id="changeFlagWfs" title="일반 변경 이벤트. 개정 카운터가 증가하면 트리거 " />
+				<input type="button" class="onoffBtn toggle" value="precomposeWfs" id="precomposeFlagWfs" title="레이어를 그리기 시작하기 전 트리거" />
+				<input type="button" class="onoffBtn toggle" value="postcomposeWfs" id="postcomposeFlagWfs" title="레이어를 모두 그린 후 트리거 " />
+				<input type="button" class="onoffBtn" value="propertychangeWfs" id="propertychangeFlagWfs" title="속성이 변경되면 트리거 " />
+			</div>
+		</div>
+	</div>
+	<p>※ 직접해보기에서는 이벤트 버튼 토글이 지원되지 않습니다.</p>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*wms 레이어 추가*/
+	var wmsLayer = odf.LayerFactory.produce('geoserver', { // 레이어를 호출 할 방식 (ex. geoserver, geojson)
+		method : 'post',
+		server : '::WfsAPI::', // 레이어가 발행된 서버 주소
+		layer : '::polygonLayer1::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		service : 'wms', // 호출하고자 하는 레이여 형태(wms, wfs)
+	});
+	wmsLayer.setMap(map);
+	wmsLayer.fit();
+
+	/*wfs 레이어 추가*/
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'post',
+		server : '::WmsAPI::', // 레이어가 발행된 서버 주소
+		layer : '::polygonLayer2::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		service : 'wfs', // 호출하고자 하는 레이여 형태(wms, wfs)
+	});
+	wfsLayer.setMap(map);
+
+	//wmsLayer postcompose  이벤트 연결
+	odf.event.addListener(wmsLayer, 'postcompose', function(evt) {
+		if (postcomposeFlagWms) addLog("WMS postcompose!");
+	});
+	//wmsLayer precompose  이벤트 연결
+	odf.event.addListener(wmsLayer, 'precompose', function(evt) {
+		if (precomposeFlagWms) addLog("WMS precompose!");
+	});
+	//wmsLayer propertychange  이벤트 연결
+	odf.event.addListener(wmsLayer, 'propertychange', function(evt) {
+		addLog("WMS propertychange!");
+	});
+
+	//wfsLayer change  이벤트 연결
+	odf.event.addListener(wfsLayer, 'change', function(evt) {
+		if (changeFlagWfs) addLog("WFS change!");
+	});
+	//wfsLayer postcompose  이벤트 연결
+	odf.event.addListener(wfsLayer, 'postcompose', function(evt) {
+		if (postcomposeFlagWfs) addLog("WFS postcompose!");
+	});
+	//wfsLayer precompose  이벤트 연결
+	odf.event.addListener(wfsLayer, 'precompose', function(evt) {
+		if (precomposeFlagWfs) addLog("WFS precompose!");
+	});
+	//wfsLayer propertychange  이벤트 연결
+	odf.event.addListener(wfsLayer, 'propertychange', function(evt) {
+			addLog("WFS propertychange!");
+	});
+	//wfsLayer render  이벤트 연결
+	odf.event.addListener(wfsLayer, 'render', function(evt) {
+		if (renderFlagWfs) addLog("WFS render!");
+	});
+
+	// 로그 추가
+	var addLog = function(log) {
+		document.getElementById("eventLog").innerHTML = log + '\n' + document.getElementById("eventLog").value;
+	};
+	//로그 초기화
+	odf.event.addListener('#clearLog', 'click', function(evt) {
+		document.getElementById("eventLog").innerHTML = "";
+	});
+	//이벤트 로깅 여부변경
+	var precomposeFlagWms = false;
+	var postcomposeFlagWms = false;
+	var propertychangeFlagWms = false;
+
+	var precomposeFlagWfs = false;
+	var renderFlagWfs = false;
+	var postcomposeFlagWfs = false;
+	var changeFlagWfs = false;
+	var propertychangeFlagWfs = false;
+
+	odf.event.addListener('#precomposeFlagWms', 'click', function(evt) {
+		precomposeFlagWms = !precomposeFlagWms;
+	});
+	odf.event.addListener('#postcomposeFlagWms', 'click', function(evt) {
+		postcomposeFlagWms = !postcomposeFlagWms;
+	});
+
+	odf.event.addListener('#propertychangeFlagWms', 'click', function(evt) {
+		map.setZIndex( wmsLayer.getODFId(), wfsLayer.getZIndex() + 1)
+	});
+
+	odf.event.addListener('#precomposeFlagWfs', 'click', function(evt) {
+		precomposeFlagWfs = !precomposeFlagWfs;
+	});
+	odf.event.addListener('#renderFlagWfs', 'click', function(evt) {
+		renderFlagWfs = !renderFlagWfs;
+	});
+	odf.event.addListener('#postcomposeFlagWfs', 'click', function(evt) {
+		postcomposeFlagWfs = !postcomposeFlagWfs;
+	});
+	odf.event.addListener('#changeFlagWfs', 'click', function(evt) {
+		changeFlagWfs = !changeFlagWfs;
+	});
+	odf.event.addListener('#propertychangeFlagWfs', 'click', function(evt) {
+      	map.setZIndex( wfsLayer.getODFId(), wmsLayer.getZIndex() + 1)
+	});
+</script>
+</html>
+

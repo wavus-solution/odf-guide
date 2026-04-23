@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* 분석 결과 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::', // 분석결과 레이어가 발행된 주소
+		layer : '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'cluster',
+		distance : 50, //미입력시 default 50
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+	map.setZoom(11);
+
+	/*분석 스타일 생성*/
+	var clusterStyle = odf.StyleFactory.produceFunction([ {
+		seperatorFunc : "default",
+		style : {
+			image : {
+				circle : {
+					radius : 10,//크기
+					fill : {
+						color : '#3399CC'
+					},//채우기
+					stroke : {
+						color : '#fff',
+					},//윤곽선
+				}
+			},
+			text : {
+				//text : feature.getProperties().features[0].id_, //텍스트 내용
+				font : 'bold 14px Courier New',
+				fill : {
+					color : '#000'
+				},
+			}
+		},
+		callbackFunc : function(style, feature, resolution) {
+			const size = feature.get('features').length;
+			style.getText().setText(size.toString());
+		},
+	} ]);
+	pointLayer.setStyle(clusterStyle);
+</script>
+</html>
+

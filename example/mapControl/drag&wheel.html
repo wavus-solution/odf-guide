@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>
+		<button class="showLive" onclick="draggableFn(true);">drag 이동
+			허용</button>
+		<button onclick="draggableFn(false);">drag 이동 막기</button>
+		<button onclick="zoomableFn(true);">wheel 줌 허용</button>
+		<button onclick="zoomableFn(false);">wheel 줌 막기</button>
+	</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = "::mapOpt::";
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* 마우스 드래그 이동 제한 */
+	function draggableFn(bools) {
+		map.setDraggable(bools);
+	}
+
+	/* 마우스 휠 확대 축소 제한 */
+	function zoomableFn(bools) {
+		map.setZoomable(bools);
+	}
+</script>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div id="legendArea"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wms',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	/*선 레이어 추가*/
+	var lineLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::lineLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wms',
+	});
+	lineLayer.setMap(map);
+
+	/*폴리곤 레이어 추가*/
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wms',
+	});
+	polygonLayer.setMap(map);
+
+	/*포인트 스타일 생성*/
+	var pointSLD = odf.StyleFactory.produceSLD({
+		rules : [ {
+			name : 'My Rule', /*룰 이름*/
+			/*해당 룰 표현 범위*/
+			scaleDenominator : {
+				// min: 100001,
+				max : 100001,
+			},
+			/*해당 룰 적용 대상 한정
+			   ★ 기본 비교
+				- filter[0] : 비교연산자 ('==' , '!=' ,  '>' , '<' , '>=', '<=')
+			    - filter[1] : 칼럼명
+			    - filter[2] : 기준 값
+			    ★ like 비교
+				- filter[0] : '*='
+			    - filter[1] : 칼럼명
+			    - filter[2] : 비교 문자열 (wildCard="*" singleChar="." escape="!")
+			                     (ex 1) *_2  => [somthing] + '_2'
+			                     (ex 2) *_.   => [somthing] + '_' +[어떤 문자이든 한개의 문자]
+			                     (ex 3)
+			       ★ null 비교
+			   	- filter[0] : 비교연산자 ('==' , '!=')
+			       - filter[1] : 칼럼명
+			       - filter[2] : null
+			       ★ 두개 이상의 조건
+			   	- filter[0] : 논리연산자('&&','||')
+			       - filter[1] : 조건1
+			       - filter[2] : 조건2
+			       (ex) filter:['&&',['>=','id','3'],['!=',id,null]]
+			 */
+			//filter: ['<', 'id', '20'], //[기본 비교][ , 칼럼명, 기준값]
+			//filter: ['*=', 'type', '*_2'], //[like비교] wildCard="*" singleChar="." escape="!"
+			//filter: ['!=', 'id', null], //[isnull비교]
+			//filter:['&&',['>=','id','3'],['!=',id,null], ...]//[두개 이상의 조건]
+			symbolizers : [
+				 {
+						kind : 'Mark',
+						/*포인트에 표현될 도형 종류
+						- 'circle' : 원
+						- 'square' : 사각형
+						- 'triangle' : 세모
+						- 'star' : 별 모양
+						- 'cross' :  + 모양
+						- 'x' : x 모양
+						 */
+						wellKnownName : 'Square',
+
+						/*포인트에 표현될 도형의 반지름*/
+						radius : 6,
+						/*포인트에 표현될 도형의 채우기색
+							rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 fillOpacity보다 우선 적용됨
+						 */
+						color : '#FF0000',
+						/*포인트에 표현될 도형의 채우기색 투명도 0~1*/
+						fillOpacity : 0.5,
+
+						/*포인트에 표현될 도형의 윤곽선 색
+							rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 strokeOpacity보다 우선 적용됨
+						 */
+						strokeColor : '#0000FF',
+						/*포인트에 표현될 도형의 윤곽선 투명도 0~1*/
+						strokeOpacity : 0.7,
+						/*포인트에 표현될 도형의 윤곽선 두께*/
+						strokeWidth : 3,
+						/*offset 적용
+						 - [x이동량,y이동량]
+						 */
+						offset : [ 0, -2000 ], //coordinate 단위로 이동
+						/*offset 적용 시킬 geometry 타입 칼럼명*/
+						offsetGeometry : 'the_geom'
+					},
+
+				{
+				kind : 'Text',
+				/*글자 색상*/
+				color : '#AAFF00',
+				/*사용할 폰트*/
+				font : [ 'Times' ],
+				/*라벨 모양
+					-'normal' : 기본
+					-'italic' : 이탤릭체 - italic체로 디자인된 폰트를 사용
+					-'oblique' : 기본 글씨체를 비스듬하게 보여줌
+				 */
+				fontStyle : 'normal',
+				/*라벨 두께
+					-'normal' : 기본
+					-'bold' : 굵게
+				 */
+				fontWeight : 'normal',
+				/*라벨 텍스트
+					{{칼럼명}} => 해당 칼럼 값
+				 */
+				label : '{{DONG_NM}}',
+				/*라벨 크기*/
+				size : 15,
+				/*후광 색상 */
+				haloColor : '#ffffff',
+				/*후광 두께 */
+				haloWidth : 5,
+
+				/*★★라벨표현방식이 'LinePlacement'일경우 적용 속성 start★★*/
+				/*레이블이 선의 곡선을 따르도록 할지 여부
+				  - true : 레이블이 선의 곡선을 따르도록
+				  - false : 레이블이 선의 곡선을 따르지 않게
+				 */
+				//followLine: true,
+				/*레이블 반복 간격 조절
+				   - 0 : 라벨 반복 x
+					 - 양수 값 :  라인에 따라 라벨을 표시하는 빈도 조정. 값이 클수록 띄엄띄엄 나타남
+				 */
+				//repeat: 20,
+				/*선을 따라 레이어의 변위를 제어. repeat 속성과 함께 사용할 경우, repeat속성보다 작은 값을 설정 */
+				// maxDisplacement: 15,
+				/*★★라벨표현방식이 'LinePlacement'일경우 적용 속성 end★★*/
+
+				/*라벨 표현 방식*/
+				LabelPlacement : [ {
+					/*라벨표현방식- 기준점에 표현*/
+					PointPlacement : [ {
+						/*기준점을 기준으로 라벨이 배치되는 위치 결정*/
+						AnchorPoint : [ {
+							/*라벨이 x 기준점의 어느부분에 표시되는지(0~1)
+							- 0(default) :left
+							- 0.5 :center
+							- 1 : right
+							 */
+							AnchorPointX : [ '0.5' ]
+							/*라벨이 y 기준점의 어느부분에 표시되는지(0~1)
+							 - 0(default) :bottom
+							 - 0.5 :center
+							 - 1 : top
+							 */
+							,
+							AnchorPointY : [ '0.5' ]
+						} ],
+						/*라벨 기준점 좌표 이동(단위:pixel) */
+						Displacement : [ {
+							/*라벨 x 기준점 좌표 이동량 (+ : 왼쪽,- : 오른쪽)*/
+							DisplacementX : [ '0.5' ]
+							/*라벨 y 기준점 좌표 이동량 (+ : 위,- : 아래)*/
+							,
+							DisplacementY : [ '0.5' ]
+						} ],
+						/*라벨 회전 각도*/
+						Rotation : [ '0' ],
+					}, ],
+				// /*라벨표현방식- 선을 따라서 표현*/
+				// LinePlacement: [
+				//  {
+				//     /*라벨이 라인의 위에 위치할지(+), 아래에 위치할지(-) */
+				//     PerpendicularOffset: ['10'],
+				//   },
+				//],*/
+				}, ],
+			}, ],
+		}, ],
+	});
+
+	//sld 적용
+	pointLayer.setSLD(pointSLD);
+	document.querySelector('#legendArea').appendChild(pointSLD.produceElement(30,true)[0]);
+
+
+	/*선 스타일 생성*/
+	var lineSLD = odf.StyleFactory.produceSLD({
+		rules : [ {
+			name : 'My Rule', /*룰 이름*/
+			/*해당 룰 표현 범위*/
+			/*  scaleDenominator: {
+			    min: 100001,
+			    max: 100001,
+			  }, */
+			/*해당 룰 적용 대상 한정
+			   ★ 기본 비교
+				- filter[0] : 비교연산자 ('==' , '!=' ,  '>' , '<' , '>=', '<=')
+			    - filter[1] : 칼럼명
+			    - filter[2] : 기준 값
+			    ★ like 비교
+				- filter[0] : '*='
+			    - filter[1] : 칼럼명
+			    - filter[2] : 비교 문자열 (wildCard="*" singleChar="." escape="!")
+			                     (ex 1) *_2  => [somthing] + '_2'
+			                     (ex 2) *_.   => [somthing] + '_' +[어떤 문자이든 한개의 문자]
+			                     (ex 3)
+			       ★ null 비교
+			   	- filter[0] : 비교연산자 ('==' , '!=')
+			       - filter[1] : 칼럼명
+			       - filter[2] : null
+			       ★ 두개 이상의 조건
+			   	- filter[0] : 논리연산자('&&','||')
+			       - filter[1] : 조건1
+			       - filter[2] : 조건2
+			       (ex) filter:['&&',['>=','id','3'],['!=',id,null]]
+			 */
+			// filter: ['*=', 'ROAD_TY', '*_2'], //[기본 비교][ , 칼럼명, 기준값]
+			//filter: ['*=', 'type', '*_2'], //[like비교] wildCard="*" singleChar="." escape="!"
+			//filter: ['!=', 'id', null], //[isnull비교]
+			//filter:['&&',['>=','id','3'],['!=',id,null], ...]//[두개 이상의 조건]
+			symbolizers : [ {
+				kind : 'Line',
+				/*라인 색상
+					rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 opacity보다 우선 적용됨
+				 */
+				color : '#338866',
+				/*라인의 끝 표현 방식
+					- 'butt' : (Default) sharp square edge 끝부분을 수직으로 절단
+					- 'round' : rounded edge 끝부분이 둥근 모양
+					- 'square' :  slightly elongated square edge 끝부분에 사각형 추가
+				 */
+				cap : 'round',
+				/*라인이 꺽이는 부분 표현 방식
+				- 'mitre' : (Default) sharp corner 코너가 뾰족    /＼
+				- 'round' : rounded corner 코너가 동글동글
+				- 'bevel' :  diagonal corner 코너의 끝이 잘림 /￣＼
+				 */
+				join : 'round',
+				/*투명도 0~1 */
+				opacity : 0.7,
+				/*두께 */
+				width : 3,
+				/*대시 간격 조절 */
+				dasharray : [ 16, 10 ],
+				/*선의 시작점에서 얼마나 떨어진 곳에서부터 점선을 표시할지 */
+				dashOffset : 16,
+			}, ],
+		}, ],
+	});
+
+	//sld 적용
+	lineLayer.setSLD(lineSLD);
+	document.querySelector('#legendArea').appendChild(lineSLD.produceElement(30,true)[0]);
+
+
+	/*폴리곤 스타일 생성*/
+	var polygonSLD = odf.StyleFactory.produceSLD({
+		rules : [ {
+			name : 'My Rule', /*룰 이름*/
+			/*해당 룰 표현 범위*/
+			scaleDenominator : {
+				//min: 100001,
+				max : 100001,
+			},
+			/*해당 룰 적용 대상 한정
+			   ★ 기본 비교
+				- filter[0] : 비교연산자 ('==' , '!=' ,  '>' , '<' , '>=', '<=')
+			    - filter[1] : 칼럼명
+			    - filter[2] : 기준 값
+			    ★ like 비교
+				- filter[0] : '*='
+			    - filter[1] : 칼럼명
+			    - filter[2] : 비교 문자열 (wildCard="*" singleChar="." escape="!")
+			                     (ex 1) *_2  => [somthing] + '_2'
+			                     (ex 2) *_.   => [somthing] + '_' +[어떤 문자이든 한개의 문자]
+			                     (ex 3)
+			       ★ null 비교
+			   	- filter[0] : 비교연산자 ('==' , '!=')
+			       - filter[1] : 칼럼명
+			       - filter[2] : null
+			       ★ 두개 이상의 조건
+			   	- filter[0] : 논리연산자('&&','||')
+			       - filter[1] : 조건1
+			       - filter[2] : 조건2
+			       (ex) filter:['&&',['>=','id','3'],['!=',id,null]]
+			 */
+			//filter: ['*=', 'DRAWING_NO', '*_3'], //[기본 비교][ , 칼럼명, 기준값]
+			//filter: ['*=', 'type', '*_2'], //[like비교] wildCard="*" singleChar="." escape="!"
+			//filter: ['!=', 'id', null], //[isnull비교]
+			//filter:['&&',['>=','id','3'],['!=',id,null], ...]//[두개 이상의 조건]
+			symbolizers : [ {
+				kind : 'Fill',
+				/*채우기색
+				rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 fillOpacity 보다 우선 적용됨
+				 */
+				color : '#AAAAAA',
+				/*채우기 투명도 0~1*/
+				fillOpacity : 0.5,
+				/*윤곽선색
+					rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 outlineOpacity보다 우선 적용됨
+				 */
+				outlineColor : '#338866',
+				/*윤곽선 두께*/
+				outlineWidth : 3,
+				/*윤곽선 투명도 0~1*/
+				outlineOpacity : 1,
+				/*윤곽선 대쉬 간격*/
+				outlineDasharray : [ 16, 10 ],
+			}, ],
+		}, ],
+	});
+
+	//sld 적용
+	polygonLayer.setSLD(polygonSLD);
+	document.querySelector('#legendArea').appendChild(polygonSLD.produceElement(30,true)[0]);
+
+</script>
+</html>

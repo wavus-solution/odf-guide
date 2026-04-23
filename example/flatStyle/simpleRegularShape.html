@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<select id="changeRegularShape">
+			<option value="starStyle" selected>별</option>
+			<option value="squareStyle" >사각형</option>
+			<option value="triangleStyle" >삼각형</option>
+			<option value="crossStyle" >십자가</option>
+			<option value="xStyle" >x</option>
+			<option value="arrowStyle" >화살표</option>
+		</select>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer :  '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	var styleObject = {
+		/*별 스타일 생성*/
+		starStyle : {
+			'shape-radius' : 10,//정다각형의 반경
+			'shape-fill-color':'black', //정다각형의 채우기 색상
+			'shape-points' : 5,//정다각형의 점 수. 다각형의 경우 점의 개수는 변의 개수
+			'shape-radius2' : 4,//정다각형의 내부 반경
+			'shape-angle' :0,//모양의 각도(라디안). 값이 0이면 모양의 점 중 하나가 위를 향하게 됩니다. 기본값은 0
+		},
+		/*사각형 스타일 생성*/
+		squareStyle : {
+			'shape-radius' : 10,//정다각형의 반경
+			'shape-fill-color':'black', //정다각형의 채우기 색상
+			'shape-points' : 4,//정다각형의 점 수. 다각형의 경우 점의 개수는 변의 개수
+			'shape-angle' :Math.PI / 4,//모양의 각도(라디안). 값이 0이면 모양의 점 중 하나가 위를 향하게 됩니다. 기본값은 0
+		},
+		/*삼각형 스타일 생성*/
+		triangleStyle : {
+			'shape-radius' : 10,//정다각형의 반경
+			'shape-fill-color':'black', //정다각형의 채우기 색상
+			'shape-points' : 3,//정다각형의 점 수. 다각형의 경우 점의 개수는 변의 개수
+			'shape-rotation' :0,//라디안 단위의 회전입니다(시계 방향으로 양의 회전)(기본값 0)
+			'shape-angle' :0,//모양의 각도(라디안). 값이 0이면 모양의 점 중 하나가 위를 향하게 됩니다. 기본값은 0
+		},
+		/*십자가 스타일 생성*/
+		crossStyle : {
+			'shape-radius' : 10,//정다각형의 반경
+			'shape-stroke-color':'black', //정다각형 윤곽선 색상
+			'shape-stroke-width':2, //정다각형 윤곽선 두께
+			'shape-points' : 4,//정다각형의 점 수. 다각형의 경우 점의 개수는 변의 개수
+			'shape-radius2' : 0,//정다각형의 내부 반경
+			'shape-angle' :0,//모양의 각도(라디안). 값이 0이면 모양의 점 중 하나가 위를 향하게 됩니다. 기본값은 0
+		},
+		/*x 스타일 생성*/
+		xStyle :{
+			'shape-radius' : 10,//정다각형의 반경
+			'shape-stroke-color':'black', //정다각형 윤곽선 색상
+			'shape-stroke-width':2, //정다각형 윤곽선 두께
+			'shape-points' : 4,//정다각형의 점 수. 다각형의 경우 점의 개수는 변의 개수
+			'shape-radius2' : 0,//정다각형의 내부 반경
+			'shape-angle' :Math.PI / 4,//모양의 각도(라디안). 값이 0이면 모양의 점 중 하나가 위를 향하게 됩니다. 기본값은 0
+		},
+		/*화살표 스타일 생성*/
+		arrowStyle:[
+			{
+				'shape-radius' : 5,//정다각형의 반경
+				'shape-stroke-color':'black', //정다각형 윤곽선 색상
+				'shape-stroke-width':2, //정다각형 윤곽선 두께
+				'shape-points' : 2,//정다각형의 점 수. 다각형의 경우 점의 개수는 변의 개수
+				'shape-rotate-with-view' :true,//뷰와 함께 모양을 회전할지 여부(기본값 false)
+			},
+			{
+				'shape-radius' : 5,//정다각형의 반경
+				'shape-fill-color':'black', //정다각형의 채우기 색상
+				'shape-points' : 3,//정다각형의 점 수. 다각형의 경우 점의 개수는 변의 개수
+				'shape-rotate-with-view' :true,//뷰와 함께 모양을 회전할지 여부(기본값 false)
+			}
+		]
+	};
+	pointLayer.setStyle(styleObject.starStyle);
+
+
+	var styleFlag = true;
+	//스타일 변경
+	document.getElementById('changeRegularShape').addEventListener('change', function(evt) {
+		var styleName = evt.target.value;
+		pointLayer.setStyle(styleObject[styleName]);
+	});
+</script>
+</html>

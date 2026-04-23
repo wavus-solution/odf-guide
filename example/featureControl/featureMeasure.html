@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div id="areaDiv" style="height: 25px; font-size: 20px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+	map.setZoom(17);
+
+	/* 그리기/초기화 컨트롤 생성 */
+	var drawControl = new odf.DrawControl();
+	drawControl.setMap(map);
+	var clearControl = new odf.ClearControl();
+	clearControl.setMap(map);
+
+	var resultDiv = document.getElementById('areaDiv');
+	//그리기 종료시 그리기 도형의 면적 측정 및 출력
+	odf.event.addListener(drawControl, 'drawend', function(feature){
+		//feature.getArea(); 측정 결과 조회 함수
+		var measureValue = feature.getArea();
+		resultDiv.innerText = '측정결과 : ' + measureValue + ' (단위 m 또는 m^2)';
+	})
+</script>
+</html>
+

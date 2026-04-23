@@ -1,0 +1,24 @@
+{
+	"images" : [
+		{
+			"title" : "smileIcon",
+			"url" : "/images/smileIcon.png"
+		},
+		{
+			"title" : "search_icon",
+			"url" : "/images/search_icon.png"
+		},
+		{
+			"title" : "icon_smile_white",
+			"url" : "/images/icon_smile_white.png"
+		},
+		{
+			"title" : "basemap",
+			"url" : "/images/btn-control-basemap.png"
+		},
+		{
+			"title" : "move",
+			"url" : "/images/btn-control-after-move.png"
+		}
+	]
+}

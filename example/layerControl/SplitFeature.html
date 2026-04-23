@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px">
+		<button onclick="splitPolygon();" class="onoffOnlyBtn">선으로 다각형 자르기</button>
+	</div>
+	<p>그리기 이벤트 종료후 결과값은 console 창에 표시됩니다.</p>
+	<p>분할된 피쳐의 면적은 feature.getArea() 함수를 쓰면 면적을 확인할수 있습니다.</p>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*wfs 레이어 생성*/
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::polygonLayer2::',
+		service: 'wfs',
+	});
+	wfsLayer.setMap(map);
+	wfsLayer.fit();
+	wfsLayer.defineQuery({
+		condition: 'objectid=641.0', // 필터(질의문) 조건(cql 형식)
+	});// 레이어 필터링
+
+
+	//그리기 컨트롤 생성
+	var draw = new odf.DrawControl({
+		//draw 컨트롤 생성시마다 새로운 레이어 생성
+		createNewLayer: true
+	});
+	draw.setMap(map, false);
+
+	//멀티폴리곤 도형 면적 계산
+	var showGeometriesArea = (feature) => {
+		feature.getGeometry().getCoordinates().forEach((coordinates, i) => {
+			// geometry 생성
+			var geometry = odf.GeometryFactory.produce({
+				/**지오메트리 유형
+				 * - 'point' : 점
+				 * - 'multipoint' : 다중 점
+				 * - 'linestring' : 선
+				 * - 'multilinestring' : 다중 선
+				 * - 'polygon' : 면
+				 * - 'multipolygon' : 다중 면
+				 * - 'circle' : 원
+				*/
+				geometryType: 'polygon',
+				// 지오메트리의 좌표정보
+				coordinates
+			});
+			console.log(`분할 Geometry[${i}] 면적: ${geometry.getArea()} ㎡`)
+		});
+	}
+
+	// 선 그리기
+	function splitPolygon() {
+		//선 그리기 인터렉션 실행
+		draw.drawLineString();
+		//그리기 종료 이벤트 등록
+		odf.event.addListener(draw, 'drawend', (lineFeature/*그리기 도형*/) => {
+			// 대상 도형
+			var target = wfsLayer.getFeatures()[0];
+
+			//폴리곤 도형을 라인으로 자르기
+			map.splitPolygonByLine(target, lineFeature, (result) => {
+				if (result.success) {
+					// 기존 도형 레이어에서 제거
+					wfsLayer.removeFeature(target);
+
+					//분할된 도형 레이어에 추가
+					result.splitFeatures.forEach((f, i) => {
+						wfsLayer.addFeature(f);
+
+						//멀티 폴리곤 타입으로 도형이 생성되었다면 각 도형별 면적 계산하여 출력
+						if (f.getGeometry().getType().toLowerCase() === 'multipolygon') {
+							showGeometriesArea(f);
+						}
+						else {
+							console.log(`분할피쳐[${i}] 면적: ${f.getArea()} ㎡`)
+						}
+					});
+				}
+				else {
+					console.log('분할된 피쳐가 없습니다.')
+				}
+			  	//그리기 컨트롤 레이어 지도에서 삭제
+				map.removeLayer(draw.findDrawVectorLayer().getODFId());
+			});
+		})
+	}
+</script>
+
+</html>

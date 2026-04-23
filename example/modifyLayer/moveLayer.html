@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnLogArea">
+		<div class="innerBox">
+			<button id="moveLayerBtn" class="onoffOnlyBtn" onclick="moveLayer()">레이어 이동</button>
+			<button id="saveBtn" class="onoffOnlyBtn" onclick="save()">저장</button>
+		</div>
+	</div>
+	<p>'레이어 이동' 버튼을 클릭하여 레이어를 이동하세요.</p>
+	<p>'저장' 버튼 클릭 시 해당 결과값을 받을 수 있습니다.</p>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	//wfs 레이어 생성
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+	wfsLayer.fit();
+
+	// 레이어 이동 인터렉션 활성화
+	function moveLayer(){
+		map.setTranslate(wfsLayer);
+	}
+
+	// 레이어 이동 인터렉션 비활성화
+	function save(){
+		var modifiedFeatureList = wfsLayer.getFeatures();
+
+		// 지오서버에 보낼 xml 문자열
+		var xmlText = map.sendToServerModified(modifiedFeatureList, wfsLayer, 'update');
+		alert('콘솔 창을 확인하세요.');
+		console.log(xmlText);
+
+		//편집 인터렉션 비활성화
+		map.removeTranslate();
+	}
+</script>
+</html>

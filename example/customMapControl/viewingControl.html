@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+		<div class="btnLogArea">
+		<p>전체화면 컨트롤 제어</p>
+		<input type="button" class="onoffBtn" onclick="fullScreenControl.doFullScreen()" value="전체화면모드 실행">
+		</div>
+		<div class="btnLogArea">
+		<p>회전 컨트롤</p>
+		<input type="button" class="onoffBtn" onclick="alert('현재지도 각도(라디안) :' + rotationControl.getRotation())" value="현재 회전각 확인">
+		<input type="button" class="onoffBtn" onclick="rotationControl.setRotation(180)" value="지도회전각(180도) 설정">
+		</div>
+		<div class="btnLogArea">
+		<p>확대/축소 컨트롤</p>
+		<input type="button" class="onoffBtn" onclick="zoomControl.zoomIn()" value="줌인">
+			<input type="button" class="onoffBtn" onclick="zoomControl.zoomOut()" value="줌아웃">
+		</div>
+		<div class="btnLogArea">
+		<p>이동 컨트롤</p>
+			<input type="button" class="onoffBtn" onclick="moveControl.back()" value="이전 뷰로 이동">
+		<input type="button" class="onoffBtn" onclick="moveControl.forward()" value="앞선 뷰로 이동">
+		</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = "::mapOpt::";
+	/*
+	 * 배경지도 종류
+		eMapBasic - 바로e맵 일반 지도
+		eMapColor - 바로e맵 색각 지도
+		eMapLowV - 바로e맵 큰글씨 지도
+		eMapWhite - 바로e맵 백지도
+		eMapEnglish - 바로e맵 영어 지도
+		eMapChinese - 바로e맵 중어 지도
+		eMapJapanese - 바로e맵 일어 지도
+		eMapWhiteEdu - 바로e맵 교육용 백지도
+		eMapAIR - 바로e맵  항공지도
+
+	 * 프록시 사용
+		proxyURL: 'proxy.jsp' 프록시 설정
+	 */
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* 베이스맵 컨트롤 생성 */
+
+	var fullScreenControl  = new odf.FullScreenControl();
+	fullScreenControl.setMap(map,false);
+
+	var moveControl = new odf.MoveControl();
+	moveControl.setMap(map,false);
+
+	var rotationControl = new odf.RotationControl();
+	rotationControl.setMap(map,false);
+
+	var zoomControl = new odf.ZoomControl();
+	zoomControl.setMap(map,false)
+
+</script>
+</html>

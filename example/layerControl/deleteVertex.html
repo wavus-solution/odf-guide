@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px">
+		<button onclick="deleteVertex();" class="onoffOnlyBtn">영역으로 버텍스 삭제하기</button>
+	</div>
+	<p>그리기 이벤트 종료후 결과값은 console 창에 표시됩니다.</p>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*wfs 레이어 생성*/
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::polygonLayer2::',
+		service: 'wfs',
+	});
+	wfsLayer.setMap(map);
+	wfsLayer.fit();
+	wfsLayer.defineQuery({
+		condition: 'objectid=641.0', // 필터(질의문) 조건 (cql)
+	});//레이어 필터링
+
+	// 그리기 컨트롤 생성
+	var draw = new odf.DrawControl({
+		//draw 컨트롤 생성시마다 새로운 레이어 생성
+		createNewLayer: true
+	});
+	draw.setMap(map, false/*ui 없는 모드*/);
+
+
+	//사용자가 그린 영역으로 도형의 버텍스를 삭제
+	function deleteVertex() {
+
+		//사각형 그리기 인터렉션 실행
+		draw.drawBox();
+		//그리기 종료시 버텍스 삭제 기능 동작하도록 이벤트 등록
+		odf.event.addListener(draw, 'drawend', (polygonFeature) => {
+
+			//버텍스 삭제 대상 feature
+			var target = wfsLayer.getFeatures()[0];
+			//버텍스 삭제
+			map.deleteVertex(polygonFeature/*버텍스를 삭제할 범위를 지정할 feature*/, target/*버텍스 삭제 대상 feature*/, (result) => {
+				console.log(result)
+				//그리기 컨트롤 레이어 지도에서 삭제
+				map.removeLayer(draw.findDrawVectorLayer().getODFId());
+			});
+		})
+	}
+</script>
+
+</html>

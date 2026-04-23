@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px">
+		<button onclick="addFeature()" class="onoffOnlyBtn">kml 도형 추가</button>
+		<button onclick="downloadKMLayer()" class="onoffOnlyBtn">kml 다운로드</button>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	//kml 텍스트
+	var kmlText = '::kmlText1::';
+
+	//kml 레이어 생성
+	var kmlLayer = odf.LayerFactory.produce('kml', {
+		data: kmlText,//kml 형식 텍스트
+		dataProjectionCode: 'EPSG:::srid::', //원본 좌표계
+		featureProjectionCode: 'EPSG:::srid::',// 변환할 좌표계(지도좌표계)
+	});
+	kmlLayer.setMap(map);
+	// 해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+	kmlLayer.fit(true);
+
+
+	// 레이어 삭제
+	// map.removeLayer(kmlLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(kmlLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(kmlLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// kmlLayer.setMinZoom(10);
+	// kmlLayer.setMaxResolution(152.70292183870401);
+	// kmlLayer.setMaxZoom(18);
+	// kmlLayer.setMinResolution(0.5964957884324376);
+
+	// 레이어 투명도 조절
+	// kmlLayer.setOpacity(0.5);
+
+
+	var flag = false;
+	//kml 도형 추가
+	function addFeature() {
+		if (!flag) {
+			var newKmlText = '::kmlText2::';
+			//KML 형식 데이터 불러오기
+			kmlLayer.fromKML(newKmlText/*kml 형식의 문자열*/, 'EPSG:::srid::'/*원본 kml data 프로젝션 코드*/, 'EPSG:::srid::'/*지도 프로젝션 코드*/);
+			kmlLayer.fit(true);
+		}
+		flag = true;
+	}
+
+	function downloadKMLayer(){
+		kmlLayer.toKML(true);
+	}
+</script>
+
+</html>

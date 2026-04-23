@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<input type="button" class="onoffBtn" value="이벤트 강제 실행" onclick="trigger();" />
+	</div>
+	<p>※ 직접해보기에서는 이벤트 버튼 토글이 지원되지 않습니다.</p>
+
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	//클릭이벤트 등록
+	var eventid = odf.event.addListener(map, 'click', function(evt) {
+		var marker = new odf.Marker({
+			position : evt.coordinate
+		});
+		marker.setMap(map);
+	});
+
+	//지도의 중심좌표를 클릭한 것으로 이벤트 강제 실행
+
+	function trigger() {
+		var coordinate = map.getCenter();
+		odf.event.trigger(map, 'click', {coordinate});
+	}
+</script>
+</html>
+

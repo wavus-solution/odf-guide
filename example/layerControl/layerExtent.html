@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px;">
+		<button onclick="fit('wfs')" class="onoffOnlyBtn toggle grp1">wfs 레이어 한눈에 보기</button>
+		<button onclick="fit('wfs_filter')" class="onoffOnlyBtn toggle grp1">필터링된 wfs 레이어 한눈에 보기</button>
+		<button onclick="fit('wms')" class="onoffOnlyBtn toggle grp1">wms 레이어 한눈에 보기</button>
+		<button onclick="fit('wmts')" class="onoffOnlyBtn toggle grp1">wmts 레이어 한눈에 보기</button>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+
+	//wms 레이어 생성
+	var wmsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wms',
+	});
+	wmsLayer.setMap(map);
+
+	//wfs 레이어 생성
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer2::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+
+	//wmts 레이어 생성
+	var wmtsLayer = odf.LayerFactory.produce('geoserver', { // 레이어 호출 방법 (ex. geoserver, geojson)
+		method : 'get',
+		server : '::WmtsAPI::', // 레이어가 발행된 서버 주소
+		layer : '::wmtsLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		service : 'wmts', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
+	});
+	wmtsLayer.setMap(map);
+
+	var filterFlag = true;
+	// 해당 레이어가 다 보이는 extent로 이동 및 줌레벨 변경
+	function fit(type) {
+		if (type === 'wfs') {
+			//wfsLayer.getFitExtent(true); //해당 레이어에 포함된 feature의 extent값 계산
+			//wfsLayer.getFitExtent(false); //geoserver에 저장된 extent값 조회
+			wfsLayer.fit(false); //geoserver에서 extent값 가져와 화면 조정
+			//wfsLayer.fit(true); //로드된 feature 기준으로  extent 값 계산하여 화면조정  => feature가 로드 된 후에 정상 작동.
+		} else if (type === 'wfs_filter') {
+			var tempCondition = '1=1';
+			if (filterFlag) {
+				tempCondition = 'objectid=641.0';
+			}
+			odf.event.addListener(wfsLayer, 'featureloadend', function(param) {
+				//param.features //로드된 feature들
+				wfsLayer.fit(true); //로드된 feature 기준으로  extent 값 계산하여 화면조정
+			}, true/*1회만*/);
+			wfsLayer.defineQuery({
+				condition : tempCondition
+			});
+
+			filterFlag = !filterFlag;
+		} else if (type === 'wms') {
+			//wmsLayer.getFitExtent(); //레이어가 모두 보이는 extent값 (geoserver에 저장된 extent값 조회)
+			wmsLayer.fit(); //레이어가 모두 보이는 extent값으로 화면조정(geoserver에 저장된 extent값 조회)
+		} else if (type === 'wmts') {
+			//wmtsLayer.getFitExtent(); //레이어가 모두 보이는 extent값 (geoserver에 저장된 extent값 조회)
+			wmtsLayer.fit(); //레이어가 모두 보이는 extent값으로 화면조정(geoserver에 저장된 extent값 조회)
+		}
+	}
+</script>
+</html>

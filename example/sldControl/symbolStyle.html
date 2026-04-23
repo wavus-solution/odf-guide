@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<input type="button" id="downloadSLD" class="onoffBtn" value="SLD 다운로드" onclick="download();">
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WmsAPI::',
+		layer: '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey: '::crtfckey::',
+		service: 'wms',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	/*점 스타일 생성*/
+	var sld = odf.StyleFactory.produceSLD({
+		rules: [
+			{
+				name: 'My Rule', /*룰 이름*/
+				/*해당 룰 표현 범위*/
+				scaleDenominator: {
+					//min: 100001,
+					max: 100001,
+				},
+				/*해당 룰 적용 대상 한정
+				 ★ 기본 비교
+				- filter[0] : 비교연산자 ('==' , '!=' ,  '>' , '<' , '>=', '<=')
+					- filter[1] : 칼럼명
+					- filter[2] : 기준 값
+					★ like 비교
+				- filter[0] : '*='
+					- filter[1] : 칼럼명
+					- filter[2] : 비교 문자열 (wildCard="*" singleChar="." escape="!")
+					(ex 1) *_2  => [somthing] + '_2'
+					(ex 2) *_.   => [somthing] + '_' +[어떤 문자이든 한개의 문자]
+					(ex 3)
+				★ null 비교
+				- filter[0] : 비교연산자 ('==' , '!=')
+					- filter[1] : 칼럼명
+					- filter[2] : null
+					★ 두개 이상의 조건
+				- filter[0] : 논리연산자('&&','||')
+					- filter[1] : 조건1
+					- filter[2] : 조건2
+				(ex) filter:['&&',['>=','id','3'],['!=',id,null]]
+			 	*/
+				filter: ['<', 'id', '20'], //[기본 비교][ , 칼럼명, 기준값]
+				//filter: ['*=', 'type', '*_2'], //[like비교] wildCard="*" singleChar="." escape="!"
+				//filter: ['!=', 'id', null], //[isnull비교]
+				//filter:['&&',['>=','id','3'],['!=',id,null], ...]//[두개 이상의 조건]
+				symbolizers: [
+					{
+						kind: 'Icon',
+						/*심볼 이미지 경로 ★geoserver가 접근할 수 있는 경로★*/
+						image: '::WfsAPI::/web/wicket/resource/org.geoserver.web.AboutGeoServerPage/img/icons/silk/help-ver-C3812C74BC524179F4CCF5D2DB7B3CBF.png',
+						/*투명도*/
+						opacity: '0.8',
+						/*회전각(도)*/
+						rotate: 0,
+						/*크기*/
+						size: 30,
+						/*offset 적용
+						- [x이동량,y이동량]
+						 */
+						offset: [2000, 0], //coordinate 단위로 이동
+						/*offset 적용 시킬 geometry 타입 칼럼명*/
+						//offsetGeometry : 'the_geom'
+					},
+				],
+			},
+		],
+	});
+
+	//sld 적용
+	pointLayer.setSLD(sld);
+	//적용된 sld 제거
+	//pointLayer.setSLD(null);
+
+	var json = pointLayer.getSLD().getJSON();
+	var obj = pointLayer.getSLD().getObject();
+
+	//sld 파일 다운로드
+	function download() {
+		var _sld = pointLayer.getSLD();
+		if (_sld) {
+			_sld.download();
+		}
+	}
+</script>
+
+</html>

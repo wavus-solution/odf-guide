@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="infoArea" id="featureInfo"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	// wms 레이어 생성
+	// LayerFactory의 produce 함수는 option이 다양하니 개발자지원센터 '지도문서'를 확인하세요
+	var wmsLayer = odf.LayerFactory.produce('geoserver'/*레이어를 생성하기위 한 테이터 호출 방법*/, {
+		method : 'get',//'post'
+		server : '::WmsAPI::', // 레이어가 발행된 서버 주소
+		layer : '::polygonLayer1::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		service : 'wms', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
+		//타일링 적용 여부 기본값 false
+		tiled : true,
+		//webgGLRender 적용여부
+		webGLRender :true,
+	}/*레이어 생성을 위한 옵션*/);
+	wmsLayer.setMap(map);
+	// 해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+	wmsLayer.fit();
+
+
+
+
+	// 레이어 삭제
+	// map.removeLayer(wmsLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(wmsLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(wmsLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// wmsLayer.setMinZoom(10);
+	// wmsLayer.setMaxResolution(152.70292183870401);
+	// wmsLayer.setMaxZoom(18);
+	// wmsLayer.setMinResolution(0.5964957884324376);
+
+	// 레이어 투명도 조절
+	// wmsLayer.setOpacity(0.5);
+
+
+
+	//지도 클릭시 클릭한 위치에 있는 feature 정보 조회
+	odf.event.addListener(map, 'click', function (evt) {
+		var creDiv = document.getElementById('creDiv');
+		if(creDiv){
+			creDiv.innerText = '';
+		}
+
+		//클릭한 위치의 feature 정보 조회
+		var result = map.selectFeature({
+		/*대상 좌표에 버퍼를 지정 (단위:픽셀) (기본값 20)*/
+				//pointBuffer:20,
+		/** extractType 피쳐 추출 유형
+			* - draw 직접 그린 도형 내에 속한 피쳐 추출
+			* - view 현재 지도영역에서 피쳐 추출
+			* - pixel 특정 픽셀에 곂치는 피쳐 추출
+			* - feature 특정 도형(compareFeature) 내에 속한 피쳐 추출
+			* - cql cql_filter로 피처 추출
+			*/
+		extractType: 'pixel',
+		pixel: evt.pixel,//피쳐 추출을 위한 좌표 기준. extractType의 값이 'pixel'일 경우 필수값.
+		});
+
+    		//피처 있는것만 FILTERLING
+		var filteredResult = Object.entries(result).filter(([key, value]) => {
+			return value.features.length > 0;
+		})
+		if(filteredResult.length===0){
+			return;
+		}
+		if (!creDiv) {
+			creDiv = document.createElement('div');
+			creDiv.setAttribute('id', 'creDiv');
+		}
+		if(filteredResult&&filteredResult.length>0&&filteredResult[0][1].features&&filteredResult[0][1].features.length>0){
+				creDiv.innerText =JSON.stringify(filteredResult[0][1].features[0].getProperties());
+		}
+		document.getElementById('featureInfo').append(creDiv);
+
+		//iframe 크기 조절
+		if (parent.window.containerResize) parent.window.containerResize();
+	}.bind(this));
+
+</script>
+</html>

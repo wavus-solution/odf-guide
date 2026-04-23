@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		유형 :
+		<select class="selectCustom" id="arrowType" onChange="setStyle()">
+			<option value="ALL_POINT">모든 포인트</option>
+			<option value="START_AND_END_POINT" selected="true">처음과 끝</option>
+		</select>
+		시작점 모양 :
+		<select class="selectCustom" id="startIcon" onChange="setStyle()">
+			<option value="blackTriangle" selected="true">◀</option>
+			<option value="whiteTriangle">◁</option>
+			<option value="bracket"><</option>
+			<option value="blackEquilateralArrow">⮜</option>
+			<option value="blackCircle">●</option>
+			<option value="whiteCircle">○</option>
+			<option value="none">없음</option>
+		</select>
+		종료점 모양 :
+		<select class="selectCustom" id="endIcon" onChange="setStyle()">
+			<option value="blackTriangle">▶</option>
+			<option value="whiteTriangle">▷</option>
+			<option value="bracket">></option>
+			<option value="blackEquilateralArrow">⮞</option>
+			<option value="blackCircle" selected="true">●</option>
+			<option value="whiteCircle">○</option>
+			<option value="none">없음</option>
+		</select>
+	</div>
+</body>
+<script>
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*라인 레이어 추가*/
+	var lineLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::lineLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+	});
+	lineLayer.setMap(map);
+	lineLayer.fit();
+	map.setZoom(19);
+
+
+	/*startEndStyle 생성*/
+	function setArrow(startCoord, endCoord,{startIcon,endIcon})  {
+		styleArr = [];
+		var rotation = Math.atan2(endCoord[1] - startCoord[1], endCoord[0] - startCoord[0]);
+
+		if(startIcon!=='none'){
+			styleArr.push(odf.StyleFactory.produce({
+				geometry: odf.GeometryFactory.produce({
+					geometryType: 'point',
+					coordinates: startCoord,
+				}),
+				image: {
+					icon : {
+						crossOrigin : 'Anonymous',
+						src : `/js/oui/images/widget/arrowIcon/${startIcon}.png`,
+						scale : 0.4,
+						opacity :1,
+						rotation: -rotation + Math.PI,
+						color: [0, 255, 252, 0.95]
+					},
+				}
+			}));
+		}
+
+		/*end*/
+		if(endIcon!=='none'){
+			styleArr.push(odf.StyleFactory.produce({
+				geometry: odf.GeometryFactory.produce({
+					geometryType: 'point',
+					coordinates: endCoord,
+				}),
+				image: {
+					icon: {
+						crossOrigin : 'Anonymous',
+						src: `/js/oui/images/widget/arrowIcon/${endIcon}.png`,
+						scale: 0.4,
+						opacity :1,
+						rotation: -rotation,
+						color: [255, 0, 252, 0.95]
+					},
+				}
+			}));
+		}
+
+		return styleArr;
+	}
+
+	/*스타일 생성*/
+	function setStyle(){
+		var arrowType = document.getElementById('arrowType').value;
+		var startIcon = document.getElementById('startIcon').value;
+		var endIcon = document.getElementById('endIcon').value;
+
+		var styleOption = [
+			{
+				seperatorFunc : 'default',
+				style : {
+					stroke : {
+						color:[255,0,252,0.95],
+									lineCap : 'round',//선의 끝부분 모양('butt'(네모지게-선이 원래 길이보다 조금 일찍 끝남) / 'round' (둥글게) / 'square'(네모지게))
+									lineJoin : 'round',//('bevel' (꺾이는 부분을 지붕모양으로 )/ 'round' (둥글게)/ 'miter'(뾰족하게))
+									//lineDash : [10],//점선의 간격 크기
+									width:2
+					}
+				},
+				callbackFunc : function(style, feature, resolution) {
+					var styleArr = [style];
+					var geometries=[feature.getGeometry()];
+					if(feature.getGeometry().getType()==='MultiLineString'){
+						geometries = geometries[0].getLineStrings();
+					}
+					geometries.forEach((geometry,gIdx)=>{
+
+						if(arrowType==='ALL_POINT'){
+							geometry.forEachSegment((start, end)=>{
+								styleArr=styleArr.concat(setArrow(start, end,{startIcon,endIcon}));
+							});
+						}else{
+							var coordinates = geometry.getCoordinates();
+							var start = coordinates[0];
+							var end = coordinates[coordinates.length-1];
+							if(start[0]===end[0]&&start[1]===end[1]){
+		                        end = coordinates[coordinates.length-2];
+		                    }
+							styleArr = styleArr.concat(setArrow(coordinates[0],coordinates[1],{startIcon,endIcon : 'none'}));
+							styleArr = styleArr.concat(setArrow(coordinates[coordinates.length-2],coordinates[coordinates.length-1],{startIcon : 'none',endIcon}));
+						}
+					});
+
+					return styleArr;
+				},
+			}
+		];
+		var style = odf.StyleFactory.produceFunction(styleOption);
+		lineLayer.setStyle(style);
+	}
+	setStyle();
+</script>
+</html>

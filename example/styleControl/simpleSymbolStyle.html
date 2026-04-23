@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	/*심볼 스타일 생성*/
+	var pointIconStyle =odf.StyleFactory.produce({
+		image : {
+			icon : {
+				//anchor:[0.5, 48], //아이콘 위치 조정 값
+				//anchorOrigin:'top-left', //아이콘 위치 조정 기준점
+				//anchorXUnits:'fraction', //아이콘 위치 조정 단위 설정 x축
+				//anchorYUnits:'pixels', //아이콘 위치 조정 단위 설정 y축
+				color: 'green', //이미지 색상
+				//offset:[2, 2], //offsetOrigin으로 부터 x축, y축 좌표위치 이동
+				//offsetOrigin:'top-left', //offset의 기준점
+				rotation: 90 * Math.PI / 180, //시계방향으로 회전
+				opacity: 0.8, //투명도
+				scale: 1.2, //크기를 정해진 값의 n배로 셋팅
+				snapToPixel: true,  //true : sharp, false : blur
+				rotateWithView: false, //지도가 회전할때 텍스트도 적절하게 회전할지 여부
+				//size:[100, 100],  //이미지가 그려지는 도형 크기 ※ 이미지를 그린 도화지의 크기
+				src: 'images/btn-control-after-move.png' //이미지 경로
+				//img :document.createElement('canvas'),//아이콘의 이미지 객체(HTMLImageElement | HTMLCanvasElement | ImageBitmap)
+				//displacement :[0,0],//위치이동. 양수 값은 모양을 오른쪽 및 위쪽으로 이동 (기본값 [0,0])
+				//width :50,//아이콘의 너비(픽셀). `scale`과 함께 이용할 수 없음
+				//height :50,//아이콘의 높이(픽셀). `scale`과 함께 이용할 수 없음
+				//declutterMode :undefined,//디클러터 모드("declutter"|"obstacle"|"none"|undefined)
+			}
+		}
+	});
+	pointLayer.setStyle(pointIconStyle);
+
+
+	//생성한 스타일을 json 객체 으로 변환
+	var styleOption = pointIconStyle.getJSON();
+	//변환한 스타일 json을 스타일 객체로 생성하여 레이어에 적용
+	var pointIconStyle2 =odf.StyleFactory.produce(styleOption);
+	pointLayer.setStyle(pointIconStyle2);
+
+</script>
+</html>

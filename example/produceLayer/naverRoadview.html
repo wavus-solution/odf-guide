@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+
+	<!-- 네이버 지도 API (파노라마 submodule 포함) -->
+	<script
+			type="text/javascript"
+			src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=daMzCaVyA8YHc0g37BnW4nFORC50fQD2460F5zd2&submodules=panorama"
+	></script>
+	<!--
+    ★ 네이버 지도 API(Web Dynamic Map)는 10,000,000건 이하 무료입니다. 무료 사용량 이상 사용할 경우 1건당 0.1원 입니다.
+    ★ key값 "xgcrfniyjl"은 지온파스용 키값으로 예제 소스 사용시 직접 키를 발급받아서 사용하시기 바랍니다.
+    -->
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			height: 100vh;
+			font-family:
+					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+		}
+
+		.container {
+			display: flex;
+			width: 100%;
+			height: 100%;
+		}
+
+		.map-section,
+		.roadview-section {
+			width: 50%;
+			height: 100%;
+		}
+	</style>
+
+</head>
+<body>
+	<!-- 화면 분할 컨테이너 -->
+	<div class="container">
+		<!-- 좌측: ODF 지도 영역 -->
+		<div id="map" class="odf-view map-section"></div>
+
+		<!-- 우측: 네이버 로드뷰 영역 -->
+		<div id="pano" class="roadview-section"></div>
+	</div>
+	<script>
+		/**
+		 * ====================================================================
+		 * ODF 지도 + 네이버 로드뷰 연동 샘플
+		 * ====================================================================
+		 *
+		 * 기능 설명:
+		 * 1. ODF 지도와 네이버 로드뷰를 좌우로 분할하여 동시에 표시
+		 * 2. ODF 지도에서 더블클릭 또는 마커 드래그 시 로드뷰 위치 동기화
+		 * 3. 로드뷰에서 위치 변경 시 ODF 지도 마커 위치 동기화
+		 * 4. 서로 다른 좌표계(EPSG:5186 ↔ EPSG:4326) 간 변환 처리
+		 */
+
+		// ====================================================================
+		// 1. ODF 지도 초기화
+		// ====================================================================
+
+		/**
+		 * 초기 중심 좌표 설정 (EPSG:5186 좌표계)
+		 * 예제 위치: 에이스 하이엔드2차 타워 앞
+		 */
+		var initialCenter = [190760.41465726733, 542385.215336354];
+
+		/**
+		 * ODF 지도 옵션 설정
+		 */
+		var mapOptions = {
+			center: new odf.Coordinate(initialCenter[0], initialCenter[1]),
+			zoom: 17,
+			projection: "EPSG:5186", // 한국 중부원점 좌표계
+			proxyURL: "proxyUrl.jsp",  // 외부 배포 시 프록시 설정 필요
+			proxyParam: "url",
+			baroEMapURL: "http://geon.wavus.co.kr:14062/map/api/map/baroemap",
+			baroEMapAirURL: "http://geon.wavus.co.kr:14062/map/api/map/ngisair",
+			basemap: {
+				baroEMap: ["eMapBasic", "eMapAIR", "eMapColor", "eMapWhite"],
+			},
+		};
+
+		/**
+		 * ODF 지도 객체 생성
+		 */
+		var container = document.getElementById("map");
+		var map = new odf.Map(container, mapOptions);
+
+		// ====================================================================
+		// 2. 마커 생성 및 설정
+		// ====================================================================
+
+		/**
+		 * 위치를 나타낼 마커 생성
+		 */
+		var marker = new odf.Marker({
+			position: new odf.Coordinate(initialCenter[0], initialCenter[1]),
+			style: {
+				width: "50px",
+				height: "50px",
+				src : 'images/map-marker.png' //이미지 경로
+			},
+			draggable: true, // 드래그 가능하도록 설정
+		});
+
+		// 지도에 마커 추가
+		marker.setMap(map);
+
+		// 더블클릭 줌 기능 비활성화 (더블클릭 이벤트를 위치 변경에 사용하기 위함)
+		map.setDoubleClickZoomable(false);
+
+		// ====================================================================
+		// 3. ODF 지도 이벤트 처리 (지도 → 로드뷰)
+		// ====================================================================
+
+		/**
+		 * ODF 지도에서 위치 변경 시 처리 함수
+		 * - 더블클릭 또는 마커 드래그 시 호출됨
+		 * - 네이버 로드뷰 위치를 동기화
+		 *
+		 * @param {Event} evt - ODF 이벤트 객체
+		 */
+		var handleOdfPositionChange = (evt) => {
+			// 클릭/드래그된 좌표 추출
+			var position = evt.getPosition?.()
+					? [evt.getPosition()._x, evt.getPosition()._y]
+					: evt.coordinate;
+
+			// 마커 위치 업데이트
+			marker.setPosition(position);
+
+			// EPSG:5186 → EPSG:4326 좌표 변환
+			var projection = map.getProjection();
+			var latLng = projection.unproject(position, "4326");
+
+			// 네이버 로드뷰 위치 동기화
+			if (pano) {
+				pano.setPosition(new naver.maps.LatLng(latLng[1], latLng[0]));
+			}
+		};
+
+		/**
+		 * 이벤트 리스너 등록
+		 */
+		// 마커 드래그 종료 시
+		odf.event.addListener(marker, "markerdragend", handleOdfPositionChange);
+
+		// 지도 더블클릭 시
+		odf.event.addListener(map, "dblclick", handleOdfPositionChange);
+
+		// ====================================================================
+		// 4. 네이버 로드뷰 초기화 및 이벤트 처리 (로드뷰 → 지도)
+		// ====================================================================
+
+		var pano = null;
+
+		/**
+		 * 네이버 지도 API 로드 완료 후 실행
+		 */
+		naver.maps.onJSContentLoaded = function () {
+			// EPSG:5186 → EPSG:4326 좌표 변환 (초기 위치)
+			var projection = map.getProjection();
+			var center4326 = projection.unproject(initialCenter, "4326");
+
+			/**
+			 * 네이버 파노라마(로드뷰) 생성
+			 */
+			pano = new naver.maps.Panorama("pano", {
+				// panoId: "OregDk87L7tsQ35dcpp+Mg==", // 특정 파노라마 ID로 지정 가능
+				position: new naver.maps.LatLng(center4326[1], center4326[0]),
+				pov: {
+					pan: -135, // 좌우 회전각 (0~360)
+					tilt: 29, // 상하 각도 (-90~90)
+					fov: 100, // 시야각 (30~120)
+				},
+				flightSpot: true, // 항공뷰 아이콘 표시 여부
+				aroundControl: true,
+				aroundControlOptions: {
+					position: naver.maps.Position.TOP_RIGHT
+				}
+			});
+
+			/**
+			 * 로드뷰 위치 변경 이벤트 처리
+			 * - 사용자가 로드뷰에서 이동 시 ODF 지도 마커 위치 동기화
+			 */
+			naver.maps.Event.addListener(pano, "pano_changed", function () {
+				var latLng = pano.getPosition();
+
+				// EPSG:4326 → EPSG:5186 좌표 변환
+				var projection = new odf.Projection({ EPSG: "4326" });
+				var position5186 = projection.unproject(
+						[latLng.x, latLng.y],
+						"5186",
+				);
+
+				// ODF 지도 마커 위치 업데이트
+				marker.setPosition(position5186);
+
+				// 옵션: 지도 중심도 함께 이동하려면 아래 주석 해제
+				// map.setCenter(new odf.Coordinate(position5186[0], position5186[1]));
+			});
+		};
+
+		// ====================================================================
+		// 참고사항
+		// ====================================================================
+		/**
+		 * 좌표계 변환 정보:
+		 * - EPSG:5186: 한국 중부원점 TM 좌표계 (ODF 지도 기본)
+		 * - EPSG:4326: WGS84 경위도 좌표계 (네이버 지도 사용)
+		 *
+		 * 주요 메서드:
+		 * - projection.unproject(coord, targetEPSG): 좌표계 변환
+		 * - marker.setPosition(coord): 마커 위치 설정
+		 * - pano.setPosition(latLng): 로드뷰 위치 설정
+		 *
+		 * 커스터마이징:
+		 * - 마커 아이콘 변경: marker 옵션의 src 속성 수정
+		 * - 초기 위치 변경: initialCenter 배열 값 수정
+		 * - 로드뷰 시야각 조정: pano 옵션의 pov 속성 수정
+		 */
+	</script>
+</body>
+
+
+
+</html>

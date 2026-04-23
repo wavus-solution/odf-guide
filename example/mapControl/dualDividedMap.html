@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" style="height:550px;">
+		<div id="map1" style="width: 49.5%; height: 100%; float: left; border: 1px black solid; border-collapse: collapse;"></div>
+		<div id="map2" style="width: 49.5%; height: 100%; float: left; border: 1px black solid; border-collapse: collapse;"></div>
+	</div>
+	<input type="button" id="chageConnectFlag" class="onoffBtn toggle" value="동기화여부 변경" style="margin-top: 15px">
+</body>
+<script>
+
+	/* 맵객체1 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer1 = document.getElementById('map1');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map1 = new odf.Map(mapContainer1, mapOption);
+
+
+	/* 배경지도 컨트롤1 생성 */
+	var basemapControl1 = new odf.BasemapControl();
+	basemapControl1.setMap(map1);
+	map1.updateSize();
+
+	/* 줌 컨트롤 생성 */
+	var zoomControl = new odf.ZoomControl();
+	zoomControl.setMap(map1);
+
+	/* 이전,다음 컨트롤 생성 */
+	var moveControl = new odf.MoveControl();
+	moveControl.setMap(map1);
+
+	/* 맵객체2 생성 */
+	var mapContainer2 = document.getElementById('map2');
+	var map2 = new odf.Map(mapContainer2, mapOption);
+
+	/* 배경지도 컨트롤2 생성 */
+	var basemapControl2 = new odf.BasemapControl();
+	basemapControl2.setMap(map2);
+
+
+	//동기화 여부 변경
+	var connectMapFlag = false;
+	document.getElementById('chageConnectFlag').addEventListener('click',
+		function(evt) {
+			if (connectMapFlag) {
+				map2.connectOtherMap(map1, false);
+			} else {
+				map2.connectOtherMap(map1);
+			}
+			connectMapFlag = !connectMapFlag;
+		}
+	);
+</script>
+</html>

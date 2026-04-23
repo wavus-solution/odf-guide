@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<input type="button" id="downloadSLD" class="onoffBtn" value="SLD 다운로드" onclick="download();">
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*폴리곤 레이어 추가*/
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wms',
+	});
+	polygonLayer.setMap(map);
+	polygonLayer.fit();
+
+	/*폴리곤 스타일 생성*/
+	var sld = odf.StyleFactory.produceSLD({
+		rules : [ {
+			name : 'My Rule', /*룰 이름*/
+			/*해당 룰 표현 범위*/
+			scaleDenominator : {
+				//min: 100001,
+				max : 100001,
+			},
+			/*해당 룰 적용 대상 한정
+			   ★ 기본 비교
+				- filter[0] : 비교연산자 ('==' , '!=' ,  '>' , '<' , '>=', '<=')
+			    - filter[1] : 칼럼명
+			    - filter[2] : 기준 값
+			    ★ like 비교
+				- filter[0] : '*='
+			    - filter[1] : 칼럼명
+			    - filter[2] : 비교 문자열 (wildCard="*" singleChar="." escape="!")
+			                     (ex 1) *_2  => [somthing] + '_2'
+			                     (ex 2) *_.   => [somthing] + '_' +[어떤 문자이든 한개의 문자]
+			                     (ex 3)
+			       ★ null 비교
+			   	- filter[0] : 비교연산자 ('==' , '!=')
+			       - filter[1] : 칼럼명
+			       - filter[2] : null
+			       ★ 두개 이상의 조건
+			   	- filter[0] : 논리연산자('&&','||')
+			       - filter[1] : 조건1
+			       - filter[2] : 조건2
+			       (ex) filter:['&&',['>=','id','3'],['!=',id,null]]
+			 */
+			//filter: ['*=', 'DRAWING_NO', '*_3'], //[기본 비교][ , 칼럼명, 기준값]
+			//filter: ['*=', 'type', '*_2'], //[like비교] wildCard="*" singleChar="." escape="!"
+			//filter: ['!=', 'id', null], //[isnull비교]
+			//filter:['&&',['>=','id','3'],['!=',id,null], ...]//[두개 이상의 조건]
+			symbolizers : [ {
+				kind : 'Fill',
+				/*채우기색
+				rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 fillOpacity 보다 우선 적용됨
+				 */
+				color : '#AAAAAA',
+				/*채우기 투명도 0~1*/
+				fillOpacity : 0.5,
+				/*윤곽선색
+					rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 outlineOpacity보다 우선 적용됨
+				 */
+				outlineColor : '#338866',
+				/*윤곽선 두께*/
+				outlineWidth : 3,
+				/*윤곽선 투명도 0~1*/
+				outlineOpacity : 1,
+				/*윤곽선 대쉬 간격*/
+				outlineDasharray : [ 16, 10 ],
+			}, ],
+		}, ],
+	});
+
+	//sld 적용
+	polygonLayer.setSLD(sld);
+	//적용된 sld 제거
+	//polygonLayer.setSLD(null);
+
+	var json = polygonLayer.getSLD().getJSON();
+	var obj = polygonLayer.getSLD().getObject();
+
+	//sld 파일 다운로드
+	function download() {
+		var _sld = polygonLayer.getSLD();
+		if (_sld) {
+			_sld.download();
+		}
+	}
+</script>
+</html>

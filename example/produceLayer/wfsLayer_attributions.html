@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<style>
+</style>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	// 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.)
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	// wfs 레이어 생성
+	// LayerFactory의 produce 함수는 option이 다양하니 개발자지원센터 '지도문서'를 확인하세요
+	var wfsLayer = odf.LayerFactory.produce('geoserver'/*레이어를 생성하기위 한 테이터 호출 방법*/, {
+		method : 'get',//'post'
+		server : '::WfsAPI::', // 레이어가 발행된 서버 주소
+		layer : '::polygonLayer2::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		service : 'wfs', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
+		//bbox : true, //기본값 false. true로 셋팅하면 화면에 보이는 영역만큼 도형 조회 요청함
+		attributions : [
+			'&#169; ' +
+			'<a href="wavus.co.kr" target="_blank">Wavus</a> ' +
+			'contributors.'
+		]
+	}/*레이어 생성을 위한 옵션*/);
+	wfsLayer.setMap(map);
+	// 해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+	wfsLayer.fit();
+
+</script>
+</html>

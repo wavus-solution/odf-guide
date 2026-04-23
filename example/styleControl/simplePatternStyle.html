@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*포인트 레이어 추가*/
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::polygonLayer1::',
+		service : 'wfs',
+	});
+	polygonLayer.setMap(map);
+	polygonLayer.fit();
+
+	/*폴리곤 스타일 생성*/
+	var polygonStyle = odf.StyleFactory.produce({
+
+      fillPattern : {
+        //1. 기본제공 패턴 이용시 (pattern 또는 image  둘중 하나만 정의)
+        // ★ 기본제공 패턴 종류 ★
+        // 'hatch', 'cross', 'dot', 'circle', 'square', 'tile',
+        // 'woven', 'crosses', 'caps', 'nylon', 'hexagon', 'cemetry',
+        // 'sand', 'conglomerate', 'gravel', 'brick', 'dolomite', 'coal',
+        // 'breccia', 'clay', 'flooded', 'chaos', 'grass', 'swamp', 'wave',
+        // 'vine', 'forest', 'scrub', 'tree', 'pine', 'pines', 'rock', 'rocks'
+        pattern : 'hatch',//기본제공 패턴 명 (odf.StyleFactory.getValidFillPatternList() 로 조회 가능)
+        patternColor : 'blue', //패턴의 색상
+        fill : { //패턴 배경색상
+          color : 'yellow'
+        },
+
+        //2. 사용자 정의 이미지 이용시  (pattern 또는 image  둘중 하나만 정의)
+        // image : {
+        //   icon : {
+        //     src : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1RjI5MTdFNjgzMTlFQjExQTI4NUU2MEIzOEZDQzE2MyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo5MzNFMUU4MzE5ODcxMUVCQjRDOEQyNTdBRjg5QTZDOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo5MzNFMUU4MjE5ODcxMUVCQjRDOEQyNTdBRjg5QTZDOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjY1MjkxN0U2ODMxOUVCMTFBMjg1RTYwQjM4RkNDMTYzIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjVGMjkxN0U2ODMxOUVCMTFBMjg1RTYwQjM4RkNDMTYzIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+1Tz04QAAAJtJREFUeNpi/P//PwMMTFi6mgEJHE4+sdSWgQzAO3kDCp+JgPr/JOLV2AxhYqAeeAPE2bS2JB+IX9HSks1AvAyXJDUseQ/EGfgUUMOSv0D8h9aWiADxdFpbAgJBQBxBa0tAYDIQi9HaElCwTcUmwUJAIyM1bMdryVyLaDi7IDqUbEuoGVyjloxaMmrJqCV4LAkEYjloPUExAAgwADiJIuQ99s0ZAAAAAElFTkSuQmCC"
+        //   }
+        // },
+
+        //3. 기본제공 패턴 또는 사용자 정의 이미지 이용시 정의
+        offset :16,//패턴 위치 이동 (오른쪽 아래 방향)
+        scale :1.5,//패턴 크기
+        size :10, //패턴 도형의 크기
+        spacing :18,//패턴 도형간의 간격
+        angle :0,//회전각
+      },
+      stroke : {
+        color:'red',
+        lineCap : 'butt',//선의 끝부분 모양('butt'(네모지게-선이 원래 길이보다 조금 일찍 끝남) / 'round' (둥글게) / 'square'(네모지게))
+        lineJoin : 'miter',//('bevel' (꺾이는 부분을 지붕모양으로 )/ 'round' (둥글게)/ 'miter'(뾰족하게))
+        //lineDash : [10],//점선의 간격 크기
+        width:5,
+      },
+    });
+    //생성된 스타일을 JSON형태로 변환
+    console.log(polygonStyle.getJSON());
+	polygonLayer.setStyle(polygonStyle);
+
+
+    </script>
+</html>
+

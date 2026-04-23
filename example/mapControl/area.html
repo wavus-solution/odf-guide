@@ -1,0 +1,257 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px;">
+<!-- 		<button onclick="areaControl('json')" class="onoffOnlyBtn toggle grp1">json으로
+			생성</button> -->
+		<button onclick="areaControl('layer')"
+			class="onoffOnlyBtn toggle grp1">행정경계 Layer로 생성</button>
+	</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(955156.7761, 1951925.0984);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = {
+		center:coord,
+		zoom:11,
+		projection:'EPSG:5179',
+		proxyURL:'proxyUrl.jsp',
+		proxyParam:'url',
+		baroEMapURL:'http://geon.wavus.co.kr:14062/map/api/map/baroemap',
+		basemap:{
+    		baroEMap:['eMapBasic','eMapAIR','eMapColor','eMapColor','eMapWhite','eMapWhiteEdu']
+		}
+	};
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var map = new odf.Map(mapContainer, mapOption);
+
+	var areaControl = function(condition) {
+
+		var positionDiv = document
+				.getElementById(map.getTarget().parentElement.id
+						+ '-adrressDiv');
+		var selectDiv = document
+				.getElementById(map.getTarget().parentElement.id + '-areaDiv');
+		if (positionDiv || selectDiv) {
+			if (condition === "json") {
+				if (positionDiv) {
+					positionDiv.remove();
+				}
+				;
+				selectDiv.remove();
+			} else {
+				if (positionDiv) {
+					positionDiv.remove();
+				}
+				;
+				selectDiv.remove();
+			}
+		}
+
+		if (condition === "json") {
+			var admSect = {
+				sido : [ {
+					code : 0000000000,
+					sidoNm : '전국',
+					sggNm : '전체',
+					emdNm : '전체',
+					riNm : '전체',
+					X : 1000088.5561810387,
+					Y : 1855361.9423730678,
+				}, {
+					code : 1100000000,
+					sidoNm : '서울특별시',
+					sggNm : '전체',
+					emdNm : '전체',
+					riNm : '전체',
+					X : 953926.6607,
+					Y : 1952048.164,
+				}, {
+					code : 5000000000,
+					sidoNm : '제주특별자치도',
+					sggNm : '전체',
+					emdNm : '전체',
+					riNm : '전체',
+					X : 906936.9826847562,
+					Y : 1500132.216264283,
+				}, ],
+				sgg : [ {
+					code : 1111000000,
+					sidoNm : '서울특별시',
+					sggNm : '종로구',
+					emdNm : '전체',
+					riNm : '전체',
+					X : 954053.984192636,
+					Y : 1952759.85893209,
+				}, {
+					code : 1132000000,
+					sidoNm : '서울특별시',
+					sggNm : '도봉구',
+					emdNm : '전체',
+					riNm : '전체',
+					X : 960071.700863785,
+					Y : 1963340.769172913,
+				}, {
+					code : 5011000000,
+					sidoNm : '제주특별자치도',
+					sggNm : '제주시',
+					emdNm : '전체',
+					riNm : '전체',
+					X : 909976.4253129578,
+					Y : 1501255.3343858137,
+				}, {
+					code : 5013000000,
+					sidoNm : '제주특별자치도',
+					sggNm : '서귀포시',
+					emdNm : '전체',
+					riNm : '전체',
+					X : 912406.0466738786,
+					Y : 1474022.7291362663,
+				}, ],
+				emd : [ {
+					code : 1111010100,
+					sidoNm : '서울특별시',
+					sggNm : '종로구',
+					emdNm : '청운동',
+					riNm : '전체',
+					X : 953259.1101,
+					Y : 1953986.78,
+				}, {
+					code : 1111010400,
+					sidoNm : '서울특별시',
+					sggNm : '종로구',
+					emdNm : '효자동',
+					riNm : '전체',
+					X : 953259.1101,
+					Y : 1953986.78,
+				}, {
+					code : 1132010500,
+					sidoNm : '서울특별시',
+					sggNm : '도봉구',
+					emdNm : '쌍문동',
+					riNm : '전체',
+					X : 958190.412999999,
+					Y : 1961055.85499999,
+				}, {
+					code : 1132010700,
+					sidoNm : '서울특별시',
+					sggNm : '도봉구',
+					emdNm : '창동',
+					riNm : '전체',
+					X : 959758.327599999,
+					Y : 1961086.50099999,
+				}, {
+					code : 5011011700,
+					sidoNm : '제주특별자치도',
+					sggNm : '제주시',
+					emdNm : '아라일동',
+					riNm : '전체',
+					X : 911293.7774,
+					Y : 1498688.54499999,
+				}, {
+					code : 5011011900,
+					sidoNm : '제주특별자치도',
+					sggNm : '제주시',
+					emdNm : '오라일동',
+					riNm : '전체',
+					X : 908184.422999999,
+					Y : 1500803.27,
+				}, {
+					code : 5013010500,
+					sidoNm : '제주특별자치도',
+					sggNm : '서귀포시',
+					emdNm : '동홍동',
+					riNm : '전체',
+					X : 913274.677999999,
+					Y : 1474444.608,
+				}, {
+					code : 5013010600,
+					sidoNm : '제주특별자치도',
+					sggNm : '서귀포시',
+					emdNm : '서홍동',
+					riNm : '전체',
+					X : 912440.6467,
+					Y : 1474255.249,
+				}, ],
+				ri : [ {
+					code : 5013032021,
+					sidoNm : '제주특별자치도',
+					sggNm : '서귀포시',
+					emdNm : '표선면',
+					riNm : '표산리',
+					X : 937233.27065,
+					Y : 1481685.99453,
+				}, ],
+			};
+
+			var option = {
+				server : 'https://geoserver.gonp.duckdns.org/geoserver',
+				layer : {
+					sido : {
+						name : 'geonpaas:L000000001',
+						filter : 'CTPRVN_CD',
+					},
+					sgg : {
+						name : 'geonpaas:L000000002',
+						filter : 'SIG_CD',
+					},
+					emd : {
+						name : 'geonpaas:L000000003',
+						filter : 'EMD_CD',
+					},
+					ri : {
+						name : 'geonpaas:L000000004',
+						filter : 'LI_CD',
+					},
+				},
+			};
+			var area = new odf.AreaNameControl(option, 'json', admSect);
+			area.setMap(map);
+			area.setHighLight(true);
+		} else if (condition === "layer") {
+
+			var option = {
+				server : 'https://geoserver.gonp.duckdns.org/geoserver',
+				layers : {
+					sido : {
+						layer : 'geonpaas:L000000001',
+						code : 'CTPRVN_CD',
+						korNm : 'CTP_KOR_NM',
+					},
+					sgg : {
+						layer : 'geonpaas:L000000002',
+						code : 'SIG_CD',
+						korNm : 'SIG_KOR_NM',
+					},
+					emd : {
+						layer : 'geonpaas:L000000003',
+						code : 'EMD_CD',
+						korNm : 'EMD_KOR_NM',
+					},
+					ri : {
+						layer : 'geonpaas:L000000004',
+						code : 'LI_CD',
+						korNm : 'LI_KOR_NM',
+					},
+				},
+			};
+
+			var area = new odf.AreaNameControl(option);
+			area.setMap(map);
+			area.setHighLight(true);
+		}
+	}
+</script>
+</html>

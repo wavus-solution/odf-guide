@@ -1,0 +1,275 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px;">
+		<button onclick="makeGrid()" class="onoffOnlyBtn toggle grp1">카토그램 그리기</button>
+	</div>
+</body>
+<style>
+
+	#map {
+		height: 936px;
+		width: 100%;
+	}
+	.svg-layer path:hover {
+		opacity: 0.4;
+	}
+	.svg-layer{
+		z-index: 999;
+	}
+	.editBox{
+		left: 130px;
+		top: 30px;
+		position: relative;
+	}
+</style>
+<script>
+
+	// 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.)
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+
+
+
+	var drawControl = new odf.DrawControl({
+
+		// 툴팁 메세지 변경
+		message : {
+			DRAWSTART_BOX: '카토그램을 생성할 영역을 지정해주세요.',
+		},
+		// 그리기 도형 스타일
+		style : {
+			fill : {
+				color : [ 255, 255, 255, 0 ]
+			},
+			stroke : {
+				color : 'black',
+				width : 1,
+				lineDash : [1,2],
+			},
+		},
+	})
+	drawControl.setMap(map, false);
+
+	var gridDataset = {};
+
+	var svgLayer;
+	var editorPopup;
+	function makeGrid() {
+
+		if (svgLayer) {
+			svgLayer.removeMap(map);
+		}
+		drawControl.findDrawVectorLayer().clear();
+		drawControl.drawBox();
+		odf.event.addListener(drawControl, 'drawend', (feature) => {
+			const extent = feature.getGeometry().getExtent();
+
+			const eWidth = odf.Extent.getWidth(extent);
+			const eHeight = odf.Extent.getHeight(extent);
+
+
+
+			const editorContent = document.createElement('div');
+			editorContent.classList.add('editBox')
+			editorContent.innerHTML = `<label className="label" htmlFor="gridSize">gridSize</label>
+                <input id="gridSize" type="range" id="redMax" value="0.10" min="0" max="1" step="0.01">
+                <button type="button" class="onoffOnlyBtn">생성</button>`;
+
+			const createGridBtn = editorContent.querySelector('button');
+			const gridSizeInput = editorContent.querySelector('#gridSize');
+
+			if(!editorPopup){
+				editorPopup = new odf.Marker({
+					style: {
+						element: editorContent,
+					},
+					position: new odf.Coordinate(extent[0], extent[1]),
+					stopEvent: true,
+				});
+				editorPopup.setMap(map);
+			}
+			editorPopup.setPosition([extent[0], extent[1]]);
+
+
+			gridSizeInput.addEventListener('change', (evt) => {
+
+				const gridSize = Number(gridSizeInput.value);
+				const maxCount = 1 / gridSize;
+
+				const eMin = Math.min(eWidth, eHeight);
+				const cellSize = eMin / (1 + 0.75 * (maxCount - 1));
+				const gridCol = Math.floor(eWidth / cellSize)-1;
+				const gridRow = Math.floor(((eHeight / cellSize)-0.25)/0.75-1);
+				const strokeWidth = cellSize/25;
+
+				const svgContainer = document.createElement('div');
+				let svg = getHexagonGrid(cellSize, gridCol, gridRow, eWidth, eHeight , strokeWidth);
+
+				const svgString = svg.outerHTML;
+				const parser = new DOMParser();
+				const svgDocument = parser.parseFromString(svgString, "image/svg+xml");
+				svg = svgDocument.documentElement;
+				svgContainer.appendChild(svg);
+
+				svgContainer.style.position = 'absolute';
+				svgContainer.style.transformOrigin = 'top left';
+				svgContainer.className = 'svg-layer';
+
+				if (svgLayer) {
+					svgLayer.removeMap(map);
+				}
+
+				svgLayer = odf.LayerFactory.produce('svg', {
+					svgContainer,
+					extent
+				})
+				svgLayer.setMap(map);
+				svgLayer.fit();
+			});
+			createGridBtn.addEventListener('click', (evt) => {
+				const gridSize = Number(gridSizeInput.value);
+				const maxCount = 1 / gridSize;
+
+				const eMin = Math.min(eWidth, eHeight);
+				const cellSize = eMin / (1 + 0.75 * (maxCount - 1));
+				const gridCol = Math.floor(eWidth / cellSize)-1;
+				const gridRow = Math.floor(((eHeight / cellSize)-0.25)/0.75-1);
+				const strokeWidth = cellSize/25;
+
+				const svgContainer = document.createElement('div');
+				let svg = getHexagonGrid(cellSize, gridCol, gridRow, eWidth, eHeight , strokeWidth);
+
+				const svgString = svg.outerHTML;
+				const parser = new DOMParser();
+				const svgDocument = parser.parseFromString(svgString, "image/svg+xml");
+				svg = svgDocument.documentElement;
+				svgContainer.appendChild(svg);
+
+				svgContainer.style.position = 'absolute';
+				svgContainer.style.transformOrigin = 'top left';
+				svgContainer.className = 'svg-layer';
+
+				if (svgLayer) {
+					svgLayer.removeMap(map);
+				}
+
+				svgLayer = odf.LayerFactory.produce('svg', {
+					svgContainer,
+					extent
+				})
+				svgLayer.setMap(map);
+			})
+
+		})
+	}
+
+
+	function getHexagonGrid(cellSize, gridCol, gridRow, width, height, strokeWidth) {
+		let svg = document.createElement('svg');
+		svg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+		svg.setAttributeNS(null, 'viewBox', `0 0 ${width} ${height}`);
+		//svg.setAttribute('width', );
+		//svg.setAttribute('height', );
+
+		let style = document.createElement('style');
+		style.innerHTML = `path {stroke:#eee;stroke-width:${strokeWidth};}
+        text {alignment-baseline:middle;fill:#fff;text-anchor:middle;}`;
+		svg.appendChild(style);
+		gridDataset = {};
+
+		for (let row = 0; row < gridRow; row++) {
+			for (let col = 0; col < gridCol; col++) {
+				let g = document.createElement('g');
+				//cell고유 번호
+				const cellId = row*gridCol+col+1;
+				gridDataset[cellId] = {
+					id : cellId,
+					electionDisttictName : '선거구명',
+					candidateName : '',
+					partyName : '',
+				}
+
+				g.setAttribute("data-id",cellId);
+				g.setAttribute("data-col",col);
+				g.setAttribute("data-row",row);
+				g.setAttribute("transform",`translate(${cellSize * (col + (row % 2 === 0 ? 0 : 0.5)+0.5) },${cellSize * (row * 0.75+0.5) })`);
+
+
+				setGTag(g,cellId,cellSize,strokeWidth);
+				svg.appendChild(g);
+				g.setAttribute("onclick",`clickCell(evt,${cellId},${cellSize},${strokeWidth})`);
+			}
+		}
+		return svg;
+	}
+
+	function setGTag(g,cellId,cellSize,strokeWidth){
+		const {
+			electionDisttictName,
+			candidateName,
+			partyName,
+		} = gridDataset[cellId];
+
+		g.innerHTML = `<path fill="${getFillColor(partyName)}" stroke="#fff" stroke-width="${strokeWidth}"
+                d="M ${cellSize * (0.5)},${cellSize  * (0)} ${cellSize * (1)},${cellSize* (0.25)} ${cellSize* (1)},${cellSize * (0.75)} ${cellSize * (0.5)},${cellSize*(1)} ${cellSize * (0)},${cellSize * (0.75)} ${cellSize *(0)},${cellSize *(0.25)} Z" ></path>
+                <text class="electionDisttictName" x="${cellSize * 0.5}" y="${cellSize * 0.25}" font-size="${cellSize*(0.15*electionDisttictName.length>1?1 / electionDisttictName.length:0.15)}">${electionDisttictName}</text>
+                <text class="candidateName" x="${cellSize * 0.5}" y="${cellSize * 0.5}" font-size="${cellSize*(0.3*candidateName.length>1?1 / candidateName.length:0.3)}">${candidateName}</text>
+                <text class="partyName" x="${cellSize * 0.5}" y="${cellSize * 0.7}" font-size="${cellSize*(0.15*partyName.length>1?1 / partyName.length:0.15)}">${partyName}</text>`;
+	}
+
+	function getFillColor (partyName){
+		let fillColor = 'rgb(204,193,187)';
+		switch(partyName){
+			case "빨간당" : fillColor= 'rgb(255,0,0)';break;
+			case "파란당" : fillColor= 'rgb(0,0,255)';break;
+			case "노란당" : fillColor= 'rgb(233,216,70)';break;
+			case "초록당" : fillColor= 'rgb(51,130,3)';break;
+			case "무소속" : fillColor= 'rgb(150,150,150)';break;
+		}
+		return fillColor;
+	}
+
+	var sampleCandidateArray = [
+		{candidateName:'아무개',partyName:'빨간당'},
+		{candidateName:'홍길동',partyName:'파란당'},
+		{candidateName:'김갑을',partyName:'노란당'},
+		{candidateName:'박병정',partyName:'초록당'},
+		{candidateName:'무소유',partyName:'무소속'},
+		{candidateName:'',partyName:''},
+	];
+
+
+	function clickCell (evt,cellId , cellSize,strokeWidth){
+		let target =evt.target;
+		while(target.tagName!=='g'){
+			target = target.parentElement;
+		}
+		const selectedCandidateName = gridDataset[cellId].candidateName;
+		const index = sampleCandidateArray.findIndex(({candidateName})=>candidateName===selectedCandidateName);
+		const {
+			candidateName,
+			partyName,
+		} = sampleCandidateArray[(index+1)%5];
+		gridDataset[cellId] = {
+			...gridDataset[cellId],
+			candidateName,
+			partyName,
+		}
+		setGTag(target,cellId,cellSize,strokeWidth);
+	}
+
+
+</script>
+</html>

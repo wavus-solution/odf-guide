@@ -1,0 +1,151 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+		<div id="map" style="height:550px;"></div>
+		<div style="margin-top:15px">
+			<input type="button" class="onoffOnlyBtn toggle grp1" onclick="setConnect(true)"  value="동기화">
+			<input type="button" class="onoffOnlyBtn toggle grp1" onclick="setConnect(false)"  value="비동기화">
+		</div>
+</body>
+<script>
+
+      /* 맵객체1 생성 */
+	  var mapContainer = document.getElementById('map');
+
+	  /* 맵 중심점 */
+	  var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	  /* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	  var mapOption = "::mapOpt::";
+
+	  /* 맵객체 생성 */
+	  var map = new odf.Map(mapContainer, mapOption);
+
+      var basemapControl = new odf.BasemapControl();
+      basemapControl.setMap(map);
+
+      /* 줌 컨트롤 생성 */
+  	  var zoomControl = new odf.ZoomControl();
+  	  zoomControl.setMap(map);
+
+
+      /* 이전,다음 컨트롤 생성 */
+      var moveControl = new odf.MoveControl();
+      moveControl.setMap(map);
+
+
+      /* 인덱스맵 컨트롤 생성 */
+      var overviewMapControl = new odf.OverviewMapControl();
+      overviewMapControl.setMap(map);
+
+      /* 그리기 도구 컨트롤 생성 */
+      var drawControl = new odf.DrawControl();
+      drawControl.setMap(map);
+      /* 측정도구 컨트롤 생성 */
+      var measureControl = new odf.MeasureControl( );
+        measureControl.setMap(map);
+      /* 초기화 컨트롤 생성 */
+      var clearControl = new odf.ClearControl();
+      clearControl.setMap(map);
+
+        /* 출력 컨트롤 생성 */
+      var printControl = new odf.PrintControl();
+        printControl.setMap(map);
+
+        /* 저장 컨트롤 생성 */
+      var downloadControl = new odf.DownloadControl();
+        downloadControl.setMap(map);
+
+        /* 전체화면 컨트롤 생성 */
+      var fullScreenControl = new odf.FullScreenControl();
+      fullScreenControl.setMap(map);
+
+      /* 회전 컨트롤 생성 */
+      var rotationControl = new odf.RotationControl();
+      rotationControl.setMap(map);
+
+  	var dmc = new odf.DivideMapControl({
+        dualMap: [
+          {
+            position: 1,
+            mapOption: {
+              //지정안한 map옵션은 mainmap 생성시 사용한 mapoption적용
+              basemap:{
+            	    ::basemapType:: : [ '::basemap_white::']
+          	  } ,
+            },
+           controlOption: {//사용할 컨트롤 지정
+            basemap: false,
+            // zoom: false,
+            // clear: false,
+            // download: false,
+            // print: false,
+            // overviewmap: false,
+            // draw: false,
+            // measure: false,
+            // move: false,
+            },
+          },
+        ],
+      });
+      dmc.setMap(map);
+      map.setResizable(true);
+
+      /*폴리곤 레이어 추가*/
+      var polygon = odf.LayerFactory.produce('geoserver', {
+        // 레이어 호출 방법 (ex. geoserver, geojson)
+        method: 'get',
+        server: '::WmsAPI::', // 레이어가 발행된 서버 주소 | 호출 API 주소
+        layer: '::polygonLayer1::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+        service: 'wms', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
+      });
+      polygon.setMap(map);
+      polygon.fit();
+
+      var dMap = dmc.getDividMaps().dualMap.filter(function(o){return o.mainMapFlag===false});
+
+
+      //메인지도의 컨트롤 복사
+  	  var  controls = map.getODFControls();
+  		controls.forEach((control, key) => {
+  		if(key!=='dividemap'){
+  			var newControl;
+  			var constructorOption = control.getConstructorOptions();
+
+  			if(constructorOption.length==0){
+  				newControl = new control.constructor()
+  			}
+  			else if(constructorOption.length==1){
+  				newControl = new control.constructor(constructorOption[0]);
+  			}
+  			else if(constructorOption.length==2){
+  				newControl = new control.constructor(constructorOption[0],constructorOption[1]);
+  			}
+  			if(newControl){
+  				newControl.setMap(dMap[0].map);
+  			}
+  		}
+      });
+
+	  // 레이어 복사
+	  var layers = map.getODFLayers().filter(function(layer){
+		  if(layer.getODFId()==='odf-layer-draw'||layer.getODFId()==='odf-layer-measure'){
+			  return false;
+		  }
+		  return true;
+	  }).map(function(layer){
+		  var initalOption = layer.getInitialOption();
+		  return odf.LayerFactory.produce(initalOption.type,initalOption.params);
+	  })
+	  dMap[0].map.switchLayerList(layers);
+
+      function setConnect(flag){
+  		dmc.setConnect(flag);
+  	 }
+    </script>
+</html>

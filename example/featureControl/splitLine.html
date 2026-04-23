@@ -1,0 +1,234 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>
+		※ 자르기가 완료되면 해당 도형의 좌표정보가 콘솔에 찍힙니다. 개발자도구를 열어 확인하세요.
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	//라인 레이어 정의
+	var lineLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::lineLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+		className : 'line',
+	});
+	lineLayer.setMap(map);
+	lineLayer.setStyle(odf.StyleFactory.produce({
+			stroke: {
+				color: [255, 100, 100, 0.95],
+				width: 1
+			}
+		}));
+	lineLayer.fit();
+	map.setZoom(18);
+
+
+	//하이라이트 레이어 정의
+	var hilightLayer = odf.LayerFactory.produce('empty', {});
+	hilightLayer.setMap(map);
+	hilightLayer.setStyle(odf.StyleFactory.produce({
+		image: {
+			circle: {
+				radius: 5,
+				stroke: {
+					color: [255, 255, 255, 0.95],
+					width: 1
+				},
+				fill: {
+					color: [100, 100, 255, 0.95],
+				}
+			}
+		}
+	}));
+
+
+	//자르기 대상 도형
+	var targetFeature;
+	//마우스 포인터와 가장 가까운 도형 위의 점
+	var selectedPointFeature;
+	//도형을 자르기 위해 선택한 점
+	var firstPoint;
+	//사용자가 선택한 점 사이의 도형
+	var newLine;
+
+
+	var correctionCoordinate ;
+	odf.event.addListener(map,'pointermove',(evt)=>{
+		let minLenth = evt.coordinates;
+		//lineLayer중 현재 마우스 포인터 위치와 가장 가까운 도형 찾기
+		let closestFeature = targetFeature;
+		if(!firstPoint){
+			closestFeature = lineLayer.getClosestFeatureToCoordinate(evt.coordinate);
+			closestFeature.setStyle(odf.StyleFactory.produce({
+				stroke : {
+								color:[100,100,255,0.95],
+								lineCap : 'round',//선의 끝부분 모양('butt'(네모지게-선이 원래 길이보다 조금 일찍 끝남) / 'round' (둥글게) / 'square'(네모지게))
+								lineJoin : 'round',//('bevel' (꺾이는 부분을 지붕모양으로 )/ 'round' (둥글게)/ 'miter'(뾰족하게))
+								//lineDash : [10],//점선의 간격 크기
+								width:1
+						}
+			}));
+
+			//찾은 도형이 이전에 조회된 도형과 다르다면 초기화
+			if(targetFeature && targetFeature.getId()!=closestFeature.getId()){
+				if(firstPoint){
+					firstPoint = undefined;
+					selectedPointFeature = undefined;
+					hilightLayer.clear();
+				}
+				targetFeature.setStyle();
+			}
+			targetFeature = closestFeature;
+		}
+
+		correctionCoordinate = targetFeature.getGeometry().getClosestPoint(evt.coordinate);
+		//마우스 포인터와 가장 가까운 도형 위의 점 하이라이트
+		if(!selectedPointFeature){
+			selectedPointFeature = odf.FeatureFactory.produce({
+				geometryType : 'point',
+				coordinates : correctionCoordinate
+			})
+			hilightLayer.addFeature(selectedPointFeature);
+		}
+		else{
+			selectedPointFeature.getGeometry().setCoordinates(correctionCoordinate);
+		}
+		//마우스 포인터와 가장 가까운 도형 위의 점 하이라이트 다중스타일로 정의
+		selectedPointFeature.setStyle(odf.StyleFactory.produce([
+			{//보정된 좌표 점 스타일
+				image : {
+					circle : {
+						radius : 5,
+						stroke : {
+										color:[255,255,255,0.95],
+										width:1
+								},
+						fill : {
+									color:[100,100,255,0.95],
+						}
+					}
+				}
+			},
+			{
+				//보정된 좌표와 마우스 포인터 사이의 선 스타일
+				geometry : (feature)=>{
+					return odf.GeometryFactory.produce({
+						geometryType : 'linestring',
+						coordinates : [feature.getGeometry().getCoordinates(),evt.coordinate]
+					});
+				},
+				stroke : {
+								color:[255,255,255,0.95],
+								width:1
+						},
+			},
+			{//마우스 포인터 좌표 점 스타일
+				geometry : (feature)=>{
+					return odf.GeometryFactory.produce({
+						geometryType : 'point',
+						coordinates : evt.coordinate
+					});
+				},
+				image : {
+					circle : {
+						radius : 5,
+						stroke : {
+										color:[255,255,255,0.95],
+										width:1
+								},
+						fill : {
+									color:[100,100,255,0.95],
+						}
+					}
+				}
+			}
+		]))
+	});
+
+	//선택 도형 스타일
+	var selectedPointFeatureStyle = odf.StyleFactory.produce({
+		image : {
+			circle : {
+				radius : 5,
+				stroke : {
+								color:[255,255,255,0.95],
+								width:1
+						},
+				fill : {
+							color:[255,100,100,0.95],
+				}
+			}
+		}
+	});
+	//선택 라인 스타일
+	var selectedLineStyle = odf.StyleFactory.produce({
+		stroke : {
+						color:[255,100,100,0.95],
+						width:3
+				},
+	});
+
+	odf.event.addListener(map,'click',(evt)=>{
+
+		//기존에 선택된 도형 있으면 초기화
+		if(newLine){
+			firstPoint= undefined;
+			newLine = undefined;
+			hilightLayer.clear();
+		}
+		//마우스 포인터와 가장 가까운 도형 위의 점 하이라이트 도형 스타일 초기화
+		if(selectedPointFeature){
+			selectedPointFeature.setStyle();
+		}
+
+		//첫번째 클릭시
+		if(!firstPoint &&correctionCoordinate && !newLine){
+			firstPoint = selectedPointFeature.clone();
+			firstPoint.setStyle(selectedPointFeatureStyle);
+			hilightLayer.addFeature(firstPoint);
+			selectedPointFeature = undefined;
+		}//두번째 클릭시
+		else if(firstPoint&& correctionCoordinate && !newLine){
+			let copyGeom = odf.GeometryFactory.produce({
+				geometryType : targetFeature.getGeometry().getType(),
+				coordinates : targetFeature.getGeometry().getCoordinates()
+			});
+			//라인 위의 두 점으로 두점 사이의 라인 자르기
+			var newLineGeom = copyGeom.getLineSegmentBetweenPoints(firstPoint.getGeometry().getCoordinates(),correctionCoordinate);
+			console.log(newLineGeom.getCoordinates());
+			newLine = odf.FeatureFactory.produce({
+				geometryType : newLineGeom.getType(),
+				coordinates : newLineGeom.getCoordinates()
+			});
+
+			hilightLayer.addFeature(newLine);
+			newLine.setStyle(selectedLineStyle);
+
+			let endPoint = selectedPointFeature.clone();
+			endPoint.setStyle(selectedPointFeatureStyle);
+			hilightLayer.addFeature(endPoint);
+
+			selectedPointFeature = undefined;
+			firstPoint = undefined;
+		}
+
+	});
+</script>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<input type="button" id="changeStyle" class="onoffBtn toggle" value="텍스트 표현 방식 변경">
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*라인 레이어 추가*/
+	var lineLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::lineLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+	});
+	lineLayer.setMap(map);
+	lineLayer.fit();
+
+	/*라인 스타일 생성*/
+	var styleOption = {
+			stroke : {
+	            color:[132,229,252,0.95],
+	            lineCap : 'round',//선의 끝부분 모양('butt'(네모지게-선이 원래 길이보다 조금 일찍 끝남) / 'round' (둥글게) / 'square'(네모지게))
+	            lineJoin : 'round',//('bevel' (꺾이는 부분을 지붕모양으로 )/ 'round' (둥글게)/ 'miter'(뾰족하게))
+	            //lineDash : [10],//점선의 간격 크기
+	            width:10
+	        },
+	        text :{
+	            text:'라인 스타일 예제, 라인 스타일 예제',//텍스트 내용
+	            //offsetX : 0,//기준점으로부터 텍스트 x좌표 위치 이동
+	            //offsetY : 0,//기준점으로부터 텍스트 Y좌표 위치 이동
+	            //rotation : (Math.PI*270/180), //회전
+	            //textAlign : 'left',//텍스트 수평정렬
+	            //textBaseline : 'middle',//텍스트 수직정렬
+	            font : 'bold 20px Courier New',//폰트 크기(필수) 및 글씨체(필수), 두께(옵션)
+	            fill : {color:'#CC70B4'},
+	            stroke : {//text 안의 stroke는 width/lineCap/lineJoin/lineDash/lineDashOffset/miterLimit 옵션 적용  x
+	                color:'red',
+	            },
+	            //padding : [10,5,5,5],//text와 background영역 사이의 여백 //placement :'line' 일 경우 미적용
+	            //backgroundStroke : {color:'black'},//placement :'line' 일경우 미적용
+	            //backgroundFill : {color:'white'},//placement :'line' 일경우 미적용
+	            placement :'line',//텍스트를 나열하는 위치를 line을 따라 나타나게 할지, 특정 point에 나타나게 할지
+	            maxAngle : 90*Math.PI/180,//placement :'line' 일경우 적용
+	            overflow : false,//placement :'line' 일경우 적용//텍스트를 나열한 길이보다 선이 짧을 경우, 넘치는 글자를 쭉 나열할지 여부
+	            scale : 1, //텍스트 크기를 정해진 값의 n배로 셋팅
+	            rotateWithView: true//지도가 회전할때 텍스트도 적절하게 회전할지 여부
+	        }
+		};
+	var lineStyle1 = odf.StyleFactory.produce(styleOption);
+	lineLayer.setStyle(lineStyle1);
+
+	//라인 스타일 2 생성
+	var opt2 = Object.assign({}, styleOption);
+	opt2.text.placement = 'point';
+	opt2.text.padding = [ 5, 5, 5, 5 ];
+	opt2.text.backgroundStroke = {
+		color : 'black'
+	};
+	opt2.text.backgroundFill = {
+		color : 'white'
+	};
+	var lineStyle2 = odf.StyleFactory.produce(opt2);
+
+	var styleFlag = true;
+	document.getElementById('changeStyle').addEventListener('click', function(evt) {
+		if (styleFlag) {
+			//텍스트 표현방식을 점 기준 표현으로 수정
+			lineLayer.setStyle(lineStyle2);
+		}
+		else {
+			//텍스트 표현방식을 라인 기준 표현으로 수정
+			lineLayer.setStyle(lineStyle1);
+		}
+		styleFlag = !styleFlag;
+	});
+</script>
+</html>
+

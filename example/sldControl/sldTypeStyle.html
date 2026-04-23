@@ -1,0 +1,149 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<input type="button" id="downloadSLD" class="onoffBtn" value="SLD 다운로드" onclick="download();">
+	</div>
+</body>
+<script>
+
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*면 레이어 추가*/
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'post',
+		server : '::WmsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wms',
+	});
+	polygonLayer.setMap(map);
+	polygonLayer.fit();
+
+	/*면 스타일 생성*/
+	var sld = odf.StyleFactory.produceSLD({
+		rules : [
+		/*★★ rule 1  라벨은 축척에 따라 보이고 안보이게 조절 ★★*/
+		{
+			name : 'My Rule', /*룰 이름*/
+			/*해당 룰 표현 범위*/
+			scaleDenominator : {
+				max : 80000,
+			},
+			symbolizers : [ {
+				kind : 'Text',
+				/*사용할 폰트*/
+				font : [ 'Times' ],
+				/*라벨 모양
+					-'normal' : 기본
+					-'italic' : 이탤릭체 - italic체로 디자인된 폰트를 사용
+					-'oblique' : 기본 글씨체를 비스듬하게 보여줌
+				 */
+				fontStyle : 'normal',
+				/*라벨 두께
+					-'normal' : 기본
+					-'bold' : 굵게
+				 */
+				fontWeight : 'normal',
+				/*라벨 텍스트
+					{{칼럼명}} => 해당 칼럼 값
+				 */
+				label : '{{DGM_NM}}',
+				/*라벨 크기*/
+				size : 15,
+				/*후광 색상 */
+				haloColor : '#ffffff',
+				/*후광 두께 */
+				haloWidth : 5
+
+			/*★★라벨표현방식이 'LinePlacement'일경우 적용 속성 start★★*/
+			/*레이블이 선의 곡선을 따르도록 할지 여부
+			  - true : 레이블이 선의 곡선을 따르도록
+			  - false : 레이블이 선의 곡선을 따르지 않게
+			 */
+			//followLine: true,
+			/*레이블 반복 간격 조절
+			   - 0 : 라벨 반복 x
+				 - 양수 값 :  라인에 따라 라벨을 표시하는 빈도 조정. 값이 클수록 띄엄띄엄 나타남
+			 */
+			//repeat: 20,
+			/*선을 따라 레이어의 변위를 제어. repeat 속성과 함께 사용할 경우, repeat속성보다 작은 값을 설정 */
+			// maxDisplacement: 15,
+			/*★★라벨표현방식이 'LinePlacement'일경우 적용 속성 end★★*/
+
+			} ]
+		},
+
+		/*★★ rule 2  면 스타일은 항시 보이게 (id==1일경우) 초록색 테두리★★*/
+		{
+			name : 'My Rule', /*룰 이름*/
+			filter : [ '*=', 'DGM_NM', '대학' ], //[기본 비교][ , 칼럼명, 기준값]
+			symbolizers : [ {
+				kind : 'Fill',
+				/*채우기색*/
+				color : '#AAAAAA',
+				/*채우기 투명도 0~1*/
+				fillOpacity : 0.5,
+				/*윤곽선색*/
+				outlineColor : '#338866'
+			} ]
+		},
+
+		/*★★ rule 3 면 스타일은 항시 보이게 (id==2일경우) 붉은빛깔 테두리★★*/
+		{
+			name : 'My Rule', /*룰 이름*/
+			filter : [ '*=', 'DGM_NM', '중학교' ], //[기본 비교][ , 칼럼명, 기준값]
+			symbolizers : [ {
+				kind : 'Fill',
+				/*채우기색*/
+				color : '#AAAAAA',
+				/*채우기 투명도 0~1*/
+				fillOpacity : 0.5,
+				/*윤곽선색*/
+				outlineColor : '#FF6666'
+			} ]
+		},
+		/*★★ rule 3 면 스타일은 항시 보이게 (id==3일경우) 붉은빛깔 테두리★★*/
+		{
+			name : 'My Rule', /*룰 이름*/
+			filter : [ '*=', 'DGM_NM', '초등학교' ], //[기본 비교][ , 칼럼명, 기준값]
+			symbolizers : [ {
+				kind : 'Fill',
+				/*채우기색*/
+				color : '#AAAAAA',
+				/*채우기 투명도 0~1*/
+				fillOpacity : 0.5,
+				/*윤곽선색*/
+				outlineColor : '#6666FF'
+			} ]
+		} ]
+	});
+
+	//sld 적용
+	polygonLayer.setSLD(sld);
+	//적용된 sld 제거
+	//polygonLayer.setSLD(null);
+
+	var json = polygonLayer.getSLD().getJSON();
+	var obj = polygonLayer.getSLD().getObject();
+
+	//sld 파일 다운로드
+	function download() {
+		var _sld = polygonLayer.getSLD();
+		if (_sld) {
+			_sld.download();
+		}
+	}
+</script>
+</html>

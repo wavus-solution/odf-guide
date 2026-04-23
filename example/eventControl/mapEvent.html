@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<textarea id="eventLog" style="width: 100%; height: 200px;"></textarea>
+
+	<div class="btnLogArea">
+		<div class="innerBox">
+			<input type="button" class="onoffBtn" value="로그 초기화" id="clearLog" />
+			<div class="btnList">
+				<strong>이벤트 로깅 여부 변경</strong>
+				<input type="button" class="onoffBtn toggle" value="click" id="clickFlag"title="일반 변경 이벤트. 개정 카운터가 증가하면 트리거" />
+				<input type="button" class="onoffBtn toggle" value="singleclick" id="singleclickFlag" title="끌기가없고 더블 클릭이없는 진정한 단일 클릭. 이 이벤트는 두 번 클릭하지 않도록 250ms 지연" />
+				<input type="button" class="onoffBtn toggle" value="contextmenu" id="contextmenuFlag" title="마우스 오른쪽 클릭" />
+				<input type="button" class="onoffBtn toggle" value="dblclick" id="dblclickFlag" title="드래그가없는 진정한 더블 클릭" />
+				<input type="button" class="onoffBtn toggle" value="movestart" id="movestartFlag" title="지도가 움직이기 시작할 때 트리거" />
+				<input type="button" class="onoffBtn toggle" value="moveend" id="moveendFlag" title="지도가 이동 된 후에 트리거" />
+				<input type="button" class="onoffBtn toggle" value="pointerdrag" id="pointerdragFlag" title="포인터가 드래그되면 트리거" />
+				<input type="button" class="onoffBtn toggle" value="pointermove" id="pointermoveFlag" title="포인터가 이동하면 트리거" />
+				<input type="button" class="onoffBtn toggle" value="precompose" id="precomposeFlag" title="" />
+				<input type="button" class="onoffBtn toggle" value="postrender" id="postrenderFlag" title="지도 프레임이 렌더링 된 후에 트리거(precompose→postcompose→postrender 순서)" />
+				<input type="button" class="onoffBtn toggle" value="postcompose" id="postcomposeFlag" title="지도를 모두 그린 후 트리거" />
+				<input type="button" class="onoffBtn toggle" value="propertychange" id="propertychangeFlag" title="속성이 변경되면 트리거 (지도 크기 속성 변경)" />
+			</div>
+		</div>
+	</div>
+	<p>※ 직접해보기에서는 이벤트 버튼 토글이 지원되지 않습니다.</p>
+</body>
+<script>
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	//map 객체에 클릭 이벤트 연결(드래그 없는 클릭. 더블클릭시 두번 트리거)
+	odf.event.addListener(map, 'click', function(evt) {
+		if (clickFlag) addLog("map click!");
+	});
+	//map 객체에 클릭 이벤트 연결(드래그 없고 더블클릭 없는 단일 클릭)
+	odf.event.addListener(map, 'singleclick', function(evt) {
+		if (singleclickFlag) addLog("map singleclick!");
+	});
+
+	//map 객체에 더블클릭 이벤트 연결
+	odf.event.addListener(map, 'dblclick', function(evt) {
+		if (dblclickFlag) addLog("map double click!");
+	});
+
+	//map 객체에 이동 시작 이벤트 연결
+	odf.event.addListener(map, 'movestart', function(evt) {
+		if (movestartFlag) addLog("map move start!");
+	});
+
+	//map 객체에 이동 종료 이벤트 연결
+	odf.event.addListener(map, 'moveend', function(evt) {
+		if (moveendFlag) addLog("map move end!");
+	});
+
+	//map 객체 위에서 마우스 드래그 이벤트 연결
+	odf.event.addListener(map, 'pointerdrag', function(evt) {
+		if (pointerdragFlag) addLog("map pointer drag!");
+	});
+
+	//map 객체 위에서 마우스 이동 이벤트 연결
+	odf.event.addListener(map, 'pointermove', function(evt) {
+		if (pointermoveFlag) addLog("map pointer move!");
+	});
+
+	//map precompose  이벤트 연결(지도를 그리기 시작하기 전 트리거)
+	odf.event.addListener(map, 'precompose', function(evt) {
+		if (precomposeFlag) addLog("map precompose!");
+	});
+
+	//map postrender 이벤트 연결 (지도 프레임이 렌더링된 후에 트리거(precompose→postcompose→postrender 순서))
+	odf.event.addListener(map, 'postrender', function(evt) {
+		if (postrenderFlag) addLog("map postrender!");
+	});
+
+	//map postcompose  이벤트 연결(지도를 모두 그린 후 트리거)
+	odf.event.addListener(map, 'postcompose', function(evt) {
+		if (postcomposeFlag) addLog("map postcompose!");
+	});
+
+	//map 마우스우클릭 이벤트 연결
+	odf.event.addListener(map, 'contextmenu', function(evt) {
+		if (contextmenuFlag) {
+			addLog("right mouse click!!")
+			//addLog(evt.coordinate)//클릭한 좌표
+			//addLog(evt.targetMap) ;//대상 map 객체
+		}
+		;
+	});
+
+	// 로그 추가
+	var addLog = function(log) {
+		document.getElementById("eventLog").innerHTML = log + '\n' + document.getElementById("eventLog").value;
+	};
+	//로그 초기화
+	odf.event.addListener('#clearLog', 'click', function(evt) {
+		document.getElementById("eventLog").innerHTML = "";
+	});
+	//이벤트 로깅 여부변경
+	var clickFlag = false;
+	var singleclickFlag = false;
+	var dblclickFlag = false;
+	var movestartFlag = false;
+	var moveendFlag = false;
+	var pointerdragFlag = false;
+	var pointermoveFlag = false;
+	var precomposeFlag = false;
+	var postrenderFlag = false;
+	var postcomposeFlag = false;
+	var propertychangeFlag = false;
+	var contextmenuFlag = false;
+
+	odf.event.addListener('#clickFlag', 'click', function(evt) {
+		clickFlag = !clickFlag;
+	});
+	odf.event.addListener('#singleclickFlag', 'click', function(evt) {
+		singleclickFlag = !singleclickFlag;
+	});
+	odf.event.addListener('#dblclickFlag', 'click', function(evt) {
+		dblclickFlag = !dblclickFlag;
+	});
+	odf.event.addListener('#movestartFlag', 'click', function(evt) {
+		movestartFlag = !movestartFlag;
+	});
+	odf.event.addListener('#moveendFlag', 'click', function(evt) {
+		moveendFlag = !moveendFlag;
+	});
+	odf.event.addListener('#pointerdragFlag', 'click', function(evt) {
+		pointerdragFlag = !pointerdragFlag;
+	});
+	odf.event.addListener('#pointermoveFlag', 'click', function(evt) {
+		pointermoveFlag = !pointermoveFlag;
+	});
+	odf.event.addListener('#precomposeFlag', 'click', function(evt) {
+		precomposeFlag = !precomposeFlag;
+	});
+	odf.event.addListener('#postrenderFlag', 'click', function(evt) {
+		postrenderFlag = !postrenderFlag;
+	});
+	odf.event.addListener('#postcomposeFlag', 'click', function(evt) {
+		postcomposeFlag = !postcomposeFlag;
+	});
+	odf.event.addListener('#propertychangeFlag', 'click', function(evt) {
+		//map propertychange 이벤트 연결
+		odf.event.addListener(map, 'propertychange', function(evt) {
+				addLog("map property change! 지도 사이즈 변경됨");
+		},true);
+
+      	map.setSize([map.getSize()[0]-1, map.getSize()[1] -1])
+	});
+	odf.event.addListener('#contextmenuFlag', 'click', function(evt) {
+		contextmenuFlag = !contextmenuFlag;
+	});
+</script>
+</html>
+

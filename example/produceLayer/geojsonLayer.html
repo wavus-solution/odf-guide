@@ -1,0 +1,260 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<style>
+  /* 피처 속성 정보 조회 css */
+  #featureInfo>div,#featureInfo>div>div{
+  	padding : 10px;
+  }
+  #featureInfo>div>div{
+  	overflow-x : auto;
+  }
+  #featureInfo h5.title,featureInfo h6.title{
+  	font-weight : bold;
+  	margin-bottom: 5px;
+  }
+  #featureInfo table{
+  	border-collapse: collapse;
+  }
+  #featureInfo td {
+  	border: 1px solid #949494 !important;
+    padding: 3px !important;
+    text-align: center;
+  }
+</style>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="infoArea" style="margin-top: 15px;">
+		<div id="featureInfo"></div>
+	</div>
+</body>
+<script>
+
+	// 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.)
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*geoJson 형식의 data*/
+	var geoJsonObject = {
+		type : 'FeatureCollection',
+		features : [
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'Point',
+						coordinates : [ 947433.34863240704, 1938772.515392246 ]
+					},
+					properties : {
+						name : 'Point',
+					},
+				},
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'LineString',
+						coordinates : [
+								[ 947941.44863240704, 1938165.615392246 ],
+								[ 947761.4213161081, 1938904.2663995156 ] ],
+					},
+					properties : {
+						name : 'LineString',
+					},
+				},
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'Polygon',
+						coordinates : [
+								[
+										[ 948034.6163872102, 1938934.7622466995 ],
+										[ 948507.0410516487, 1938352.5823571896 ],
+										[ 948764.7272322515, 1938681.8480324042 ],
+										[ 948034.6163872102, 1938934.7622466995 ] ], ],
+					},
+					properties : {
+						name : 'Polygon',
+					},
+				},
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'MultiLineString',
+						coordinates : [
+								[
+										[ 948273.6163872102, 1937684.7622466995 ],
+										[ 948435.0410516487, 1937202.5823571896 ] ],
+								[
+										[ 947600.7272322515, 1937531.8480324042 ],
+										[ 947781.7272322515, 1936744.8480324042 ] ], ],
+					},
+					properties : {
+						name : 'MultiLineString',
+					},
+				},
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'MultiPolygon',
+						coordinates : [
+								[ [
+										[ 949389.8548185286, 1938996.7978086965 ],
+										[ 949256.2397619198, 1938109.2120755091 ],
+										[ 950506.4949344742, 1938729.567695479 ],
+										[ 949389.8548185286, 1938996.7978086965 ] ] ],
+								[ [
+										[ 949867.0514492746,1937522.2602196916 ],
+										[ 949442.3464479108, 1936677.6221832712 ],
+										[ 950697.3735867726, 1936639.4464528116 ],
+										[ 950754.6371824621, 1936400.8481374385 ],
+										[ 949867.0514492746, 1937522.2602196916 ] ] ], ],
+					},
+					properties : {
+						name : 'MultiPolygon',
+					},
+				}, ],
+		properties : {
+			name : 'layer',
+		},
+	};
+
+	// geojson 레이어 생성
+	// LayerFactory의 produce 함수는 option이 다양하니 개발자지원센터 '지도문서'를 확인하세요
+	var geojsonLayer = odf.LayerFactory.produce('geojson'/*레이어를 생성하기위 한 테이터 호출 방법*/, {
+		//geojson형식 object
+		data : geoJsonObject,
+		//원본 좌표계
+		dataProjectionCode : 'EPSG:5179',
+		//변환 좌표계
+		featureProjectionCode : 'EPSG:::srid::'
+	}/*레이어 생성을 위한 옵션*/);
+	geojsonLayer.setMap(map);
+
+	// 해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+	geojsonLayer.fit(true);
+
+	// 레이어 삭제
+	// map.removeLayer(geojsonLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(geojsonLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(geojsonLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// geojsonLayer.setMinZoom(10);
+	// geojsonLayer.setMaxZoom(18);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// geojson 피처 속성 조회
+	odf.event.addListener(map, 'click', function (evt) {
+		//selectFeatureOnClick 서버가 없는 레이어의 경우, 이 메서트로 피처 정보 조회
+		var result = map.selectFeatureOnClick(evt);
+		var info = {};
+
+		result.forEach(({feature,layer})=>{
+			var layerId = layer.getODFId();
+			if(!info[layerId]){
+				info[layerId] = {
+						features : []
+				}
+			}
+			info[layerId].features.push(feature);
+		})
+		info = Object.entries(info);
+
+		constructInfoDiv(info, 'featureInfo');
+
+		//iframe 크기 조절
+		if (parent.window.containerResize)
+			parent.window.containerResize();
+	}.bind(this));
+
+	function constructInfoDiv(list, selector) {
+		selector = document.getElementById(selector)
+		selector.innerHTML = '';
+
+		for (var i = 0; i < list.length; i++) {
+			var [layerId, layerItem] = list[i];
+			var layerDiv = document.createElement('div');
+			var layerTitle = document.createElement('h5');
+			layerTitle.classList.add('title')
+			layerTitle.innerHTML = layerId;
+			layerDiv.append(layerTitle);
+
+			var featureLen = layerItem.features.length;
+
+			for (var j = 0; j < featureLen; j++) {
+				var featureDiv = document.createElement('div');
+				var featureTitle = document.createElement('h6');
+				featureTitle.classList.add('title')
+				featureTitle.innerHTML = `도형-${j + 1}`;
+				featureDiv.append(featureTitle);
+
+				constructFeatureInfoTable(layerItem.features[j],featureDiv)
+
+				layerDiv.append(featureDiv);
+			}
+
+			selector.append(layerDiv);
+		}
+
+	}
+
+	function constructFeatureInfoTable(feature, target) {
+
+		var featureTable = document.createElement('table');
+		var properties = Object.entries(feature.getProperties());
+		var thead = document.createElement('thead');
+		var tbody = document.createElement('tbody');
+
+		var headerRow = document.createElement('tr');
+		var bodyRow = document.createElement('tr');
+
+		for (var i = 0; i < properties.length; i++) {
+			if(properties[i][0]!=='geometry'){
+				var headerTd =  document.createElement('td');
+				headerTd.innerText = properties[i][0];
+				headerRow.append(headerTd);
+
+				var bodyTd = document.createElement('td');
+				bodyTd.innerText = properties[i][1]?properties[i][1]:'-';
+				bodyRow.append(bodyTd);
+			}
+		}
+
+		thead.append(headerRow);
+		tbody.append(bodyRow);
+		featureTable.append(thead);
+		featureTable.append(tbody);
+		target.append(featureTable);
+
+	}
+</script>
+</html>

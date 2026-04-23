@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<style>
+	.btn-control-newControl {
+		position: relative;
+		background-image: url(images/Symbols/PeoplePlaces/Light.png);
+	}
+	/*버튼1*/
+	.btn-control-newControl-new01 {
+		background-image: url(images/Symbols/Basic/Populated7.png);
+	}
+	/*버튼2*/
+	.btn-control-newControl-new02 {
+		background-image: url(images/Symbols/Basic/Populated6.png);
+	}
+</style>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* 베이스맵 컨트롤 생성 */
+	var basemapControl = new odf.BasemapControl();
+	basemapControl.setMap(map);
+
+	{
+		//사용자 정의 컨트롤 클래스 생성
+	    class NewControl extends odf.Control {
+	        constructor(param) {
+	          super({
+	            setMap: function () {},
+	            removeMap: function () {},
+	            clear: function () {},
+	          });
+	        }
+	      }
+		NewControl.subGroup = [
+          {
+              id: 'new01',
+              name: '뉴1',
+              click: (evt) => {
+                alert('추가메뉴 1');
+              },
+            },
+            {
+              id: 'new02',
+              name: '뉴2',
+              click: (evt) => {
+                alert('추가메뉴 22');
+              },
+            },
+          ];
+
+	      NewControl.click = function (evt) {
+	        alert('사용자 정의 컨트롤 클릭!');
+	      };
+	      NewControl.controlId = 'newControl'; //컨트롤id
+	      NewControl.groupIdx = 700; //컨트롤이 속할 그룹 번호 (1~)
+
+
+	      //해당 컨트롤을 map 객체에 등록 분할지도 등에 사용하고 싶을 경우 해당 컨트롤을 odf 컨트롤로 등록
+	      NewControl.registControl(map, NewControl);
+
+
+	      var dmc = new odf.DivideMapControl({
+	        dualMap: [
+	          {
+	            position: 1,
+	            mapOption: {
+	              //지정안한 map옵션은 mainmap 생성시 사용한 mapoption적용
+	              basemap: { ::basemapType:: : ['::basemap_white::'] },
+	            },
+	            controlOption: {
+	              //사용할 컨트롤 지정
+	              newControl: true,//사용자정의 컨트롤
+	              basemap: true,
+	              zoom: false,
+	              clear: false,
+	              download: false,
+	              print: false,
+	              overviewmap: false,
+	              draw: false,
+	              measure: false,
+	              move: false,
+	            },
+	          },
+	        ],
+	      });
+	      dmc.setMap(map);
+	}
+</script>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>현재 좌표계 : <span id="projection"></span></div>
+	<div>
+		※ 배경지도 변경시 좌표계가 변경되면서 콘솔로그에 변경된 좌표계 값이 찍힙니다.
+		※ 같은 그룹 끼리는 좌표계가 변경되지 않습니다.
+	</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = "::mapOpt::";
+	/*
+		* 배경지도 종류
+		eMapBasic - 바로e맵 일반 지도
+		eMapColor - 바로e맵 색각 지도
+		eMapLowV - 바로e맵 큰글씨 지도
+		eMapWhite - 바로e맵 백지도
+		eMapEnglish - 바로e맵 영어 지도
+		eMapChinese - 바로e맵 중어 지도
+		eMapJapanese - 바로e맵 일어 지도
+		eMapWhiteEdu - 바로e맵 교육용 백지도
+		eMapAIR - 바로e맵  항공지도
+
+		* 프록시 사용
+		proxyURL: 'proxy.jsp' 프록시 설정
+	 */
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var map = new odf.Map(mapContainer, {
+		...mapOption,
+		//배경지도 최적화 on
+		optimization: true,
+	});
+
+	/* 베이스맵 컨트롤 생성 */
+	var basemapControl = new odf.BasemapControl({});
+	basemapControl.setMap(map);
+
+
+	/* wms 레이어 생성 */
+	var wmsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wms',
+	});
+	wmsLayer.setMap(map);
+
+	var sld = odf.StyleFactory.produceSLD({
+		rules : [ {
+			name : 'My Rule', /*룰 이름*/
+			symbolizers : [ {
+				kind : 'Fill',
+				/*채우기색
+				rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 fillOpacity 보다 우선 적용됨
+				 */
+				color : '#FF9966',
+				/*채우기 투명도 0~1*/
+				fillOpacity : 0.7,
+				/*윤곽선색
+					rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 outlineOpacity보다 우선 적용됨
+				 */
+				outlineColor : '#338866',
+				/*윤곽선 두께*/
+				outlineWidth : 2,
+			}, ],
+		}, ],
+	});
+
+	//sld 적용
+	wmsLayer.setSLD(sld);
+
+
+	// wfs 레이어 생성
+	// LayerFactory의 produce 함수는 option이 다양하니 개발자지원센터 '지도문서'를 확인하세요
+	var wfsLayer = odf.LayerFactory.produce('geoserver'/*레이어를 생성하기위 한 테이터 호출 방법*/, {
+		method : 'get',//'post'
+		server : '::WfsAPI::', // 레이어가 발행된 서버 주소
+		layer : '::polygonLayer2::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		service : 'wfs', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
+	}/*레이어 생성을 위한 옵션*/);
+	wfsLayer.setMap(map);
+	// 해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+	wfsLayer.fit();
+
+
+	document.querySelector('#projection').innerText =map.getView().getProjection().getCode();
+	odf.event.addListener(map,'change:view',()=>{
+		document.querySelector('#projection').innerText =map.getView().getProjection().getCode();
+	})
+
+</script>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnLogArea">
+		<div class="innerBox">
+			<button id="modifyBtn" class="onoffOnlyBtn"
+				onclick="modifySelect('update')">레이어 편집</button>
+			<input type="button" id="saveModifyBtn" class="onoffOnlyBtn"
+				value="레이어 편집 완료">
+			<button id="insertBtn" class="onoffOnlyBtn"
+				onclick="modifySelect('insert')">레이어 피쳐 추가</button>
+		</div>
+	</div>
+	<p>원하는 수정 기능 버튼을 클릭 후 레이어를 수정합니다.</p>
+	<p>수정 완료 후 해당 기능 완료 저장 버튼 클릭 시 해당 결과값을 받을 수 있습니다.</p>
+	<p>1.(레이어 편집)버튼 클릭 후 지도에서 원하는 피처 선택 후 드래그하여 피처 수정</p>
+	<p>2.레이어에 피쳐 추가는 그리기도구를 이용하여 피쳐를 그린뒤 (레이어에 피쳐추가)버튼 클릭</p>
+</body>
+<script>
+/* 맵 타겟 */
+var mapContainer = document.getElementById('map');
+
+/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+var mapOption = "::mapOpt::";
+
+/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+var map = new odf.Map(mapContainer, mapOption);
+
+/*그리기 도구 생성*/
+var drawControl = new odf.DrawControl({
+	tools : ['polygon']
+});
+drawControl.setMap(map);
+
+/*그리기/측정 초기화 컨트롤 생성*/
+var clearControl = new odf.ClearControl();
+clearControl.setMap(map);
+
+//wfs 레이어 생성
+var wfsLayer = odf.LayerFactory.produce('geoserver', {
+	method : 'get',
+	server : '::WfsAPI::',
+	layer : '::polygonLayer1::',
+	service : 'wfs',
+});
+wfsLayer.setMap(map);
+
+var wfsLayer2 = odf.LayerFactory.produce('geoserver', {
+	method : 'get',
+	server : '::WfsAPI::',
+	layer : '::polygonLayer2::',
+	service : 'wfs',
+});
+wfsLayer2.setMap(map);
+
+var redStyle  = odf.StyleFactory.produce({
+	stroke : {
+		color : 'red',
+	}
+})
+wfsLayer2.setStyle(redStyle);
+"::viewOption::"
+"::zoomOption::"
+
+odf.event.addListener(drawControl, 'drawstart', function(event){
+	map.setSnap({},[wfsLayer,wfsLayer2, drawControl.findDrawVectorLayer()]);
+	//map.setSnap({pixelTolerance : 10, edge : true, vertex : true}, [layer1, layer2]);
+	// pixelTolerance : 픽셀 민감도, edge : 선에 붙는 설정여부, vertex : 꼭지점에 붙는 설정여부 , 스냅을 적용할 레이어 배열
+})
+
+odf.event.addListener(drawControl, 'drawend', function(event){
+	map.removeSnap();
+	//스냅 인터렉션 제거
+})
+
+var evtId = null;
+var popup = null;
+var moveEvt = null;
+var modifyEvt = false;
+var styleFeature;
+var defaultStyle;
+var selectedLayer;
+var polygonStyle = odf.StyleFactory.produce({
+    fill: { color: [0, 0, 0, 0.2] },
+    stroke: {
+      color: 'red',
+      width: 5,
+    },
+  });
+function modifySelect(type) {
+	if(popup){
+		popup.close();
+		popup = null
+	}
+	evtId != null ? odf.event.removeListener(evtId) : null;
+	moveEvt != null ? odf.event.removeListener(moveEvt) : null;
+	var tooltiptext;
+	switch(type){
+		case 'update' :
+			tooltiptext = '수정을 원하는 객체를 클릭하세요.'
+			break;
+	}
+	var popupcontent = '<div>'+ tooltiptext +'</div>';
+	if(popup == null){
+	popup = new odf.Popup(popupcontent)
+	popup.openOn(map);
+	}
+
+	if(type == 'insert'){
+
+	}
+	else{
+	moveEvt =odf.event.addListener(map, 'pointermove', function(event){
+	if(!modifyEvt){
+	var coord = event.coordinate;
+	popup.setPosition(coord);
+	}
+	});
+	}
+	if (type === 'update') {
+		evtId = odf.event.addListener(map, 'click', function(evt) {
+			 if (styleFeature) {
+		            styleFeature.setStyle(defaultStyle);
+		          }
+		          styleFeature = map.selectFeatureOnClick(evt)[0].feature;
+		          selectedLayer = map.selectFeatureOnClick(evt)[0].layer;
+		          defaultStyle = styleFeature.getStyle();
+		          styleFeature.setStyle(polygonStyle);
+			modifyEvt = true;
+			popup.close();
+			popup = null;
+			map.setModifyLayer('update', evt, selectedLayer, true); //특정 레이어에 모디파이 생성 ['update', 'insert', 'delete', 'moveFeature','transform'] , 툴팁생성여부 ) 디폴트 - false
+			map.setSnap({}, [wfsLayer, wfsLayer2, drawControl.findDrawVectorLayer()]);
+		}, true);
+		var saveModifyBtn = document.getElementById('saveModifyBtn');
+		odf.event.addListener(saveModifyBtn, 'click', function(evt) {
+			styleFeature.setStyle(null);
+			var result = map.modifyComplete('update'); // [update] :  return = {original : 기존 피쳐객체, modify : 변경된 피쳐객체}
+			//  [insert]  :  return = {생성된 피쳐객체}
+			//  [delete]  : return = {선택된 피쳐객체}
+			//  [moveFeature] : return = {original : 기존 피쳐객체, modify : 변경된 피쳐객체}
+			//  [transform] : return = {original : 기존 피쳐객체, modify : 변경된 피쳐객체}
+			var arr = [];
+			for (var i = 0; i < result.length; i++) {
+				var resultModified = result[i].modify
+				arr.push(resultModified);
+			}
+			alert('결과는 콘솔창을 확인하세요');
+			console.log(arr); // 레이어편집  API 로 보낼 데이터 형태
+			var res = map.sendToServerModified(arr, selectedLayer, 'update'); // 서버에 보낼 xml 문자열
+			console.log(res);
+			modifyEvt = false;
+			moveEvt != null ? odf.event.removeListener(moveEvt) : null;
+			map.removeSnap();
+		}, true);
+	} else if (type === 'insert') {
+			var result = map._controls.get('draw').findDrawVectorLayer().getFeatures();
+			alert('결과는 콘솔창을 확인하세요');
+			var res = map.sendToServerModified(result, selectedLayer, 'insert'); // 서버에 보낼 xml 문자열
+			console.log(res);
+	}
+}
+</script>
+</html>

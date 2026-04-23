@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div id="result" class="infoArea"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+    var frameLayer = odf.LayerFactory.produce('geojson', {
+        data : {"type":"FeatureCollection","features":[
+            { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[188606.55042843992, 533586.4659010498], [192222.7995019114, 533586.4659010498], [192222.7995019114, 537582.1979019843], [188606.55042843992, 537582.1979019843], [188606.55042843992, 533586.4659010498]]] }, "properties": {} },
+            { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[192222.7995019114, 533586.4659010498], [195839.04857538285, 533586.4659010498], [195839.04857538285, 537582.1979019843], [192222.7995019114, 537582.1979019843], [192222.7995019114, 533586.4659010498]]] }, "properties": {} },
+            { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[188606.55042843992, 529590.7339001152], [192222.7995019114, 529590.7339001152], [192222.7995019114, 533586.4659010498], [188606.55042843992, 533586.4659010498], [188606.55042843992, 529590.7339001152]]] }, "properties": {} },
+            { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[192222.7995019114, 529590.7339001152], [195839.04857538285, 529590.7339001152], [195839.04857538285, 533586.4659010498], [192222.7995019114, 533586.4659010498], [192222.7995019114, 529590.7339001152]]] }, "properties": {} },
+        ]},
+        //원본 좌표계
+        dataProjectionCode: 'EPSG:5186',
+        //변환 좌표계
+        featureProjectionCode: 'EPSG:5186'
+    });
+    frameLayer.setMap(map);
+    frameLayer.setStyle(odf.StyleFactory.produce({
+        fill: { color: [255, 255, 255, 0], },
+        stroke: { color: 'black', width: 1, },
+    }));
+    frameLayer.fit();
+    map.setZoom(map.getZoom()-0.5);
+
+
+    // 하이라이트 스타일 생성
+    var hilightStyle = odf.StyleFactory.produce({
+        fill: { color: [255, 255, 255, 0.3], },
+        stroke: { color: 'blue', width: 3, },
+    });
+
+
+    var selectedFeaturesLayer = odf.LayerFactory.produce('empty');
+    selectedFeaturesLayer.setStyle(hilightStyle);
+    selectedFeaturesLayer.setMap(map);
+
+    //지도 클릭시 클릭한 위치에 있는 feature 정보 조회
+    odf.event.addListener(map, 'click', function (evt) {
+        //클릭한 위치의 feature 정보 조회
+        var featureList = map.selectFeatureOnClick(evt, frameLayer);
+        if(featureList.length>0){
+            featureList.forEach(({feature})=>{
+            	selectedFeaturesLayer.addFeature(feature);
+           	})
+        }
+    });
+
+    // 우클릭시 선택 도형 초기화
+    odf.event.addListener(map, 'contextmenu', function (evt) {
+        selectedFeaturesLayer.clear();
+    });
+</script>
+</html>

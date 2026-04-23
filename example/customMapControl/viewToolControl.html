@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+		<div class="btnLogArea">
+		<p>축척 컨트롤</p>
+			<input type="button" class="onoffBtn" onclick="alert(scaleControl.getPixelSize())" value="현재축척바사이즈 확인">
+			<input type="button" class="onoffBtn" onclick="scaleControl.setPixelSize(200)" value="축척바사이즈(200px)설정">
+			<input type="button" class="onoffBtn" onclick="alert(scaleControl.getScaleValue())" value="현재 축척바 실제 거리 확인">
+			<input type="button" class="onoffBtn" onclick="scaleControl.setScaleValue(100000)" value="축척설정(100000)">
+		</div>
+		<div class="btnLogArea">
+		<p>오버뷰맵 컨트롤</p>
+		<input type="button" class="onoffBtn" onclick="overviewMapControl.changeState()" value="활성화여부 변경">
+		<input type="button" class="onoffBtn" onclick="overviewMapControl.changeOverviewMapPosition('left-up')" value="왼쪽 위로 위치 변경">
+		<input type="button" class="onoffBtn" onclick="overviewMapControl.changeOverviewMapPosition('left-down')" value="왼쪽 아래로 위치 변경">
+		<input type="button" class="onoffBtn" onclick="overviewMapControl.changeOverviewMapPosition('right-up')" value="오른쪽 위로 위치 변경">
+		<input type="button" class="onoffBtn" onclick="overviewMapControl.changeOverviewMapPosition('right-down')" value="오른쪽 아래로 위치 변경">
+		<input type="button" class="onoffBtn" onclick="OVMgetState()" value="활성화여부 확인">
+		</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = "::mapOpt::";
+	/*
+		* 배경지도 종류
+		eMapBasic - 바로e맵 일반 지도
+		eMapColor - 바로e맵 색각 지도
+		eMapLowV - 바로e맵 큰글씨 지도
+		eMapWhite - 바로e맵 백지도
+		eMapEnglish - 바로e맵 영어 지도
+		eMapChinese - 바로e맵 중어 지도
+		eMapJapanese - 바로e맵 일어 지도
+		eMapWhiteEdu - 바로e맵 교육용 백지도
+		eMapAIR - 바로e맵  항공지도
+
+		* 프록시 사용
+		proxyURL: 'proxy.jsp' 프록시 설정
+	 */
+
+	 /* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	 var map = new odf.Map(mapContainer, mapOption);
+
+	/* 축척 컨트롤 생성 */
+	var scaleControl = new odf.ScaleControl({
+		size : 100,
+		scaleInput  : false, //true 로 변경시 축척 입력 상자 생성
+	//축척 컨트롤 크기 조정 (기준 픽셀) ※기본값 => 100
+	});
+	scaleControl.setMap(map);
+
+	//OverviewMap을 버튼의 왼쪽 위에 위치시키도록 함
+	var overviewMapControl = new odf.OverviewMapControl();//OverviewMapControl 생성
+ 	overviewMapControl.setMap(map,false); //OverviewMapControl 객체에 map 객체 연결
+
+ 	function OVMgetState(){
+ 		alert(overviewMapControl.getState());
+ 	}
+
+</script>
+</html>

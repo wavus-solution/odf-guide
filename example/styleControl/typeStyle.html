@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		속성 : <select class="selectCustom" id="attributes" onChange="setStyle()">
+			<option value="">선택
+		</select>
+		색상 : <select class="selectCustom" id="colorType" onChange="setStyle()"></select>
+	</div>
+</body>
+<script>
+
+	//색 종류 set
+	var colorType = Object.keys(odf.ColorFactory.colorPallet);
+	for (var i = 0; i < colorType.length; i++) {
+		var color = colorType[i];
+
+		var option = document.createElement('option');
+		option.value = color;
+		option.innerHTML = color;
+
+		document.getElementById('colorType').appendChild(option);
+	}
+
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey: '::crtfckey::',
+		service: 'wfs',
+		limit: 50,
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	//레이어의 속성 종류 조회 -wfs레이어만 가능
+	var attributes = pointLayer.getAttributes(['int']);//INT 타입의 속성만 조회
+	for (var i = 0; i < attributes.length; i++) {
+		var attr = attributes[i];
+
+		var option = document.createElement('option');
+		option.value = attr.name;
+		option.innerHTML = attr.name;
+
+		document.getElementById('attributes').appendChild(option);
+	}
+
+
+	/*동적 스타일 생성*/
+	function setStyle() {
+
+		var attr = document.getElementById('attributes').value;
+		if (attr === "") {
+			return;
+		}
+
+		//값의 종류 조회
+		var range = pointLayer.getAttributesFeaturesValueRange(attr).values;
+		//선택된 색상계열로 feature의 개수 만큼 색 생성
+		var colorList = odf.ColorFactory.produce(
+			document.getElementById('colorType').value, //색 계열 'red', 'blue', 'yellow', 'green', 'purple', 'brown', 'black', 'random' 중 하나
+			Object.keys(range).length
+		);
+
+		//선택된 속성별로 색 부여
+		var keys = Object.keys(range);
+		keys.forEach((item, idx) => (range[item].color = colorList[idx++]));
+
+		//동적 스타일 생성
+		var styleFunction = odf.StyleFactory.produceFunction([
+			//기본스타일
+			{
+				seperatorFunc: 'default',
+				style: {
+					image: {
+						circle: {
+							fill: { color: [0, 0, 0, 0.5] }, //채우기
+							stroke: { color: 'black', width: 2 }, //윤곽선
+							radius: 10,
+						},
+					},
+				},
+				callbackFunc: function (style, feature, resolution) {
+					//기본 style opption
+					var circleOption = this.style.image.circle;
+					//생성된 색상으로 채우기 값 변경
+					circleOption.fill.color = range[feature.getProperties().id].color;
+					//새로운 circle옵션으로 circle 스타일 생성하여 set--circle 스타일은 새로 생성하여 setImage해야 적용됨
+					style.setImage(odf.StyleFactory.produceCircle(circleOption));
+				},
+			},
+		]);
+		pointLayer.setStyle(styleFunction);
+	}
+</script>
+
+</html>

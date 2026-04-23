@@ -1,0 +1,127 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1292bf8d492b48c32219cd6cb549c276"></script>
+	<!--
+		★ 카카오 JS SDK는 일일 300,000건 무료입니다. 무료 사용량 이상 사용하고 싶은 경우에는 카카오와 제휴가 필요합니다.
+		★ key값 "1292bf8d492b48c32219cd6cb549c276"은 지온파스용 키값으로 예제 소스 사용시 직접 키를 발급받아서 사용하시기 바랍니다. -->
+</head>
+<style>
+	#mapContainer{
+		position:absolute;
+		width:100%;
+		height: 100%;
+		padding:0px;
+		margin:0px;
+		right:0px;
+
+	}
+	.mapContent {
+		position:absolute;
+		-webkit-overflow-scrolling: touch;
+		-webkit-transform: translate3d(0, 0, 0);
+		-moz-transform: translate3d(0, 0, 0);
+		-ms-transform: translate3d(0, 0, 0);
+		-o-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0);
+		overflow: auto;
+		width: 1100px;
+		height: 550px;
+	}
+</style>
+<body>
+	<!--1. odf 맵 요소를 카카오 지도 요소 위에 위치시킵니다. (map zindex > google zIndex) -->
+	<div id="mapContainer" style="">
+		<div id="kakaoMap" class="mapContent" style="z-index:1; height:550px;"></div>
+		<div id="map" class="mapContent" style="z-index:2; height:550px;"></div>
+	</div>
+</body>
+<script>
+	/* 카카오 지도 위에 odf 레이어를 표출 하는 로직 설명
+    * 1. odf 맵 요소를 카카오 지도 요소 위에 위치시킵니다. (map zindex > kakaoMap zIndex)
+    * 2. odf 맵 객체 생성시 좌표계와 resolution을 카카오 지도에 맞게 설정합니다.
+    * 3. odf 맵 객체의 배경지도를 off 합니다.
+    * 4. odf 맵 객체에 레이어를 추가합니다.
+    * 5. 카카오 지도 객체를 생성합니다. 초기 center 값과 zoom 값을 odf 맵 객체의 값으로 설정합니다.
+    * 5. odf 맵 배경지도의 중심점이 변경될때 카카오 지도도 변경되도록 합니다.
+    * 6. odf 맵 배경지도의 resolution이 변경될때 카카오 지도도 변경되도록 합니다.
+    * */
+
+	/* 2. odf 맵 객체 생성시 좌표계와 resolution을 카카오 지도에 맞게 설정합니다. */
+	var mapElement = document.getElementById('map');
+	var coord = new odf.Coordinate(276179.88560667995, 313632.9594010009);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = {
+		center: coord,
+		zoom: 9,
+		projection: 'EPSG:5181',
+	};
+
+	var map = new odf.Map(mapElement, mapOption);
+	map.setViewOption({
+		resolutions: [
+			2048,
+			1024,
+			512,
+			256,
+			128,
+			64,
+			32,
+			16,
+			8,
+			4,
+			2,
+			1,
+			0.5,
+			0.25,
+		],
+		projection: 'EPSG:5181',
+		resolutionsFixed : true,
+	})
+
+	/* 3. odf 맵 객체의 배경지도를 off 합니다. */
+	map.switchLayer('odf-basemap-eMapBasic', false);
+
+	/* 4. odf 맵 객체에 레이어를 추가합니다. */
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::polygonLayer1::',
+		service : 'wfs',
+		projection: 'EPSG:::srid::',
+	});
+	polygonLayer.setMap(map);
+	polygonLayer.fit();
+
+	/* 5. 카카오 지도 객체를 생성합니다. 초기 center 값과 zoom 값을 odf 맵 객체의 값으로 설정합니다. */
+	var kakaoMap;
+	var kakaoMapInitCenter = map.getProjection().unproject(map.getView().getCenter(), '4326'); //맵 센터값을 4326으로 변경
+	kakaoMapInitCenter = {lat: kakaoMapInitCenter[1],lng: kakaoMapInitCenter[0]};
+	var kakaoMapInitLevel = map.getView().getMaxZoom() - map.getView().getZoom();
+
+	async function initkakaoMap(position, level) {
+		var options = {
+			center: new kakao.maps.LatLng(position.lat, position.lng),
+			level: level+1,
+		};
+		var kakaoContainer = document.getElementById('kakaoMap');
+		kakaoMap = new kakao.maps.Map(kakaoContainer, options);
+	}
+	initkakaoMap(kakaoMapInitCenter, kakaoMapInitLevel);
+
+
+	/* 5. odf 배경지도의 중심점이 변경될때 구글 배경지도도 변경되도록 하기 */
+	odf.event.addListener(map.getView(), 'change:center', (evt) => {
+		var center = map.getProjection().unproject(evt.target.getCenter(), '4326'); //맵 센터 4326으로 변경
+		kakaoMap.setCenter(new kakao.maps.LatLng(center[1], center[0]));
+	})
+
+	/* 6. odf 배경지도의 resolution이 변경될때 구글 배경지도도 변경되도록 하기 */
+	odf.event.addListener(map.getView(), 'change:resolution', (evt) => {
+		kakaoMap.setLevel(map.getView().getMaxZoom() - Math.round(evt.target.getZoom())+1);
+	})
+</script>
+</html>

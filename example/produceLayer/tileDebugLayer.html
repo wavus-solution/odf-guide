@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	// tileDebug 레이어
+	var tileDebugLayer = odf.LayerFactory.produce('tileDebug', {
+		projection: 'EPSG:5186',
+		tileGrid: {
+			origin: [-20037508.3427890, -20037508.3427890],
+			resolutions: [156543.0383, 78271.51913, 39135.75956, 19567.87978, 9783.939891, 4891.969946, 2445.984973, 1222.992486, 611.4962432, 305.7481216, 152.8740608, 76.4370304, 38.2185152, 19.109257, 9.5546285, 4.7773143, 2.3886571, 1.1943286, 0.5971643, ],
+		}
+	});
+	tileDebugLayer.setMap(map);
+</script>
+</html>

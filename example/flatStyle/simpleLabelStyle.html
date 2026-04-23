@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<input type="button" id="changeStyle" class="onoffBtn toggle" value="라벨 스타일 변경" onclick="setStyle();">
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	var styleFlag = true;
+	setStyle();
+
+	function setStyle() {
+		pointLayer.setStyle({
+	    		'text-value' : ['concat', '', ['get', 'id']],//텍스트 내용
+			//'text-offset-x' : 0,//기준점으로부터 텍스트 x좌표 위치 이동
+			//'text-offset-y' : 0,//기준점으로부터 텍스트 Y좌표 위치 이동
+			//'text-rotation' :(Math.PI*270/180), //회전
+			//'text-align' : 'left',//텍스트 수평정렬 ('left', 'right', 'center', 'end', 'start')
+			//'text-baseline' : 'middle',//텍스트 수직정렬('bottom', 'top', 'middle'(기본값), 'alphabetic','hanging', 'ideographic')
+			'text-font' : '20px Courier New',//폰트 크기(필수) 및 글씨체(필수), 두께(옵션) (ex) 'bold 10px sans-serif', 기본값 :'10px sans-serif'
+			'text-fill-color' :styleFlag?'red':'black',//텍스트 색상 색상
+			'text-stroke-color' : [ 255, 255, 255, 0.8 ],//택스트  색상
+			//'text-padding' : [5,5,5,5],//text와 background영역 사이의 여백 //placement :'line' 일 경우 미적용
+			'text-background-stroke-color' :  'black',//택스트 배경 테두리 선 색상 (placement :'line' 일경우 미적용)
+			'text-background-fill-color' :  'white',//택스트 배경 테두리 선 색상 (placement :'line' 일경우 미적용)
+			//'text-placement' :  'point',//텍스트를 나열하는 위치를 line을 따라 나타나게 할지, 특정 point에 나타나게 할지
+			//'text-max-angle' : 90*Math.PI/180,//텍스트가 꺾이는 정도를 제한(placement 속성이 'line'일때 적용)
+			//'text-overflow' :false,//텍스트를 나열한 길이보다 선이 짧을 경우, 넘치는 글자를 쭉 나열할지 여부(placement 속성이 'line'일때 적용). 기본값 false
+			'text-scale' : 1,//텍스트 크기를 정해진 값의 n배로 적용
+			'text-rotateWithView' : true,//지도가 회전할때 텍스트도 적절하게 회전할지 여부
+		});
+		styleFlag = !styleFlag;
+	}
+</script>
+</html>

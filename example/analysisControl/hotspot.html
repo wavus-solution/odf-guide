@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+	
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+	"::viewOption::"
+	map.setZoom(11);
+
+	/* 스타일 종류 추가 */
+	var colorConfig = {
+		style : {
+			cur_range : "fill_red",
+			range : {
+				fill_base : {
+					"-3" : [ 69, 117, 181, 1 ],
+					"-2" : [ 132, 158, 186, 1 ],
+					"-1" : [ 192, 204, 190, 1 ],
+					"0" : [ 255, 255, 191 ],
+					"1" : [ 250, 185, 132 ],
+					"2" : [ 237, 117, 81 ],
+					"3" : [ 214, 47, 39 ]
+				},
+				fill_red : {
+					"0" : [ 255, 167, 167 ],
+					"1" : [ 255, 111, 111 ],
+					"2" : [ 255, 56, 56 ],
+					"3" : [ 255, 0, 0 ]
+				},
+				fill_blue : {
+					"0" : [ 178, 204, 255 ],
+					"1" : [ 119, 149, 255 ],
+					"2" : [ 59, 81, 255 ],
+					"3" : [ 0, 0, 255 ]
+				},
+				fill_yellow : {
+					"0" : [ 255, 228, 0 ],
+					"1" : [ 255, 152, 0 ],
+					"2" : [ 255, 76, 0 ],
+					"3" : [ 255, 0, 0 ]
+				},
+				fill_green : {
+					"0" : [ 234, 245, 192 ],
+					"1" : [ 149, 185, 96 ],
+					"2" : [ 70, 124, 32 ],
+					"3" : [ 14, 64, 0 ]
+				},
+				fill_purple : {
+					"0" : [ 175, 170, 186 ],
+					"1" : [ 116, 96, 157 ],
+					"2" : [ 69, 39, 129 ],
+					"3" : [ 35, 0, 100 ]
+				},
+				fill_brown : {
+					"0" : [ 253, 243, 213 ],
+					"1" : [ 209, 176, 117 ],
+					"2" : [ 164, 109, 46 ],
+					"3" : [ 120, 51, 0 ]
+				},
+				fill_black : {
+					"0" : [ 234, 234, 234 ],
+					"1" : [ 156, 156, 156 ],
+					"2" : [ 78, 78, 78 ],
+					"3" : [ 0, 0, 0 ]
+				},
+			}
+		}
+	};
+
+	var hotspotStyle = odf.StyleFactory.produceFunction([ {
+		seperatorFunc : "default",
+		style : {
+			fill : {
+				color : 'white'
+			},
+			stroke : {
+				color : [ 110, 110, 110 ],
+				width : 1
+			}
+		},
+		callbackFunc : function(style, feature, resolution) {
+			var conf = colorConfig.style;
+			var cur = conf.range[conf.cur_range];
+			var gi_bin = feature.get("gi_bin");
+			var fillColor = cur[gi_bin] ? cur[gi_bin] : cur["0"];
+			style.getFill().setColor(fillColor);
+
+		},
+	} ]);
+
+	/* hostspot 레이어 추가 방법 */
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::', // 분석결과 레이어가 발행된 주소
+		layer : '::hotspotLayer::',
+		service : 'hotspot',
+	});
+	polygonLayer.setMap(map);
+	polygonLayer.setStyle(hotspotStyle);
+</script>
+</html>

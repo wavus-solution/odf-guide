@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnLogArea">
+		<p>마커제어</p>
+		<input type="button" class="onoffBtn" onclick="mDraggable()" value="드래그여부확인">
+		<input type="button" class="onoffBtn" onclick="mElement()" value="ELement 확인">
+		<input type="button" class="onoffBtn" onclick="marker.setOffset([0, -30])" value="offSet 설정">
+		<input type="button" class="onoffBtn" onclick="marker.setPosition([945909.5218701352, 1954955.496334219])" value="위치 설정">
+	</div>
+	<div class="btnLogArea">
+	<p>팝업제어</p>
+			<input type="button" class="onoffBtn" onclick="" id="setOffset" value="offSet 설정">
+			<input type="button" class="onoffBtn" onclick="" id="setPositioning" value="위치 설정">
+	</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = "::mapOpt::";
+	/*
+		* 배경지도 종류
+		eMapBasic - 바로e맵 일반 지도
+		eMapColor - 바로e맵 색각 지도
+		eMapLowV - 바로e맵 큰글씨 지도
+		eMapWhite - 바로e맵 백지도
+		eMapEnglish - 바로e맵 영어 지도
+		eMapChinese - 바로e맵 중어 지도
+		eMapJapanese - 바로e맵 일어 지도
+		eMapWhiteEdu - 바로e맵 교육용 백지도
+		eMapAIR - 바로e맵  항공지도
+
+		* 프록시 사용
+		proxyURL: 'proxy.jsp' 프록시 설정
+	 */
+
+
+	 /* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+ 	var map = new odf.Map(mapContainer, mapOption);
+
+    //마커와 연결된 element 반환
+    var marker = new odf.Marker({
+      position : new odf.Coordinate(::coordx::,::coordy::),
+     });
+     marker.setMap(map);
+
+     function mElement(){
+    	 alert("결과는 콘솔창을 확인해주세요.");
+    	 console.log(marker.getElement());
+     }
+
+     function mDraggable(){
+    	 alert(marker.getDraggable());
+     }
+
+ 	var btn1 = document.getElementById("setOffset");
+ 	var btn2 = document.getElementById("setPositioning");
+ 	var evtId = null;
+ 	var popup = null;
+
+ 		var strContent = '<div style="background-color:red;">' + '<div>' + '<div>' + '<div>' + '<table>'
+ 				+ '<thead></thead>' + '<tbody>' + '<tr>' + '<td>'
+ 				+ '<button value=move>팝업</button>' + '</td>' + '</tr>'
+ 				+ '</tbody>' + '</table>' + '</div>' + '</div>';
+
+ 		popup = new odf.Popup(strContent);
+ 		popup.setPosition(new odf.Coordinate(::coordx::,::coordy::));
+ 		popup.openOn(map)
+ 	odf.event.addListener(btn1, 'click', function(evt) {
+ 		if(popup){
+ 			popup.setOffset([0 , 10])
+ 		}
+ 		});
+
+ 	odf.event.addListener(btn2, 'click', function(evt) {
+ 		if(popup){
+ 			popup.setPositioning('bottom-left');
+ 		}
+ 		});
+
+
+</script>
+</html>

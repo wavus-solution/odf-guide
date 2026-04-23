@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer :  '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	/*타원 스타일 생성*/
+	var eclipseStyle = {
+		'circle-radius' : 25,//크기
+		'circle-fill-color' : [ 255, 255, 255, 0.2 ],//채우기 색
+		'circle-stroke-color' :[ 225, 100, 100, 0.95 ],//운곽선 색
+		'circle-stroke-width': 2,//운곽선 굵기
+		//'circle-scale' : 1,//축척
+		//'circle-snapToPixel' : true,//true : sharp, false : blur
+
+		//타원 스타일
+		'circle-scale' : [1, 0.2],//원래 크기의 n배 [가로  축척, 세로 축척]
+		'circle-rotation' : (Math.PI*30/180),//회전
+		'circle-rotateWithView' : true,//지도 회전시 같이 회전할지 여부
+	};
+	pointLayer.setStyle(eclipseStyle);
+
+	//생성한 스타일을 json 객체 으로 변환
+	var styleOption = pointLayer.getStyle().getObject();
+	var styleOptionJSON = pointLayer.getStyle().getJSON();
+	//변환한 스타일 OBJECT를 스타일 객체로 생성하여 레이어에 적용
+	pointLayer.setStyle(styleOption);
+
+
+</script>
+</html>

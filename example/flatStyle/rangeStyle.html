@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		속성 : <select class="selectCustom" id="attributes" onChange="setStyle()">
+			<option value="">선택
+		</select>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey: '::crtfckey::',
+		service: 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	//레이어의 속성 종류 조회 -wfs레이어만 가능
+	var attributes = pointLayer.getAttributes(['int']);//INT 타입의 속성만 조회
+	for (var i = 0; i < attributes.length; i++) {
+		var attr = attributes[i];
+
+		var option = document.createElement('option');
+		option.value = attr.name;
+		option.innerHTML = attr.name;
+		if ('id' === attr.name) {
+			option.setAttribute('selected', true);
+		}
+		document.getElementById('attributes').appendChild(option);
+	}
+	odf.event.addListener(pointLayer,'featureloadend',()=>{
+		setStyle();
+	})
+
+
+	/*동적 스타일 생성*/
+	function setStyle() {
+
+		var attr = document.getElementById('attributes').value;
+		if (attr === "") {
+			return;
+		}
+
+		var rangeCount = 10;
+		//값의 종류 조회
+		var range = pointLayer.getAttributesFeaturesValueRange(attr);
+		//선택된 색상계열로 feature의 개수 만큼 색 생성
+		var colorList = odf.ColorFactory.produce(
+			/*색 계열
+			- 'red'
+			- 'blue'
+			- 'yellow'
+			- 'green'
+			- 'purple'
+			- 'brown'
+			- 'black'
+			- 'random'*/
+			'random',
+			rangeCount
+		);
+
+		//동적 스타일 생성
+		var gap = (range.max - range.min) / rangeCount;
+		var styleDefine = [];
+		//여러 조건에서 다 참이면 맨 마지막 조건의 스타일이 적용
+		for(var i=rangeCount; i>0;i--){
+			styleDefine.push({
+				filter : ['<', ['get', attr], gap*(i)],
+				style : {
+					'circle-radius': 10,//크기
+					'circle-fill-color': colorList[i-1].slice(),//채우기 색
+					'circle-stroke-color': 'black',//운곽선 색
+					'circle-stroke-width': 1,//운곽선 굵기
+				}
+			})
+		}
+		pointLayer.setStyle(styleDefine);
+	}
+</script>
+
+</html>

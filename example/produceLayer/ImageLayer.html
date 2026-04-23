@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>
+		※ 우클릭으로 이미지 편집을 시작할 수 있습니다.
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	mapOption = {
+		...mapOption,
+		// 이미지 확대/축소시 비율 유지 여부 옵션(기본값 true)
+		//maintainStrechImageRatio : false
+	}
+	var map = new odf.Map(mapContainer, mapOption);
+	// 5186 extent를 입력 좌표계 -> 지도 자표계로 변환
+	var sinlimdongExtent = map.getProjection().projectExtent([191061.55, 537370.7406, 197395.8321, 543434.1944],5186);
+
+	var imageLayer = odf.LayerFactory.produce('geoImage', {
+		url: '::developerUrl::/images/sinlimdong.png', //이미지 정보
+		projection: 'EPSG:::srid::',// 좌표계 정보
+
+		//방법 1) extent로 이미지 위치 설정 (이때, imageCenter값과 imageScale 값은 무시된다.)
+		extent: sinlimdongExtent,//이미지 중심점 좌표
+		//방법 2) 센터 좌표와 scale 값으로 이미지 위지 설정
+		//imageCenter: odf.Extent.getCenter(sinlimdongExtent),//이미지 중심점 좌표
+		//imageScale: [7.2557641466208604, 9.063458594917813],
+
+		editMenu: ['translate'], // 우클릭시 이미지 위치 이동 및 수정 이벤트 생성
+		imageRotate: 0, //이미지 회전 값
+
+	});
+	imageLayer.setMap(map);
+	imageLayer.fit();
+
+	//center 수정/조회
+	//imageLayer.setCenter([194928.69105, 540402.4675]);
+	//imageLayer.getCenter();
+
+	//scale 수정/조회
+	//imageLayer.setScale([10, 20]);
+	//imageLayer.getScale();
+
+	//extent 수정/조회
+	//imageLayer.setExtent([191961.55, 537370.7406, 197395.8321, 543434.1944]);
+	//imageLayer.getExtent();
+
+
+	// 레이어 삭제
+	// map.removeLayer(imageLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(imageLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(imageLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// imageLayer.setMinZoom(10);
+	// imageLayer.setMaxResolution(152.70292183870401);
+	// imageLayer.setMaxZoom(18);
+	// imageLayer.setMinResolution(0.5964957884324376);
+
+	// 레이어 투명도 조절
+	// imageLayer.setOpacity(0.5);
+
+	// 이미지레이어 수정 활성화시 트리거
+	odf.event.addListener(map, 'editstart', (layerObject) => {
+		console.dir(layerObject);
+	});
+	// 이미지레이어 수정 종료시 트리거
+	odf.event.addListener(map, 'editend', (layerObject) => {
+		//수정된 좌표/회전각 정보를 저장
+			console.dir(layerObject);
+	});
+</script>
+</html>

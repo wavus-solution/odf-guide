@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="::OdfUrl::/odf.css" rel="stylesheet">
+  <script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+  <div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+  /* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+  var mapContainer = document.getElementById('map');
+  var coord = new odf.Coordinate(::coordx::,::coordy::);
+  var mapOption = "::mapOpt::";
+  var map = new odf.Map(mapContainer, mapOption);
+
+
+  /* 베이스맵 컨트롤 생성 */
+  var basemapControl = new odf.BasemapControl();
+  basemapControl.setMap(map);
+
+  //0.0. 원 feature 생성
+  var circleFeature = odf.FeatureFactory.produce({
+    geometryType: 'circle',
+    coordinates: [::coordx::, ::coordy::],
+    circleSize: 3732
+  });
+  //0.1. (선택) 빈 벡터 레이어 생성하여 원 feature 넣기
+  var layer = odf.LayerFactory.produce('empty', {});
+  layer.addFeature(circleFeature);
+  layer.setMap(map);
+  //0.2. (선택) 원 feature 위치로 이동
+  layer.fit(true);
+  //0.2. (선택) 원 feature 레이어 비활성화
+  map.switchLayer(layer.getODFId(), false);
+
+  //배경레이어 다각형으로 자르기
+  basemapControl.setSwitchBaseLayerCallback(function (beforeLayer, afterLayer) {
+    if (beforeLayer) {
+      beforeLayer.revertLayer();
+    }
+
+    if (afterLayer) {
+      afterLayer.cropByFeature(circleFeature);
+    }
+  })
+
+  //wms레이어 생성
+  var wmsLayer = odf.LayerFactory.produce('geoserver', { // 레이어 호출 방법 (ex. geoserver, geojson)
+    method: 'get',
+    server: '::WmsAPI::', // 레이어가 발행된 서버 주소
+    layer: '::polygonLayer1::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+    service: 'wms', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
+  });
+  wmsLayer.setMap(map);
+
+  //wms레이어 원형으로 자르기
+  wmsLayer.cropByFeature(circleFeature);
+
+  //원복
+  //wmsLayer.revertLayer();
+
+</script>
+
+</html>

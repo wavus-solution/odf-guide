@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px">
+		<div class="btnLogArea">
+		<p>저장컨트롤</p>
+		<input type="button" class="onoffBtn" onclick="downloadControl.downloadsImage()" value="이미지 저장(PNG)">
+		<input type="button" class="onoffBtn" onclick="downloadControl.downloadsPDF()" value="이미지 저장(PDF)">
+		</div>
+		<div class="btnLogArea">
+		<p>프린트컨트롤</p>
+		<input type="button" class="onoffBtn" onclick="printControl.prints()" value="인쇄상자 실행">
+		</div>
+	</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = "::mapOpt::";
+	/*
+	 * 배경지도 종류
+		eMapBasic - 바로e맵 일반 지도
+		eMapColor - 바로e맵 색각 지도
+		eMapLowV - 바로e맵 큰글씨 지도
+		eMapWhite - 바로e맵 백지도
+		eMapEnglish - 바로e맵 영어 지도
+		eMapChinese - 바로e맵 중어 지도
+		eMapJapanese - 바로e맵 일어 지도
+		eMapWhiteEdu - 바로e맵 교육용 백지도
+		eMapAIR - 바로e맵  항공지도
+
+	 * 프록시 사용
+		proxyURL: 'proxy.jsp' 프록시 설정
+	 */
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* 다운로드 컨트롤 생성 */
+	var downloadControl = new odf.DownloadControl();
+	downloadControl.setMap(map,false);
+
+	var printControl = new odf.PrintControl({ });
+	printControl.setMap(map, true); //PrintControl 객체에 map 객체 연결
+</script>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px;">
+		<button onclick="transform('current')" class="onoffOnlyBtn">1. 현재 좌표 확인</button>
+		<button onclick="transform('from')" class="onoffOnlyBtn">2. from 변환</button>
+		<button onclick="transform('to')" class="onoffOnlyBtn">3. to 변환</button>
+	</div>
+	<div id="result" class="infoArea"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	//wfs 레이어 생성
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer2::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+	wfsLayer.fit();
+
+
+	var newFeature = null;
+	var projection = new odf.Projection({
+		EPSG : '::srid::'
+	});// 지도 좌표계
+
+	var transform = function(condition) {
+		var feature = wfsLayer.getFeatures()[0];
+		var div = document.getElementById("result");
+
+		if (condition === "current") {
+			div.innerText += "\n[::srid::] => "+ feature.getGeometry().getCoordinates()[0][0][0];
+		} else if (condition === "from") {
+			//::srid::->4326으로 변환
+			newFeature = projection.unprojectGeom(feature, '4326');
+			div.innerText += "\n[::srid::->4326] => "+ newFeature.getGeometry().getCoordinates()[0][0][0];
+		} else if (condition === "to") {
+			newFeature = projection.unprojectGeom(feature, '4326');
+			//4326->::srid::으로 변환
+			newFeature = projection.projectGeom(newFeature, '4326');
+			div.innerText += "\n[4326->::srid::] => "+ newFeature.getGeometry().getCoordinates()[0][0][0];
+		}
+
+		//iframe 크기 조절
+		if (parent.window.containerResize) parent.window.containerResize();
+	}
+</script>
+</html>

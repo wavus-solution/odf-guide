@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<input type="button" id="downloadSLD" class="onoffBtn" value="SLD 다운로드" onclick="download();">
+	</div>
+</body>
+<script>
+
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*선 레이어 추가*/
+	var lineLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::lineLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wms',
+	});
+	lineLayer.setMap(map);
+	lineLayer.fit();
+
+	/*선 스타일 생성*/
+	var sld = odf.StyleFactory.produceSLD({
+		rules : [ {
+			name : 'My Rule', /*룰 이름*/
+			/*해당 룰 표현 범위*/
+			/*  scaleDenominator: {
+			    min: 100001,
+			    max: 100001,
+			  }, */
+			/*해당 룰 적용 대상 한정
+			   ★ 기본 비교
+				- filter[0] : 비교연산자 ('==' , '!=' ,  '>' , '<' , '>=', '<=')
+			    - filter[1] : 칼럼명
+			    - filter[2] : 기준 값
+			    ★ like 비교
+				- filter[0] : '*='
+			    - filter[1] : 칼럼명
+			    - filter[2] : 비교 문자열 (wildCard="*" singleChar="." escape="!")
+			                     (ex 1) *_2  => [somthing] + '_2'
+			                     (ex 2) *_.   => [somthing] + '_' +[어떤 문자이든 한개의 문자]
+			                     (ex 3)
+			       ★ null 비교
+			   	- filter[0] : 비교연산자 ('==' , '!=')
+			       - filter[1] : 칼럼명
+			       - filter[2] : null
+			       ★ 두개 이상의 조건
+			   	- filter[0] : 논리연산자('&&','||')
+			       - filter[1] : 조건1
+			       - filter[2] : 조건2
+			       (ex) filter:['&&',['>=','id','3'],['!=',id,null]]
+			 */
+			// filter: ['*=', 'ROAD_TY', '*_2'], //[기본 비교][ , 칼럼명, 기준값]
+			//filter: ['*=', 'type', '*_2'], //[like비교] wildCard="*" singleChar="." escape="!"
+			//filter: ['!=', 'id', null], //[isnull비교]
+			//filter:['&&',['>=','id','3'],['!=',id,null], ...]//[두개 이상의 조건]
+			symbolizers : [ {
+				kind : 'Line',
+				/*라인 색상
+					rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 opacity보다 우선 적용됨
+				 */
+				color : '#338866',
+				/*라인의 끝 표현 방식
+					- 'butt' : (Default) sharp square edge 끝부분을 수직으로 절단
+					- 'round' : rounded edge 끝부분이 둥근 모양
+					- 'square' :  slightly elongated square edge 끝부분에 사각형 추가
+				 */
+				cap : 'round',
+				/*라인이 꺽이는 부분 표현 방식
+				- 'mitre' : (Default) sharp corner 코너가 뾰족    /＼
+				- 'round' : rounded corner 코너가 동글동글
+				- 'bevel' :  diagonal corner 코너의 끝이 잘림 /￣＼
+				 */
+				join : 'round',
+				/*투명도 0~1 */
+				opacity : 0.7,
+				/*두께 */
+				width : 3,
+				/*대시 간격 조절 */
+				dasharray : [ 16, 10 ],
+				/*선의 시작점에서 얼마나 떨어진 곳에서부터 점선을 표시할지 */
+				dashOffset : 16,
+			}, ],
+		}, ],
+	});
+
+	//sld 적용
+	lineLayer.setSLD(sld);
+	//적용된 sld 제거
+	//lineLayer.setSLD(null);
+	var json = lineLayer.getSLD().getJSON();
+	var obj = lineLayer.getSLD().getObject();
+
+	//sld 파일 다운로드
+	function download() {
+		var _sld = lineLayer.getSLD();
+		if (_sld) {
+			_sld.download();
+		}
+	}
+</script>
+</html>

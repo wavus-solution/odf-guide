@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+  	//kakao xyz 레이어
+    var apiLayer = odf.LayerFactory.produce('api', {
+        server: {
+          url : 'https://map0.daumcdn.net/map_usedistrict/2009alo/L{{15-z}}/{{-y-1}}/{{x}}.png', // api 주소
+          proxyURL : 'proxyUrl.jsp',
+          proxyParam : 'url',
+        },
+        /*
+	- 지적편집도 :https://map0.daumcdn.net/map_usedistrict/2009alo
+	- 교통정보 : https://r2.maps.daum-img.net/mapserver/file/realtimeroad
+	- 자전거 : https://map2.daumcdn.net/map_bicycle/2d/6.00
+	- 지형도 : https://map1.daumcdn.net/map_shaded_relief/3.00
+	- 법정경계 : https://spi.maps.daum.net/boundary/mapserver/db/BBOUN_L
+	- 행정경계 : https://spi.maps.daum.net/boundary/mapserver/db/HBOUN_L
+        */
+        service: 'xyz', // wms/wfs
+        projection : 'EPSG:5181',
+        extent : [-30000, -60000, 494288, 988576],
+        tileGrid:{
+          origin: [-30000, -60000],
+          resolutions: [4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5, 0.25, 0.125],
+          tileSize : 256,
+        },
+
+    });
+    apiLayer.setMap(map);
+
+</script>
+</html>

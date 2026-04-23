@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	//csv 텍스트
+	var csvText = `citiName,geometryCol
+서울,POINT(126.98923340640077 37.55149889827983)
+인천,POINT(126.68819371733143 37.51039839360416)
+세종,POINT(127.28557310104901 36.48527736390695)
+대전,POINT(127.3923965683418 36.3409213270248)
+대구,POINT(128.5681142987898 35.829873885230036)
+울산,POINT(129.24947479287357 35.54116181146573)
+광주,POINT(126.82718049399105 35.15428763262156)
+부산,POINT(129.04160209976325 35.16006187409685)
+제주,POINT(126.53501943595326 33.43781360919896)`;
+
+	//csv 레이어 생성
+	var csvLayer = odf.LayerFactory.produce('csv', {
+		data: csvText,//csv 형식 텍스트
+		dataProjectionCode: 'EPSG:4326', //원본 좌표계
+		featureProjectionCode: 'EPSG:::srid::',// 변환할 좌표계(지도좌표계)
+		geometryColumnName: 'geometryCol',//geometry column
+		//delimiter : ','//칼럼 구분자
+	});
+	csvLayer.setMap(map);
+	csvLayer.setStyle({
+		'circle-fill-color':[255,100,100],
+		'circle-radius':20,
+		'cilcle-stroke-color' : 'white',
+		'circle-stroke-width' : 1,
+		'text-value' : ['get','citiName'],
+		'text-font' : 'bold 20px Courier New',
+		'text-color':'black',
+	});
+	// 해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+	csvLayer.fit(true);
+
+
+	// 레이어 삭제
+	// map.removeLayer(csvLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(csvLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(csvLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// csvLayer.setMinZoom(10);
+	// csvLayer.setMaxResolution(152.70292183870401);
+	// csvLayer.setMaxZoom(18);
+	// csvLayer.setMinResolution(0.5964957884324376);
+
+	// 레이어 투명도 조절
+	// csvLayer.setOpacity(0.5);
+
+
+</script>
+
+</html>

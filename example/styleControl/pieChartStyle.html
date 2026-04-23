@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::pointLayer::',
+		service : 'wfs',
+	});
+	pointLayer.setMap(map);
+	map.setZoom(16);
+	pointLayer.defineQuery({ condition: `"SHELTER_NM"='비산중학교 지하주차장'` });// 필터링
+	pointLayer.fit();
+
+
+	/*파이차트 스타일 생성*/
+	var chartStyle = odf.StyleFactory.produce({
+		image : {
+			chart : {
+				type : 'pie', //'pie'/*2차원 파이*/, 'pie3D'/*3차원 파이*/, 'donut'/*도넛형태*/
+				data : [1,5,2,3],//고정값
+				stroke : {
+					color : '#ffffff', //테두리 색상
+					width:2, //테두리 두께
+				},
+				radius : 50,//파이의 크기
+				//파이차트에서 사용할 색상
+				colors : 'pale' , // 'classic', 'dark', 'pale', 'pastel', 'neon'
+				//아래와같이 직접 정의하여 사용할 수도 있음
+				//colors :['#FF4B4B','#FF7272','#FF9999','#FFC0C0','#FFE7E7'],
+	             //rotation : Math.PI*90/180//기울기
+			}
+		},
+	} );
+	pointLayer.setStyle(chartStyle);
+</script>
+</html>
+

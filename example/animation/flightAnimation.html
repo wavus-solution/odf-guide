@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<!--호를 그리는 라이브러리 arc.js 임포트-->
+<script src="https://api.mapbox.com/mapbox.js/plugins/arc.js/v0.1.0/arc.js"></script>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	// 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.)
+	var mapContainer = document.getElementById('map');
+	var map = new odf.Map(mapContainer, {
+		center: [126.99222393088128, 37.565597750621535],
+		zoom: 0,
+		minZoom: 0,
+		projection: 'EPSG:4326',
+		//proxyURL: 'proxyUrl.jsp',
+		//proxyParam: 'url',
+		basemap: {
+			OSM: true
+		},
+	});
+
+	//서울 좌표
+	var incheonAirportCoord = [126.99136124505215, 37.552376642634314];
+	//세계 각지 좌표
+	var foreignCountryCoords = [
+		[110.60250198218147, 34.60514966072935],
+		[99.11114837745247, 67.10934497877187],
+		[-100.7748499365532, 36.49639423076922],
+		[-50.19792685963013, -14.080528846153854],
+		[132.55960547014482, -27.15745192307692],
+	];
+
+	//이동경로 레이어
+	var flightsLayer = odf.LayerFactory.produce('empty'/*레이어를 생성하기위 한 테이터 호출 방법*/, {}/*레이어 생성을 위한 옵션*/);
+	flightsLayer.setMap(map);
+	//finish 값이 true일때만 스타일 적용
+	flightsLayer.setStyle(odf.StyleFactory.produceFunction([
+		{
+			seperatorFunc: function (feature, resolution) {
+				return feature.get('finished');
+			},
+			style: {
+				stroke: {
+					color: '#ff9696',
+					width: 2,
+				}
+			}
+		}
+	]))
+
+	var start = Date.now();
+	//호의 포인트 개수
+	var pointCount = 200;
+	//밀리세컨드당 표현할 라인의 버텍스 수
+	var pointsPerMs = 0.02;
+	//생성된 호 도형을 레이어에 추가
+	//호 생성
+	foreignCountryCoords.forEach((foreignCountryCoord, i) => {
+		var features = [];
+		// arc.js 라이브러리를 이용하여 호 생성
+		var arcGenerator = new arc.GreatCircle(
+			{ x: incheonAirportCoord[0], y: incheonAirportCoord[1] },
+			{ x: foreignCountryCoord[0], y: foreignCountryCoord[1] }
+		);
+		// -180°/+180° 자오선을 교차하는 경로는 순차적으로 애니메이션되는 두 섹션으로 분할
+		var arcLine = arcGenerator.Arc(pointCount, { offset: 10 });
+		arcLine.geometries.forEach(function (geometry) {
+			features.push(
+				odf.FeatureFactory.produce({
+					geometryType: 'linestring',
+					coordinates: geometry.coords,
+				})
+			);
+		});
+		addLater(features,i*pointCount);
+	});
+
+	//레이어 추가(자오선을 넘어가는 경우 두개의 도형으로 쪼개지기 때문에 순차적으로 애니메이션 실행 필요)
+	function addLater(features, timeout) {
+	  window.setTimeout(function () {
+	    var start = Date.now();
+	    features.forEach(function (feature) {
+	      feature.set('start', start);
+	      flightsLayer.addFeature(feature);
+	      const duration = (feature.getGeometry().getCoordinates().length - 1) / pointsPerMs;
+	      start += duration;
+	    });
+	  }, timeout);
+	}
+	flightsLayer.fit();
+
+	//flightsLayer의 런더링 완료시 animateFlights 함수 호출하도록 이벤트 등록
+	odf.event.addListener(flightsLayer, 'postrender', animateFlights);
+	//지도 렌더링 요청
+	map.render();
+
+
+	//렌더링 완료시마다 호출되면서 애니메이션 표현
+	function animateFlights(event) {
+		//render 이벤트에서 vectorContext 추출
+		var vectorContext = odf.Render.getVectorContext(event);
+		var frameState = event.frameState;
+		vectorContext.setStyle(odf.StyleFactory.produce({
+			stroke: {
+				color: '#ff9696',
+				width: 2,
+			},
+		}));
+
+
+		var features = flightsLayer.getFeatures();
+		for (var i = 0; i < features.length; i++) {
+			var feature = features[i];
+			if (!feature.get('finished')) {
+				// only draw the lines for which the animation has not finished yet
+				var coords = feature.getGeometry().getCoordinates();
+				//소요시간
+				var elapsedTime = frameState.time - feature.get('start');
+				if (elapsedTime >= 0) {
+					//그려진 라인의 포인트 개수
+					var elapsedPoints = elapsedTime * pointsPerMs;
+					if (elapsedPoints >= coords.length) {
+						//포인트 개수만큼 모두 그렸으면 해당 도형에는 finish속성 true로 설정
+						feature.set('finished', true);
+					}
+					//화면에 표현할 라인 geometry 생성
+					var maxIndex = Math.min(elapsedPoints, coords.length);
+					var currentLine = odf.GeometryFactory.produce({
+						geometryType: 'linestring',
+						coordinates: coords.slice(0, maxIndex)
+					});
+
+					// animation is needed in the current and nearest adjacent wrapped world
+					var worldWidth = odf.Extent.getWidth([-180, -90, 180, 90]);
+					var offset = Math.floor(map.getView().getCenter()[0] / worldWidth);
+					currentLine.translate(offset * worldWidth, 0);
+					vectorContext.drawGeometry(currentLine);
+					currentLine.translate(worldWidth, 0);
+					vectorContext.drawGeometry(currentLine);
+				}
+			}
+		}
+		// 지도 렌더링 요청
+		map.render();
+	}
+
+</script>
+
+</html>

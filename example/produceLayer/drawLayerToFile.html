@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<input type="file" id="uploadBtn" class="onoffBtn" onchange="fileCheck(this);" />
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	//shape 파일 올려 레이어로 미리보기
+	function fileCheck() {
+		var result = new odf.ZipControl({
+			// zip 객체생성 옵션(File type input HTML)
+			file : document.getElementById('uploadBtn'),
+			// Encoding 종류
+			encoding : 'UTF-8',
+			// 좌표계 EPSG 종류(EPSG 문자를 제외한 코드 번호)
+			epsg : '::srid::',
+			// 생성된 Layer 객체를 받을 callback  함수
+			getLayer : function(l){
+				console.log(l)
+			},
+			//레이어 생성 시 허용할 geometry 타입배열 ['point','linestring','polygon'] 만 허용
+			geometryType : ['polygon','linestring'], //레이어 생성 시 허용할 지오메트리 타입  ex)['polygon', 'point','linestring']
+			//에러 발생 시 에러 메시지 리턴 받을 함수
+			errorCallback : function(error){
+				alert(error);
+			}
+		});
+		result.setMap(map);
+	};
+</script>
+</html>

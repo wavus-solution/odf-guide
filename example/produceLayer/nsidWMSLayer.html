@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div><a href="http://www.nsdi.go.kr/lxportal/?menuno=4077">국가공간정보포털 오픈 API 목록</a></div>
+	<div>
+		※ 국가공간정보 포털 오픈 API 사용 방법<br>
+		① <a href="http://www.nsdi.go.kr/">국가공간정보포털</a> 회원가입 및 로그인<br>
+		② <a href="http://www.nsdi.go.kr/lxportal/?menuno=4077">국가공간정보포털 오픈 API 목록</a>을 확인하여 필요한 데이터 찾기<br>
+		③ API 신청 및 승인 대기<br>
+		④ 승인된 API 키 입력하여 사용하기<br>
+		&nbsp;&nbsp;&nbsp;※ 사용 서비스의 요청변수 목록을 잘 확인하고 레이어 생성 옵션에 적절히 추가하여 사용하기
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	//국가공간정보 포털 국토정보 기본도 조회 서비스
+      var apiLayer = odf.LayerFactory.produce('api', {
+        //server: 'http://openapi.nsdi.go.kr/nsdi/map/LandInfoBaseMapITRF2000BlueService',
+        server: {
+			url : 'http://openapi.nsdi.go.kr/nsdi/map/LandInfoBaseMapITRF2000BlueService',
+			proxyURL : 'proxyUrl.jsp',
+          	proxyParam : 'url',
+		},// API 주소
+        layer: '0', //레이어명. 여러개일경우, 쉼표(,)로 구분
+        service: 'wms',
+        authkey : '::nsdiApiKey::',//발급받은 api key
+        crs : 'EPSG:::srid::',// 요청 좌표계
+        //originalOption : {//odf에서 제공해주는 기본 파라미터 적용 여부
+		  //SERVICE : true,//(기본값 true)
+          //REQUEST : true, //(기본값 true)
+          //WIDTH : true,//(기본값 true)
+          //HEIGHT : true,//(기본값 true)
+          //BBOX : true,//(기본값 true)
+          //FORMAT : true,//(기본값 false)
+          //TRANSPARENT : true,//(기본값 false)
+          //STYLES : true,//(기본값 false)
+          //CRS : false,//(기본값 false)
+          //VERSION : false,//(기본값 false)
+       // }
+    });
+    apiLayer.setMap(map);
+</script>
+</html>

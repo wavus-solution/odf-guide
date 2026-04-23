@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top:15px;">
+		<button onclick="exchange('wkt');" class="onoffOnlyBtn">WKT 형태로 변경</button>
+		<button onclick="exchange('feature');" class="onoffOnlyBtn">Feature로 변경</button>
+		<p>해당 Sample의 결과는 Console 창을 통해 확인 하실 수 있습니다.</p>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* wfs 레이어 생성 */
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+	wfsLayer.fit();
+
+	var result;
+	// Geometry <-> WKT 상호변환
+	exchange = (param) => {
+		if (param === "wkt") {
+			var _feature = wfsLayer.getFeatures()[0];
+			result = odf.FeatureFactory.toWKT(_feature);
+			console.log(result);
+		} else {
+			/*
+			* fromWTK() 파라미터 중 두번째 파라미터는 기본 값이 null 이므로
+			* 속성을 넣고 싶지 않은 경우는 넣지 않으셔도 됩니다.
+			*/
+			var _newfeature = odf.FeatureFactory.fromWKT(result.wkt, result.property);
+			console.log(_newfeature);
+		}
+	}
+</script>
+</html>

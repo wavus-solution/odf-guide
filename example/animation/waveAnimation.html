@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<style>
+
+</style>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	// 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.)
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WmsAPI::',
+		layer: '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey: '::crtfckey::',
+		service: 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	//마우스 이동시 feature hit하면 파동 애니메이션 동작
+	var duration/*애니메이션 지속시간*/ = 3000;
+	odf.event.addListener(map, 'pointermove', (evt) => {
+		//마우스 포인터 아래 도형 조회
+		var featureObject = map.selectFeatureOnClick(evt);
+		if (featureObject.length > 0) {
+			var hitFeature = featureObject[0].feature;
+			var start = Date.now();
+			var flashGeom = hitFeature.getGeometry().clone();
+			//pointLayer 렌더링 완료후 animate 함수 호출되도록 event 등록
+			var postrenderEventId = odf.event.addListener(pointLayer, 'postrender', animate);
+			//지도 렌더링 요청
+			map.render();
+
+			//애니메이션 기능
+			function animate(event) {
+				var frameState = event.frameState;
+				var elapsed /*소요시간*/= frameState.time - start;
+				if (elapsed >= duration) {
+					//postrender 이벤트 등록 해제
+					odf.event.removeListener(postrenderEventId);
+					return;
+				}
+				//render 이벤트 객체로부터 vectorContext(벡터 도형을 그릴때 사용되는 컨텍스트) 추출
+				var vectorContext = odf.Render.getVectorContext(event);
+				var elapsedRatio = elapsed/*소요시간*/ / duration/*애니메이션 지속시간*/;
+				/*
+				 - easeOut : 빠르게 시작하고 점점 속도를 줄임
+				 - easeIn : 천천히 시작하고 점점 속도를 올림
+				*/
+				var radius = odf.Easing.easeOut(elapsedRatio) * 25 + 5;
+				var opacity = odf.Easing.easeOut(1 - elapsedRatio);
+				//파동 스타일
+				var style = odf.StyleFactory.produce({
+					image: {
+						circle: {
+							radius: radius,
+							stroke: {
+								color: 'rgba(255, 0, 0, ' + opacity + ')',
+								width: 0.25 + opacity,
+							},
+						}
+					},
+				});
+				vectorContext.setStyle(style);
+				vectorContext.drawGeometry(flashGeom);
+				//지도 렌더링 요청
+				map.render();
+			}
+		}
+	})
+</script>
+
+</html>

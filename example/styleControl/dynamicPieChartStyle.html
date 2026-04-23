@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::pointLayer::',
+		service : 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	/*파이차트 스타일 생성*/
+	var chartStyle = odf.StyleFactory.produceFunction([
+        {
+            seperatorFunc: 'default',
+            style:[ {
+              	name : 'chart',
+				image : {
+					chart : {
+						type : 'pie', //'pie'/*2차원 파이*/, 'pie3D'/*3차원 파이*/, 'donut'/*도넛형태*/
+						datas : ['X', 'Y', 'id'],
+						stroke : {
+							color : '#ffffff', //테두리 색상
+							width:2, //테두리 두께
+						},
+						radius : 50,//파이의 크기
+						//파이차트에서 사용할 색상
+						//colors : 'pale' , // 'classic', 'dark', 'pale', 'pastel', 'neon'
+						//아래와같이 직접 정의하여 사용할 수도 있음
+						colors :['#FF4B4B','#FF7272','#FF9999','#FFC0C0','#FFE7E7'],
+			             //rotation : Math.PI*90/180//기울기
+					}
+				},
+			},{
+              name : 'Y',
+                text: {
+                  font: 'bold 20px Courier New', //폰트 크기(필수) 및 글씨체(필수), 두께(옵션)
+                  fill: {
+                    color: [0, 0, 0, 0.95],
+                  },
+                  stroke: {
+                    color: [255, 255, 255, 0.8],
+                  },
+                  textBaseline: 'middle',
+                },//end text
+              },//endOBJECT
+                   {
+              name : 'X',
+                     text: {
+                     font: 'bold 20px Courier New', //폰트 크기(필수) 및 글씨체(필수), 두께(옵션)
+                     fill: {
+                    	 color: [0, 0, 0, 0.95],
+          			},
+        			stroke: {
+        				color: [255, 255, 255, 0.8],
+                  	},
+ 	                 textBaseline: 'middle',
+                  },//end text
+    			},//endOBJECT
+      			{
+              name : 'id',
+                    text: {
+                      font: 'bold 20px Courier New', //폰트 크기(필수) 및 글씨체(필수), 두께(옵션)
+                        fill: {
+                          color: [0, 0, 0, 0.95],
+                        },
+          				stroke: {
+           				   color: [255, 255, 255, 0.8],
+         			   },
+          			    textBaseline: 'middle',
+      				},//end text
+   				 }//endOBJECT
+			],
+        	callbackFunc: function (style, feature, resolution) {
+
+              if(style[0].getImage().getData().length===0){
+
+                var datas = style[0].getImage().getDatas();
+                var data = [];
+             	var sum = 0;
+                datas.forEach((dKey) => {
+                  var d = Number(feature.get(dKey));
+                  if (Number.isNaN(d)) {
+                    d = 0;
+                  }
+                  data.push(d);
+                  sum += d;
+                });
+                style[0].getImage().setData(data);
+
+                datas.forEach((dKey,idx) => {
+                  var d = feature.get(dKey);
+                  var a = ((2 * s + d) / sum) * Math.PI - Math.PI / 2;
+                  var v = Math.round((d / sum) * 1000);
+
+                  var targetS = style[idx+1];
+                  //라벨변경
+                  targetS.getText().setText(v / 10 + '%');
+                  s += d;
+                });
+
+              }
+
+              if(resolution>3){
+                this.style[0].image.chart.radius =100;
+              }else{
+              	this.style[0].image.chart.radius =50;
+              }
+
+              var thisobject = style.getObject();
+
+              //라벨 스타일 적용
+              var s = 0; //누적 합계
+
+              //radius 값에 따라 라벨 위치 조정
+              var radius = this.style[0].image.chart.radius/5;
+
+              datas.forEach((dKey,idx) => {
+                var d = feature.get(dKey);
+                var a = ((2 * s + d) / sum) * Math.PI - Math.PI / 2;
+                var targetS = style[idx+1];
+
+                targetS.getText().setTextAlign( a < Math.PI / 2 ? 'left' : 'right');
+                targetS.getText().setOffsetX(Math.cos(a) * (radius + 3));
+                targetS.getText().setOffsetY(Math.sin(a) * (radius + 3));
+                s += d;
+              });
+  			}
+        }
+     ]);
+	pointLayer.setStyle(chartStyle);
+</script>
+</html>
+

@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<input type="button" id="one" class="onoffOnlyBtn toggle grp1" value="방법 1">
+		<input type="button" id="two" class="onoffOnlyBtn toggle grp1" value="방법 2">
+	</div>
+	<p>버튼 클릭 후 지도를 클릭해주세요</p>
+</body>
+<script>
+
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	var btn1 = document.getElementById("one");
+	var btn2 = document.getElementById("two");
+	var evtId = null;
+	var popup = null;
+
+	/* 사용법 1 */
+	odf.event.addListener(btn1, 'click', function(evt) {
+		evtId != null ? odf.event.removeListener(evtId) : null;
+
+		if (popup) {
+			popup.isOpen() === true ? popup.close() : null;
+		}
+
+		var strContent = '<div style="background-color:red;">' + '<div>' + '<div>' + '<div>' + '<table>'
+				+ '<thead></thead>' + '<tbody>' + '<tr>' + '<td>'
+				+ '<button value=move>방법1</button>' + '</td>' + '</tr>'
+				+ '</tbody>' + '</table>' + '</div>' + '</div>';
+
+		popup = new odf.Popup(strContent);
+
+		evtId = odf.event.addListener(map, 'click', function(evt) {
+			popup.openOn(map);
+			let coord = evt.coordinate;
+			popup.setPosition(coord);
+		});
+
+	});
+
+	/* 사용법 2 */
+	odf.event.addListener(btn2, 'click', function(evt) {
+		evtId != null ? odf.event.removeListener(evtId) : null;
+
+		if (popup) {
+			popup.isOpen() === true ? popup.close() : null;
+		}
+
+		var htmlContent = document.createElement('div');
+		htmlContent.style.backgroundColor = "green";
+		htmlContent.innerText = '방법2';
+
+		popup = new odf.Popup(htmlContent);
+
+		evtId = odf.event.addListener(map, 'click', function(evt) {
+			popup.openOn(map);
+			var coord = evt.coordinate;
+			popup.setPosition(coord);
+		});
+
+	});
+
+	//var popups = map.getPopups();//map객체에 등록된 모든 팝업 조회
+	//var selectPopup = map.getPopup(popup.id);//특정 id를 갖는 팝업 조회
+	//var popupPosition = popup.getPosition(); 팝업 위치 조회
+</script>
+</html>
+

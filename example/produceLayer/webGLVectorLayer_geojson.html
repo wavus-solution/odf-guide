@@ -1,0 +1,203 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>
+		※ 레이어 스타일 지정은 레이어 생성시 renderOptions의 style 속성을 통해서 가능합니다. 스타일을 재지정하고자 한다면 레이어를 새로 생성해야합니다.<br/>
+		※ 현재 webGL vector 레이어는 클릭하여 해당 위치의 좌표를 가져오는 selectFeatureOnClick/forEachFeatureAtPixel 등의 메서드(서버 없이 메모리의 feature로 조회)로 조회 불가능, selectFeature를 통해서만 가능합니다.<br/>
+		※ webGL vector 레이어에는 flat 스타일을 적용합니다.<br/>
+		※ MultiPolygon유형의 webgl vector 레이어에 [] 빈 배열 값이 있다면 "Invalid array length" 에러(ol 버그)
+	</div>
+	<div class="infoArea" id="featureInfo"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+
+	/*geoJson 형식의 data*/
+	var geoJsonObject = {
+		type : 'FeatureCollection',
+		features : [
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'Point',
+						coordinates : [ 947433.34863240704, 1938772.515392246 ]
+					},
+					properties : {
+						name : 'Point',
+					},
+				},
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'LineString',
+						coordinates : [
+								[ 947941.44863240704, 1938165.615392246 ],
+								[ 947761.4213161081, 1938904.2663995156 ] ],
+					},
+					properties : {
+						name : 'LineString',
+					},
+				},
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'Polygon',
+						coordinates : [
+								[
+										[ 948034.6163872102, 1938934.7622466995 ],
+										[ 948507.0410516487, 1938352.5823571896 ],
+										[ 948764.7272322515, 1938681.8480324042 ],
+										[ 948034.6163872102, 1938934.7622466995 ] ], ],
+					},
+					properties : {
+						name : 'Polygon',
+					},
+				},
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'MultiLineString',
+						coordinates : [
+								[
+										[ 948273.6163872102, 1937684.7622466995 ],
+										[ 948435.0410516487, 1937202.5823571896 ] ],
+								[
+										[ 947600.7272322515, 1937531.8480324042 ],
+										[ 947781.7272322515, 1936744.8480324042 ] ], ],
+					},
+					properties : {
+						name : 'MultiLineString',
+					},
+				},
+				{
+					type : 'Feature',
+					geometry : {
+						type : 'MultiPolygon',
+						coordinates : [
+								[ [
+										[ 949389.8548185286, 1938996.7978086965 ],
+										[ 949256.2397619198, 1938109.2120755091 ],
+										[ 950506.4949344742, 1938729.567695479 ],
+										[ 949389.8548185286, 1938996.7978086965 ] ] ],
+								[ [
+										[ 949867.0514492746,1937522.2602196916 ],
+										[ 949442.3464479108, 1936677.6221832712 ],
+										[ 950697.3735867726, 1936639.4464528116 ],
+										[ 950754.6371824621, 1936400.8481374385 ],
+										[ 949867.0514492746, 1937522.2602196916 ] ] ], ],
+					},
+					properties : {
+						name : 'MultiPolygon',
+					},
+				}, ],
+		properties : {
+			name : 'layer',
+		},
+	};
+
+	// geojson 레이어 생성
+	// LayerFactory의 produce 함수는 option이 다양하니 개발자지원센터 '지도문서'를 확인하세요
+	var geojsonLayer = odf.LayerFactory.produce('geojson'/*레이어를 생성하기위 한 테이터 호출 방법*/, {
+		//geojson형식 object
+		data : geoJsonObject,
+		//원본 좌표계
+		dataProjectionCode : 'EPSG:5179',
+		//변환 좌표계
+		featureProjectionCode : 'EPSG:::srid::',
+
+		//webgGLRender 적용여부
+		webGLRender :true,
+		//webGLRender 사용시 설정
+		renderOptions: {
+	          style: {
+				'stroke-color': 'red',
+				'stroke-width': 2,
+				//'fill-color': '#fff',
+	          }
+	      }
+	}/*레이어 생성을 위한 옵션*/);
+	geojsonLayer.setMap(map);
+
+	// 해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+	geojsonLayer.fit();
+
+
+
+
+	// 레이어 삭제
+	// map.removeLayer(geojsonLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(geojsonLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(geojsonLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// geojsonLayer.setMinZoom(10);
+	// geojsonLayer.setMaxResolution(152.70292183870401);
+	// geojsonLayer.setMaxZoom(18);
+	// geojsonLayer.setMinResolution(0.5964957884324376);
+
+	// 레이어 투명도 조절
+	// geojsonLayer.setOpacity(0.5);
+
+
+
+	//지도 클릭시 클릭한 위치에 있는 feature 정보 조회
+	odf.event.addListener(map, 'click', function (evt) {
+		var creDiv = document.getElementById('creDiv');
+		if(creDiv){
+			creDiv.innerText = '';
+		}
+
+		//클릭한 위치의 feature 정보 조회
+		var result = map.selectFeature({
+		/*대상 좌표에 버퍼를 지정 (단위:픽셀) (기본값 20)*/
+				//pointBuffer:20,
+		/** extractType 피쳐 추출 유형
+			* - draw 직접 그린 도형 내에 속한 피쳐 추출
+			* - view 현재 지도영역에서 피쳐 추출
+			* - pixel 특정 픽셀에 곂치는 피쳐 추출
+			* - feature 특정 도형(compareFeature) 내에 속한 피쳐 추출
+			* - cql cql_filter로 피처 추출
+			*/
+		extractType: 'pixel',
+		pixel: evt.pixel,//피쳐 추출을 위한 좌표 기준. extractType의 값이 'pixel'일 경우 필수값.
+		});
+
+    		//피처 있는것만 FILTERLING
+		var filteredResult = Object.entries(result).filter(([key, value]) => {
+			return value.features.length > 0;
+		})
+		if(filteredResult.length===0){
+			return;
+		}
+		if (!creDiv) {
+			creDiv = document.createElement('div');
+			creDiv.setAttribute('id', 'creDiv');
+		}
+		if(filteredResult&&filteredResult.length>0&&filteredResult[0][1].features&&filteredResult[0][1].features.length>0){
+				creDiv.innerText =JSON.stringify(filteredResult[0][1].features[0].getProperties());
+		}
+		document.getElementById('featureInfo').append(creDiv);
+
+		//iframe 크기 조절
+		if (parent.window.containerResize) parent.window.containerResize();
+	}.bind(this));
+
+</script>
+</html>

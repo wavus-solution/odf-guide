@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px;">
+		<button onclick="exchange('geoJson');" class="onoffOnlyBtn">geoJson으로 변경</button>
+		<button onclick="exchange('feature');" class="onoffOnlyBtn">Feature로 변경</button>
+		<p>해당 Sample의 결과는 Console 창을 통해 확인 하실 수 있습니다.</p>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*wfs 레이어 생성*/
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+	wfsLayer.fit();
+
+	//Feature <-> GeoJson 상호변환
+	function exchange(param) {
+		if (param === "geoJson") {
+			console.log(wfsLayer.getFeatures()[0].toGeoJson());
+		}
+		else {
+			var geoJson = wfsLayer.getFeatures()[0].toGeoJson();
+			console.log(odf.FeatureFactory.fromGeoJson(geoJson));
+
+		}
+	}
+</script>
+</html>

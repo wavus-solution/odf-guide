@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(199312.9996, 551784.6924);
+	var mapOption = "::mapOpt::";
+	mapOption.projection = 'EPSG:5186';
+	var map = new odf.Map(mapContainer, mapOption);
+
+	//webFGLVectorTile 레이어
+	var geotiffLayer = odf.LayerFactory.produce('geotiff', {
+		/*
+		//타일링 정보
+		tileGrid : {
+		  extent: [-180, -90, 180, 90],
+		  resolutions: [0.703125, 0.3515625, 0.17578125, 8.7890625e-2, 4.39453125e-2],
+		  tileSizes: [
+		    [512, 256],
+		    [1024, 512],
+		    [2048, 1024],
+		    [4096, 2048],
+		    [4096, 4096],
+		  ],
+		},
+		*/
+		// (default true)기본적으로 소스 데이터는 래스터 통계 또는 각 소스의 min 또는 max 속성을 기반으로 한 배율 인수를 사용하여 0과 1 사이의 값으로 정규화됩니다.
+		// 대신 스타일 표현식의 원시 값으로 작업하려면, 이 값을 false로 설정하세요.
+		//이 옵션을 false로 설정하면 소스의 모든 속성 min과 max속성이 무시됩니다.
+		normalize: true,
+
+		//타일 ​그리드 범위를 넘어 타일을 렌더링할지 여부. (defualt false)
+		//wrapX: false,
+
+		//GeoTIFF 소스에 대한 정보 목록
+		//배율을 적용한 후 해상도 세트가 동일하다면 여러 소스를 결합할 수 있음
+		sources: [
+			{
+				//geotiff 를 blob 타입으로 받아 생성
+				//blob : blob
+
+				//geoTiff 파일 경로
+				url: '::TifUrl::/data/geotiff/Wgeonedu3-L100001998.tif',
+				//geoTiff가 타일링 되어있다면 아래와 같이 {{}}로 x/y/z를 표현
+				//데이터가 타일링된 geotiff라면  tileGrid 정보 정의해야함
+				//url: 'https://s2downloads.eox.at/demo/EOxCloudless/2019/rgb/{{z}}/{{y}}/{{x}}.tif',
+
+				// url로 tiff를 가져올때 proxy jsp로 가져올경우 proxy 정보를 설정
+				// undefined 설정시 map에서 proxy정보를 정의했다해도 이 레이어에서는 proxy 사용 안함
+				// proxyURL: 'proxyUrl.jsp',//undefined,
+				// proxyParam: 'url',//undefined,
+
+				//url이 정의됬을때 사용됨..  원본 GeoTIFF 파일의 저해상도 버전 파일
+				//overviews: ['~/~/~.ovr'],
+
+				//읽을 밴드 번호. 제공되지 않으면 모든 밴드를 읽습니다.
+				//예를 들어 GeoTIFF에 파란색(1), 녹색(2), 빨간색(3) 및 근적외선(4) 대역이 있고 근적외선 대역만 필요한 경우 'band : [4]'로 설정합니다.
+				//bands: [4],
+
+				//최소 소스 데이터 값. 렌더링된 값은 구성된 최소 및 최대 값을 기준으로 0에서 1까지 조정 (기본값 0)
+				//이 값을 설정하지 않으면 래스터 통계를 사용합니다. 이 동작을 비활성화하려면 normalize 옵션을 false로 설정하세요
+				//min : 0,
+
+				//최대 소스 데이터 값. 렌더링된 값은 구성된 최소 및 최대 값을 기준으로 0에서 1까지 조정.
+				//이 값을 설정하지 않으면 래스터 통계를 사용합니다. 이 동작을 비활성화하려면 normalize 옵션을 false로 설정하세요
+				//max : 65535
+
+				//삭제할 값. geoTiff의 메타데이터의 nodata 값을 덮어씌움
+				//nodata :0
+			},
+		],
+
+		//레이어가 불투명한지여부
+		//opaque : false,
+
+		//불투명도. 불투명도 전환을 비활성화하려면 0 전달
+		//transition : 250,
+
+		/*
+		//스타일
+		renderOptions: {
+			style : {...}
+		}*/
+	});
+	geotiffLayer.setMap(map);
+
+	// 레이어 삭제
+	// map.removeLayer(geotiffLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(geotiffLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(geotiffLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// geotiffLayer.setMinZoom(10);
+	// geotiffLayer.setMaxResolution(152.70292183870401);
+	// geotiffLayer.setMaxZoom(18);
+	// geotiffLayer.setMinResolution(0.5964957884324376);
+
+	// 레이어 투명도 조절
+	// geotiffLayer.setOpacity(0.5);
+</script>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+	<div id="map" style="height:550px;"></div>
+	<div style="margin-top: 15px">
+		<input id="swipe" type="range" style="width: 100px" /> <input
+			type="button" id="swipeOnOff" class="onoffBtn toggle"
+			value="스와이퍼 기능 활성화/비활성화"> <input type="button"
+			id="switchLayer" class="onoffBtn" value="스와이프 레이어 변경">
+		<input type="button" class="onoffBtn" onClick="alert(swiperControl.getState())" value="스와이프 상태확인"/>
+		<input type="button" class="onoffBtn" onClick="swiperControl.setSliderValue(75)" value="스와이프 비율(75)설정"/>
+	</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = "::mapOpt::";
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var map = new odf.Map(mapContainer, mapOption);
+
+	//베이스맵 컨트롤생성
+	var basemap = new odf.BasemapControl();
+
+	//스와이퍼 컨트롤 추가
+	var swiperControl = new odf.SwiperControl({
+		layers : [ basemap.getBaseLayer('::basemap_color::'),
+				basemap.getBaseLayer('::basemap_white::') ],
+		size : '200',
+		useOriginalLayerFlag : false,//원본레이어를 왼쪽영역에 나타낼지 여부, 기본값 true
+		swipeStrictFlag : false,
+	});
+	//스와이퍼 컨트롤을 htmlElement 없이 map setting
+	swiperControl.setMap(map, false);
+
+	var swipe = document.getElementById('swipe');
+	var swipeFlag = true;
+	var switchLayerFlag = true;
+
+	//swipe 엘리먼트의 값이 변할때마다 스와이퍼 비율 변경
+	swipe.addEventListener('input', function(evt) {
+		//스와이퍼 비율 변경
+		swiperControl.setSliderValue(swipe.value);
+	});
+
+	//스와이퍼 기능 활성화/비활성화
+	document.querySelector('#swipeOnOff').addEventListener('click',
+			function(evt) {
+				//swipeFlag가 true이면 활성화, false이면 비활성화
+				swiperControl.setState(swipeFlag);
+				swipeFlag = !swipeFlag;
+			});
+
+	//스와이프 레이어 변경
+	document.querySelector('#switchLayer').addEventListener(
+			'click',
+			function(evt) {
+				//레이어 변경
+				if (switchLayerFlag) {
+					//색각지도와 기본지도
+					swiperControl.setLayers([
+							basemap.getBaseLayer('::basemap_air::'),
+							basemap.getBaseLayer('::basemap_etc::') ]);
+				} else {
+					//기본지도와 교육용백지도
+					swiperControl.setLayers([
+							basemap.getBaseLayer('::basemap_color::'),
+							basemap.getBaseLayer('::basemap_white::') ]);
+				}
+				switchLayerFlag = !switchLayerFlag;
+			});
+</script>
+</html>

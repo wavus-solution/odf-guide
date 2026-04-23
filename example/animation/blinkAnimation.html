@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<!--호를 그리는 라이브러리 arc.js 임포트-->
+<script src="https://api.mapbox.com/mapbox.js/plugins/arc.js/v0.1.0/arc.js"></script>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<p>지도에서 피처를 클릭해보세요</p>
+</body>
+<script>
+
+	// 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.)
+	var mapContainer = document.getElementById('map');
+	var map = new odf.Map(mapContainer, {
+		center: [126.99222393088128, 37.565597750621535],
+		zoom: 0,
+		minZoom: 0,
+		projection: 'EPSG:4326',
+		//proxyURL: 'proxyUrl.jsp',
+		//proxyParam: 'url',
+		basemap: {
+			OSM: true
+		},
+	});
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WmsAPI::',
+		layer: '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey: '::crtfckey::',
+		service: 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	//클릭한 도형 깜빡이는 애니메이션 적용
+	odf.event.addListener(map,'click',(evt)=>{
+		//클릭한 위치에 도형있나 조회
+		let result = map.selectFeatureOnClick(evt);
+		if(result.length>0){
+			//애니메이션 적용
+			const geometry = result[0].feature.getGeometry().clone();
+			const postrenderEventId = odf.event.addListener(pointLayer, 'postrender', animate);
+
+			const admCd = result[0].feature.getProperties().ADM_CD;
+			const jibun = result[0].feature.getProperties().JIBUN;
+
+			//기존 스타일 비활성화
+			pointLayer.layerFilter((feature)=>{
+				return feature.getProperties()['ADM_CD']===admCd &&feature.getProperties()['JIBUN']===jibun;
+			})
+			//지도 렌더링 요청
+			map.render();
+			let onOffFlag = false;
+			let blinkTimes = 0;
+
+
+			//애니메이션 기능
+			function animate(event) {
+				if(blinkTimes===3){
+					//애니메이션 적용 해제
+					odf.event.removeListener(postrenderEventId);
+					//기존 스타일 활성화
+					pointLayer.layerFilter();
+				}
+				//render 이벤트 객체로부터 vectorContext(벡터 도형을 그릴때 사용되는 컨텍스트) 추출
+				var vectorContext = odf.Render.getVectorContext(event);
+				//점멸 스타일
+				var style = odf.StyleFactory.produce({
+					image: {
+						circle: {
+							radius: 10,
+							fill : {
+								color :'rgba(255, 255, 255, ' + (onOffFlag?'1':'0') + ')',
+							},
+							stroke: {
+								color: 'rgba(255, 0, 0, ' + (onOffFlag?'1':'0') + ')',
+								width: 2,
+							},
+						}
+					},
+				});
+				vectorContext.setStyle(style);
+				vectorContext.drawGeometry(geometry);
+				onOffFlag = !onOffFlag;
+				if(onOffFlag===false){
+					blinkTimes++;
+				}
+
+				//0.3초 유예
+				setTimeout(()=>{
+					map.render();
+					//지도 렌더링 요청
+				},300)
+			}
+		}
+	})
+</script>
+
+</html>

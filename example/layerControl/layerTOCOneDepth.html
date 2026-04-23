@@ -1,0 +1,233 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<!-- TOC 관련 lib -->
+<link rel="stylesheet"
+	href="::DeveloperUrl::/vendor/jqtree/dist/themes/default/style.min.css" />
+<link rel="stylesheet"
+	href="::DeveloperUrl::/vendor/colorpicker/css/colorpicker.css" />
+<link rel="stylesheet" href="::DeveloperUrl::/css/toc.css" />
+<script type="text/javascript"
+	src="::DeveloperUrl::/vendor/jquery/jquery-1.12.4.js"></script>
+<script type="text/javascript"
+	src="::DeveloperUrl::/vendor/jquery/jquery-ui.min.js"></script>
+<script type="text/javascript"
+	src="::DeveloperUrl::/vendor/jqtree/dist/jstree.min.js"></script>
+<script type="text/javascript"
+	src="::DeveloperUrl::/vendor/colorpicker/js/colorpicker.js"></script>
+<script type="text/javascript" src="::DeveloperUrl::/js/sample/toc.js"
+	charset="UTF-8"></script>
+
+
+
+</head>
+<body>
+	<div class="toc_content">
+		<div id="map" class="odf-view" style="height:550px;"></div>
+	</div>
+	<div style="margin-top: 15px;">
+		<button id="addGroup" class="onoffOnlyBtn" onclick="add('group')">그룹
+			추가</button>
+		(삭제 대상 그룹 : <select type="text" id="rtargetGroupId" class="tocinput"></select>)
+		<button id="removeGroup" class="onoffOnlyBtn"
+			onclick="remove('group')">그룹 제거</button>
+		(추가 대상 그룹 : <select type="text" id="targetGroupId" class="tocinput"></select>)
+		<button id="addLayer" class="onoffOnlyBtn" onclick="add('layer')">레이어
+			추가</button>
+		(삭제 대상 레이어 : <select type="text" id="rTargetLayerId" class="tocinput"></select>)
+		<button id="removeLayer" class="onoffOnlyBtn"
+			onclick="remove('layer')">레이어 제거</button>
+	</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = "::mapOpt::";
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var map = new odf.Map(mapContainer, mapOption);
+
+	//샘플 데이터
+	var tocData = [ {
+		id : "1",
+		parent : "",
+		text : "그룹1",
+		lyrId : "",
+		onOff : true,
+		service : "",
+		labelOnoff : false,
+		symbolCndCn : "",
+		filterCndCn : ""
+	}, {
+		id : "2",
+		parent : "1",
+		text : "행정경계",
+		lyrId : "nsid:L000000001",
+		onOff : true,
+		service : "wms",
+		labelOnoff : false,
+		symbolCndCn : "",
+		filterCndCn : "",
+		serverType : "geoserver",
+		serverUrl : "::WfsAPI::",
+		wfsServerUrl : "::WfsAPI::"
+	}, {
+		id : "5",
+		parent : "1",
+		text : "라인 레이어2690",
+		lyrId : "::lineLayer::",
+		onOff : true,
+		service : "wfs",
+		labelOnoff : false,
+		symbolCndCn : "",
+		filterCndCn : "",
+		serverType : "geoserver",
+		serverUrl : "::WfsAPI::",
+		wfsServerUrl : "::WfsAPI::"
+	}, {
+		id : "9",
+		parent : "",
+		text : "면 레이어",
+		lyrId : "::polygonLayer1::",
+		onOff : false,
+		service : "wfs",
+		labelOnoff : false,
+		symbolCndCn : "",
+		filterCndCn : "",
+		serverType : "geoserver",
+		serverUrl : "::WfsAPI::",
+		wfsServerUrl : "::WfsAPI::"
+	}, {
+		id : "10",
+		parent : "",
+		text : "포인트 레이어",
+		lyrId : "::pointLayer::",
+		onOff : true,
+		service : "wfs",
+		labelOnoff : false,
+		symbolCndCn : "",
+		filterCndCn : "",
+		serverType : "geoserver",
+		serverUrl : "::WfsAPI::",
+		wfsServerUrl : "::WfsAPI::"
+	}, {
+		id : "11",
+		parent : "",
+		text : "wmts 레이어",
+		lyrId : "nsid_dev:L100000252",
+		onOff : true,
+		service : "wmts",
+		labelOnoff : false,
+		symbolCndCn : "",
+		filterCndCn : "",
+		serverType : "geoserver",
+		serverUrl : "::WfsAPI::",
+	}, ];
+	var toc = new TOC(map, tocData, {
+		level1 : {//레이어 목록
+			useFlag : true,
+			option : {
+				topButton : {
+					addGroup : false,//default 값 false
+					addLayer : false,//default 값 false
+					exportData : false,//default 값 false
+				},
+				layerButton : {
+					label : false,//default 값 false
+					onoff : true,//default 값 true 고정
+					remove : false,//default 값 false
+				}
+			}
+		},
+	});
+
+	var idx = 100;
+
+	function add(target) {
+		if (target === 'group') {
+			toc.addData({
+				id : idx,
+				text : "그룹" + idx
+			});
+		} else if (target === 'layer') {
+			var targetGroupId = document.querySelector('#targetGroupId').value;
+			var parent = (targetGroupId ? targetGroupId : '');
+
+			toc.addData({
+				id : idx,
+				parent : parent,
+				text : "레이어" + idx,
+				lyrId : "nsid_dev:L100000256",
+				onOff : true,
+				lyrNm : "레이어" + idx,
+				service : "wfs",
+				labelOnoff : false,
+				symbolCndCn : "",
+				filterCndCn : "",
+				serverType : "geoserver",
+				serverUrl :  "::APIGW::/bag/api/map/wfs",
+				wfsServerUrl :  "::APIGW::/bag/api/map/wfs"
+			});
+
+		}
+		idx++;
+		refleshSelectBox();
+	}
+
+	function remove(target) {
+		var targetLayerId = document.querySelector('#rTargetLayerId').value;
+		var targetGroupId = document.querySelector('#rTargetGroupId').value;
+
+		if (target === 'group') {
+			if (targetGroupId && !toc.findCoreData(targetGroupId)) {
+				alert(targetGroupId + '는 존재하지 않습니다.');
+			}
+			toc.remove(targetGroupId);
+		} else if (target === 'layer') {
+			if (targetLayerId && !toc.findCoreData(targetLayerId)) {
+				alert(targetLayerId + '는 존재하지 않습니다.');
+			}
+			toc.remove(targetLayerId);
+		}
+		refleshSelectBox();
+	}
+
+	function refleshSelectBox(data) {
+
+		if (!data) {
+			data = toc.getData();
+		}
+		$("#rtargetGroupId").html("");
+		$("#targetGroupId").html("");
+		$("#rTargetLayerId").html("");
+
+		var groupOptions = '';
+		var layerOptions = '';
+		if (data.length > 0) {
+			data.forEach(function(item) {
+				if (item.lyrId === "") {
+					groupOptions += '<option value='+item.id+'>' + item.text
+							+ '</option>';
+				} else {
+					layerOptions += '<option value='+item.id+'>' + item.text
+							+ '</option>';
+				}
+			});
+			$("#rtargetGroupId").html(groupOptions);
+			$("#targetGroupId").html(groupOptions);
+			$("#rTargetLayerId").html(layerOptions);
+		}
+	}
+
+	refleshSelectBox(tocData);
+</script>
+</html>

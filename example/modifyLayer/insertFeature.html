@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<style>
+  #inputAttributePop{
+  	background-color : white;
+    text-align: right;
+  }
+  #inputAttributePop table{
+  	border-collapse: collapse;
+  }
+  #inputAttributePop td {
+  	border: 1px solid #949494 !important;
+    padding: 3px !important;
+    text-align: center;
+  }
+  #inputAttributePop button{
+    border: 0.5px solid #000;
+    padding: 5px;
+    margin: 5px;
+  }
+</style>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnLogArea">
+		<div class="innerBox">
+			<button id="insertBtn" class="onoffOnlyBtn" onclick="insert()">도형 추가</button>
+			<button id="saveBtn" class="onoffOnlyBtn" onclick="save()">저장</button>
+		</div>
+	</div>
+	<p>'도형 추가' 버튼을 클릭하여 그리기 도형을 추가하세요.</p>
+	<p>'저장' 버튼 클릭 시 해당 결과값을 받을 수 있습니다.</p>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*ui 없이 그리기 도구 생성*/
+	var drawControl = new odf.DrawControl({
+		message : {
+			DRAWSTART_POLYGON : '추가할 도형을 그리기 위해 지도를 클릭하세요.'
+		}
+	});
+	drawControl.setMap(map,false);
+	//그리기 레이어
+	var drawLayer = drawControl.findDrawVectorLayer();
+
+	//wfs 레이어 생성
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map);
+	wfsLayer.fit();
+
+
+	// 그리기 도형 추가
+	function insert(){
+		drawControl.draw('polygon');
+	}
+
+	//'geometry' 타입 데이터 제외한 속성 정보 조회
+	var attributeParam = wfsLayer.getAttributes(['geometry'],false);
+	var content = document.createElement('div');
+	content.id= 'inputAttributePop';
+	var table = document.createElement('table');
+	var tbody = document.createElement('tbody');
+
+	attributeParam.forEach(attr=>{
+		var row = document.createElement('tr');
+		var keyTd = document.createElement('td');
+		keyTd.innerHTML = attr.name;
+		var valueTd = document.createElement('td');
+		var valueInput = document.createElement('input');
+		if(attr.type==='string'){
+			valueInput.setAttribute('type','text')
+		}
+		else if(['int', 'float', 'integer', 'short', 'long', 'double'].includes(attr.type)){
+			valueInput.setAttribute('type','number')
+		}
+		else if(attr.type==='date'){
+			valueInput.setAttribute('type','date')
+		}
+		else if(attr.type==='datetime'){
+			valueInput.setAttribute('type','datetime-local')
+		}
+		valueInput.setAttribute('data-attrname',attr.name)
+		valueTd.append(valueInput);
+
+
+		row.append(keyTd);
+		row.append(valueTd);
+
+		tbody.append(row);
+	})
+	table.append(tbody);
+	content.append(table);
+
+	var insertButton = document.createElement('button');
+	insertButton.setAttribute('type','button');
+	insertButton.innerHTML='추가';
+	content.append(insertButton);
+
+	var closeButton = document.createElement('button');
+	closeButton.setAttribute('type','button');
+	closeButton.innerHTML='닫기';
+	content.append(closeButton);
+
+	var marker = new odf.Marker({
+	  //마커를 올릴 좌표
+      position: [::coordx::,::coordy::],
+      style: { //마커의 스타일 설정
+    	  	element: content
+      },
+      //드래그 여부
+      draggable: false,
+      //마커 영역에서 클릭시 이벤트 버블링 차단
+      stopEvent : true,
+    });
+
+
+	var insertButtonEventId, closeButtonEventId;
+	//그리기 종료시 속성정보 입력
+	odf.event.addListener(drawControl,'drawend',function(feature){
+
+		if(insertButtonEventId&&closeButtonEventId){
+			odf.event.removeListener(insertButtonEventId);
+			odf.event.removeListener(closeButtonEventId);
+		}
+
+		marker.setPosition(feature.getCenterPoint());
+		marker.setMap(map);
+
+		insertButtonEventId = odf.event.addListener(insertButton,'click',function(){
+			//마거와 연결된 element
+			var element = marker.getElement();
+			var properties = {};
+			// 입력 속성정보 조회
+			element.querySelectorAll('input').forEach(inputElem=>{
+				properties[inputElem.dataset.attrname] = inputElem.value;
+				//초기화
+				inputElem.value = '';
+			})
+			//속성 정보 feature에 셋팅
+			feature.setProperties(properties);
+			marker.removeMap();
+		})
+		closeButtonEventId = odf.event.addListener(closeButton,'click',function(){
+			marker.removeMap();
+		})
+		//feature.get
+	})
+
+
+	// 그린 도형을 서버로 전송
+	function save(){
+		if(drawControl.getActiveType()!=='none'){
+			if(!confirm('현재 그리기 중인 도형은 삭제하고 진행하시겠습니까?')){
+				return;
+			}else{
+				drawControl.clear();
+			}
+		}
+
+		var insertFeatureList = drawLayer.getFeatures();
+		if(insertFeatureList.length===0){
+			alert(`추가할 도형이 없습니다. '도형 추가' 버튼을 눌러 추가할 도형을 그린 후 다시 시도하세요.`);
+		}
+
+		// 지오서버에 보낼 xml 문자열
+		var xmlText = map.sendToServerModified(insertFeatureList, wfsLayer, 'insert');
+		alert('콘솔 창을 확인하세요.');
+		console.log(xmlText);
+
+		// 지오서버에 해당 xml 보내기
+		//  'Content-Type': 'application/xml'으로 요청 보내야함
+
+		// draw레이어에 있는 feature 삭제
+		drawLayer.clear();
+	}
+</script>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<select id="changeRegularShape">
+			<option value="starStyle" selected>별</option>
+			<option value="squareStyle" >사각형</option>
+			<option value="triangleStyle" >삼각형</option>
+			<option value="crossStyle" >십자가</option>
+			<option value="xStyle" >x</option>
+			<option value="arrowStyle" >화살표</option>
+		</select>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer :  '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	var styleObject = {};
+	/*별 스타일 생성*/
+	styleObject.starStyle = odf.StyleFactory.produce({
+		image : {
+			regularShape : {
+				radius : 10,//크기
+				fill : {
+					color : 'black'
+				},//채우기
+				points: 5,
+          		radius: 10,
+	          	radius2: 4,
+	          	angle: 0
+			}
+		}
+	});
+	/*사각형 스타일 생성*/
+	styleObject.squareStyle = odf.StyleFactory.produce({
+		image : {
+			regularShape : {
+				radius : 10,//크기
+				fill : {
+					color : 'black'
+				},//채우기
+		      	points: 4,
+		      	radius: 10,
+		      	angle: Math.PI / 4,
+			}
+		}
+	});
+	/*삼각형 스타일 생성*/
+	styleObject.triangleStyle = odf.StyleFactory.produce({
+		image : {
+			regularShape : {
+				radius : 10,//크기
+				fill : {
+					color : 'black'
+				//채우기 색
+				},//채우기
+		      	points: 3,
+		      	radius: 10,
+		      	rotation: 0,
+		      	angle: 0,
+			}
+		}
+	});
+	/*십자가 스타일 생성*/
+	styleObject.crossStyle = odf.StyleFactory.produce({
+		image : {
+			regularShape : {
+				radius : 10,//크기
+				stroke : {//윤곽선
+					color : 'black',//테두리 색
+					width : 2,//굵기
+				//lineDash:[4, 1]//점선 설정
+				},
+	            points: 4,
+	            radius: 10,
+	            radius2: 0,
+	            angle: 0
+			}
+		}
+	});
+	/*x 스타일 생성*/
+	styleObject.xStyle = odf.StyleFactory.produce({
+		image : {
+			regularShape : {
+				radius : 10,//크기
+				stroke : {//윤곽선
+					color : 'black',//테두리 색
+					width : 2,//굵기
+				//lineDash:[4, 1]//점선 설정
+				},
+				points: 4,
+	            radius: 10,
+	            radius2: 0,
+	            angle: Math.PI / 4
+			}
+		}
+	});
+	/*화살표 스타일 생성*/
+	styleObject.arrowStyle = odf.StyleFactory.produce([{
+        image: {
+            regularShape: {
+            		stroke: {
+                    width: 2,
+                    color: 'black',
+                },
+                points: 2,
+                radius: 5,
+                rotateWithView: true,
+            }
+        }
+    },{
+        image: {
+            regularShape: {
+	    			fill : {
+	    				color : 'black'
+	    			},//채우기
+                points: 3,
+                radius: 5,
+                rotateWithView: true,
+            }
+        }
+    }]);
+	pointLayer.setStyle(styleObject.starStyle);
+
+
+	var styleFlag = true;
+	//스타일 변경
+	document.getElementById('changeRegularShape').addEventListener('change', function(evt) {
+		var styleName = evt.target.value;
+		pointLayer.setStyle(styleObject[styleName]);
+	});
+</script>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<textarea id="jsonArea" style="width: 100%; height: 200px;"></textarea>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*폴리곤 레이어 추가*/
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::polygonLayer1::',
+		service: 'wfs',
+	});
+	polygonLayer.setMap(map);
+	polygonLayer.fit();
+
+	/*폴리곤 스타일 생성*/
+	var functionStyle = odf.StyleFactory.produceFunction([{
+		seperatorFunc: "default",
+		style: {
+			fill: {
+				color: [255, 100, 0, 0.5]
+			},//채우기
+			stroke: {
+				color: 'red',
+				width: 3,
+			},//윤곽선
+			text: {
+				font: 'bold 20px Courier New',
+				fill: {
+					color: 'red'
+				},
+			}
+		},
+		callbackFunc: function (style, feature, resolution) {
+			style.getText().setText(String(feature.getProperties().DGM_NM));
+		},
+	},
+	//resolution 값이 1보다 클때 적용되는 스타일
+	{
+		seperatorFunc: function (feature, resolution) {
+			return resolution > 1;
+		},
+		style: {
+			fill: {
+				color: [0, 255, 100, 0.5]
+			},//채우기
+			stroke: {
+				color: 'green',
+				width: 3,
+			},//윤곽선
+		},
+		priority: 2,
+	},
+	//resolution 값이 3보다 클때 적용되는 스타일
+	{
+		seperatorFunc: function (feature, resolution) {
+			return resolution > 3;
+		},
+		style: {
+			fill: {
+				color: [0, 100, 255, 0.5]
+			},//채우기
+			stroke: {
+				color: 'blue',
+				width: 3,
+			},//윤곽선
+		},
+		priority: 1,
+	}]);
+	polygonLayer.setStyle(functionStyle);
+
+	//스타일을 JSON 형태로 출력
+	document.getElementById("jsonArea").innerHTML = functionStyle.getJSON();
+
+	//JSON 데이터로 스타일 생성하여 셋
+	//polygonLayer.setStyle(odf.StyleFactory.produce(functionStyle.getJSON()));
+</script>
+
+</html>

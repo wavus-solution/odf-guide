@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		<p>클릭이벤트 추가 버튼을 클릭 후 지도를 클릭합니다.</p>
+		<input type="button" value="클릭이벤트 추가" class="onoffOnlyBtn toggle grp1" id="addListner" />
+		<input type="button" value="클릭이벤트 해제" class="onoffOnlyBtn toggle grp1" id="removeListner" />
+		<span id="message" style="color: red;"></span>
+	</div>
+	<p>※ 직접해보기에서는 이벤트 버튼 토글이 지원되지 않습니다.</p>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+	var view = map.getView();
+
+	var eventId;
+
+	odf.event.addListener('#addListner', 'click', function(evt) {
+		//바인딩된 이벤트가 없을 때, 이벤트 연결
+		if (!eventId) {
+			//클릭 이벤트 연결
+			eventId = odf.event.addListener(
+				/*target : 이벤트를 연결할 대상
+				 ★ target 종류
+				 [선택1] css 선택자 (ex) '#id' | '.class' | 'tagName'
+				 [선택2] HTMLElement (ex) document.getElementById('id')
+				 [선택3] odf 객체 (ex) (new odf.Map({...}))
+				 */
+				map,
+				/*eventType : 이벤트 종류(타겟에 따라 연결할 수 있는 이벤트의 종류는 상이)
+				 ★ map 객체에 연결 가능한 eventType
+				 [선택1] click
+				 [선택2] singleclick
+				 [선택3] dblclick
+				 [선택4] movestart
+				 [선택5] moveend
+				 [선택6] pointerdrag
+				 [선택7] pointermove
+				 [선택8] precompose
+				 [선택9] postrender
+				 [선택10] postcompose
+				 [선택11] propertychange
+				 [선택11] change
+				 [선택12] change:layerGroup
+				 [선택13] change:size
+				 [선택14] change:target
+				 [선택15] change:view
+				*/
+		 		'click',
+				/*callback : 이벤트가 발생할때 트리거 될 function*/
+				function(evt) {
+					var marker = new odf.Marker({
+						position : evt.coordinate
+					});
+					marker.setMap(map);
+				},
+				/*event_expiration : 이벤트 해제 시기
+				 [선택1] 'odfDeleted' : (기본값) odf가 삭제될때 이벤트 해제
+				 [선택2] true : 한번만 호출하고 삭제
+				 [선택3] false : odf가 삭제될때 이벤트 해제
+				 [선택4] 'odfDeleted' : 사용자가 원하는 시점에서 1번 호출하고 해제
+				*/
+				'odfDeleted'
+			);
+		} else {
+			document.getElementById("message").innerHTML = "이벤트가 이미 연결되어있습니다.";
+			setTimeout(function() {
+				document.getElementById("message").innerHTML = ""
+			}, 1000);
+		}
+	});
+
+	odf.event.addListener('#removeListner','click',function(evt) {
+		//바인팅된 이벤트가 있을때 이벤트 연결
+		if (eventId) {
+			odf.event.removeListener(eventId/*odf.event.addListener에서 정상적으로 이벤트가 연결될 경우, EVENT 고유 ID를 반환. 해당 ID를 이벤트 해제할때 매개변수로 넘김*/);
+			eventId = undefined;
+		}
+		else {
+			document.getElementById("message").innerHTML = "바인딩된 이벤트가 없습니다.";
+			setTimeout(
+				function() {
+					document.getElementById("message").innerHTML = ""
+				},
+				1000
+			);
+		}
+	});
+</script>
+</html>
+

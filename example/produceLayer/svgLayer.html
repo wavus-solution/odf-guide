@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	// 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.)
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	var svgContainer = document.createElement('div');
+	var svg = document.createElement('svg');
+	svg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+	svg.setAttributeNS(null, 'viewBox', `0 0 32 32`);
+	svg.innerHTML = `  <defs>
+    <clipPath id="clip-path">
+      <rect id="사각형_43508" data-name="사각형 43508" width="27" height="27" fill="none" stroke="#fff" stroke-width="2"/>
+    </clipPath>
+  </defs>
+  <g id="그룹_68314" data-name="그룹 68314" opacity="0.75">
+    <g id="그룹_68313" data-name="그룹 68313" clip-path="url(#clip-path)">
+      <path id="패스_33952" data-name="패스 33952" d="M18.351,5.436l2.21,4.454a2.73,2.73,0,0,0,1.783,1.328l4.005.671c2.562.43,3.164,2.3,1.319,4.15l-3.114,3.138a2.762,2.762,0,0,0-.653,2.29l.891,3.885c.7,3.075-.917,4.264-3.616,2.657l-3.755-2.24a2.7,2.7,0,0,0-2.486,0l-3.754,2.24c-2.687,1.607-4.32.405-3.617-2.657l.891-3.885a2.763,2.763,0,0,0-.653-2.29L4.689,16.039c-1.833-1.847-1.243-3.72,1.319-4.15l4.006-.671a2.736,2.736,0,0,0,1.77-1.328l2.21-4.454C15.2,3.019,17.158,3.019,18.351,5.436Z" transform="translate(-2.681 -2.674)" fill="none" stroke="#ff0000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    </g>
+  </g>`
+
+	var svgString = svg.outerHTML;
+	var parser = new DOMParser();
+	var svgDocument = parser.parseFromString(svgString, "image/svg+xml");
+	svg = svgDocument.documentElement;
+	svgContainer.appendChild(svg);
+
+	svgContainer.style.position = 'absolute';
+	svgContainer.style.transformOrigin = 'top left';
+	svgContainer.className = 'svg-layer';
+
+
+	// wmts 레이어 생성
+	// LayerFactory의 produce 함수는 option이 다양하니 개발자지원센터 '지도문서'를 확인하세요
+	var svgLayer = odf.LayerFactory.produce('svg'/*레이어를 생성하기위 한 테이터 호출 방법*/, {
+		svgContainer,
+		extent : [168527.54444612714, 354372.52511103556, 313207.5509011132, 480582.74350793834]
+	}/*레이어 생성을 위한 옵션*/);
+	svgLayer.setMap(map);
+	// 해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+	svgLayer.fit();
+
+	// 레이어 삭제
+	// map.removeLayer(svgLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(svgLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(svgLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// svgLayer.setMinZoom(10);
+	// svgLayer.setMaxResolution(152.70292183870401);
+	// svgLayer.setMaxZoom(18);
+	// svgLayer.setMinResolution(0.5964957884324376);
+
+	// 레이어 투명도 조절
+	// svgLayer.setOpacity(0.5);
+
+</script>
+</html>

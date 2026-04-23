@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px;">
+		<button onclick="switchFn(true);" class="onoffOnlyBtn toggle grp1">layer on</button>
+		<button onclick="switchFn(false);" class="onoffOnlyBtn toggle grp1">layer off</button>
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* wms 레이어 생성 */
+	var wmsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WmsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wms',
+	});
+	wmsLayer.setMap(map);
+	wmsLayer.fit();
+
+	/* 레이어 on/off 변경 */
+	function switchFn(bools) {
+		map.switchLayer(wmsLayer.getODFId()/* odf 레이어 id */, bools/* on/off 여부 */);
+	}
+</script>
+</html>

@@ -1,0 +1,137 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<script>
+		(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })({
+			key: "AIzaSyCHW_Vs6mcwzRZWYpFxe1EgQ46DNDAPxeA",
+			//★ 구글의 Maps JavaScript API는 사용한 만큼만 지불하는 가격 모델을 사용합니다. 사용량에 따라 비용이 발생할 수 있습니다.
+			//★ key값 "AIzaSyCHW_Vs6mcwzRZWYpFxe1EgQ46DNDAPxeA"은 지온파스용 키값으로 예제 소스 사용시 직접 키를 발급받아서 사용하시기 바랍니다.
+		});
+	</script>
+</head>
+<style>
+	#mapContainer{
+		position:absolute;
+		width:100%;
+		height: 100%;
+		padding:0px;
+		margin:0px;
+		right:0px;
+
+	}
+	.mapContent {
+		position:absolute;
+		-webkit-overflow-scrolling: touch;
+		-webkit-transform: translate3d(0, 0, 0);
+		-moz-transform: translate3d(0, 0, 0);
+		-ms-transform: translate3d(0, 0, 0);
+		-o-transform: translate3d(0, 0, 0);
+		transform: translate3d(0, 0, 0);
+		overflow: auto;
+		width: 1100px;
+		height: 550px;
+	}
+</style>
+<body>
+	<!--1. odf 맵 요소를 구글지도 요소 위에 위치시킵니다. (map zindex > google zIndex) -->
+	<div id="mapContainer" style="">
+		<div id="googleMap" class="mapContent" style="z-index:1; height:550px;"></div>
+		<div id="map" class="mapContent" style="z-index:2; height:550px;"></div>
+	</div>
+</body>
+<script>
+	/* 구글지도 위에 odf 레이어를 표출 하는 로직 설명
+    * 1. odf 맵 요소를 구글지도 요소 위에 위치시킵니다. (map zindex > google zIndex)
+    * 2. odf 맵 객체 생성시 좌표계와 resolution을 구글지도에 맞게 설정합니다.
+    * 3. odf 맵 객체의 배경지도를 off 합니다.
+    * 4. odf 맵 객체에 레이어를 추가합니다.
+    * 5. 구글지도 객체를 생성합니다. 초기 center 값과 zoom 값을 odf 맵 객체의 값으로 설정합니다.
+    * 5. odf 맵 배경지도의 중심점이 변경될때 구글지도도 변경되도록 합니다.
+    * 6. odf 맵 배경지도의 resolution이 변경될때 구글지도도 변경되도록 합니다.
+    * */
+
+	/* 2. odf 맵 객체 생성시 좌표계와 resolution을 구글지도에 맞게 설정합니다. */
+	var mapElement = document.getElementById('map');
+	var coord = new odf.Coordinate(14232009.094513748, 4344427.004198583);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = {
+		center: coord,
+		zoom: 9,
+		projection: 'EPSG:3857',
+	};
+
+	var map = new odf.Map(mapElement, mapOption);
+	map.setViewOption({
+		resolutions: [
+			156543.033928,
+			78271.5169639999,
+			39135.7584820001,
+			19567.8792409999,
+			9783.93962049996,
+			4891.96981024998,
+			2445.98490512499,
+			1222.99245256249,
+			611.49622628138,
+			305.748113140558,
+			152.874056570411,
+			76.4370282850732,
+			38.2185141425366,
+			19.1092570712683,
+			9.55462853563415,
+			4.77731426794937,
+			2.38865713397468,
+			1.19432856685505,
+			0.597164283559817,
+			0.298582141647617
+		],
+		projection: 'EPSG:3857',
+		resolutionsFixed : true,
+	})
+
+	/* 3. odf 맵 객체의 배경지도를 off 합니다. */
+	map.switchLayer('odf-basemap-eMapBasic', false);
+
+	/* 4. odf 맵 객체에 레이어를 추가합니다. */
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer :  '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+		projection: 'EPSG:' + '::srid::' //★ 네이버 지도 사용시, projection 필수
+	});
+	pointLayer.setMap(map);
+	pointLayer.fit();
+
+	/* 5. 구글지도 객체를 생성합니다. 초기 center 값과 zoom 값을 odf 맵 객체의 값으로 설정합니다. */
+	var googleMap;
+	var googleMapInitCenter = map.getProjection().unproject(map.getView().getCenter(),'4326');//맵 센터값을 4326으로 변경
+	googleMapInitCenter = {lat: googleMapInitCenter[1],lng: googleMapInitCenter[0]};
+	var googleMapInitZoom = map.getView().getZoom();
+
+	async function initGoogleMap(position, zoom) {
+		const { Map } = await google.maps.importLibrary("maps");
+		googleMap = new Map(document.getElementById("googleMap"), {
+			zoom: zoom,
+			center: position,
+			mapId: "DEMO_MAP_ID",
+		});
+	}
+	initGoogleMap(googleMapInitCenter, googleMapInitZoom);
+
+
+	/* 5. odf 배경지도의 중심점이 변경될때 구글 배경지도도 변경되도록 하기 */
+	odf.event.addListener(map.getView(), 'change:center', (evt) => {
+		var center = map.getProjection().unproject(evt.target.getCenter(), '4326');
+		googleMap.setCenter(new google.maps.LatLng(center[1], center[0]));
+	})
+
+	/* 6. odf 배경지도의 resolution이 변경될때 구글 배경지도도 변경되도록 하기 */
+	odf.event.addListener(map.getView(), 'change:resolution', (evt) => {
+		googleMap.setZoom(Math.round(evt.target.getZoom()));
+	})
+</script>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="infoArea" id="legendArea"></div>
+</body>
+<script>
+
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*포인트 레이어 추가*/
+	var layer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey: '::crtfckey::',
+		service: 'wfs',
+	});
+	layer.setMap(map);
+	layer.fit();
+
+
+	//도형이 모두 로드되면 범례 생성
+	odf.event.addListener(layer, 'featureloadend', function () {
+		//값의 종류 조회
+		var range = layer.getAttributesFeaturesValueRange('id').values;
+		var keys = Object.keys(range);
+
+		var colorList = odf.ColorFactory.produce(
+			'purple', //색 계열 'red', 'blue', 'yellow', 'green', 'purple', 'brown', 'black', 'random' 중 하나
+			keys.length,
+			0.8,//alpha값(투명도) 0~1 사이의 실수
+		);
+		var dynamicStyleOption = [];
+		Object.keys(range).forEach((key, idx) => {
+			var styleOption = {
+				image: {
+					circle: {
+						radius: 10,
+						fill: { color: colorList[idx].slice() },//채우기
+						stroke: { color: 'black', width: 1, },//윤곽선
+					}
+				},
+				text: {
+					font: 'bold 10px Courier New',
+					fill: { color: 'black' },
+				}
+			}
+			range[key].styleOption = styleOption;
+			dynamicStyleOption.push({
+				seperatorFunc: function (feature, resolution) {
+					return feature.getProperties().id == key;
+				},
+				style: styleOption,
+				callbackFunc: function (style, feature, resolution) {
+
+					style.getText().setText(feature.getProperties().id + "");
+				}
+			});
+		});
+		layer.setStyle(odf.StyleFactory.produceFunction(dynamicStyleOption));
+
+		//범례 생성
+		Object.keys(range).forEach(function (key) {
+			var opt = range[key];
+			var newDiv = document.createElement('div');
+			//스타일 옵션으로 범례 element생성
+			var styleElem = odf.StyleFactory.produceElement(opt.styleOption //스타일 생성 옵션
+				, 15//element 크기 . 기본값 10
+				, true//text 표시 여부. 기본값 false
+			);
+			styleElem.style.float = 'left';
+			newDiv.appendChild(styleElem);
+			var newSpan = document.createElement('span');
+			newSpan.innerHTML = '     ' + key;
+			newDiv.appendChild(newSpan);
+			document.querySelector('#legendArea').appendChild(newDiv);
+
+		});
+
+		//iframe 크기 조절
+		if (parent.window.containerResize) parent.window.containerResize();
+	}, true/*이벤트 1회 실행되고 삭제*/);
+</script>
+
+</html>

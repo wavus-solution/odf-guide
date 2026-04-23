@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+    /*레이어 추가*/
+    var layer = odf.LayerFactory.produce('empty', {});
+    var polygon = odf.FeatureFactory.produce({
+        geometryType : 'polygon',
+        coordinates : [[[192118.6159, 533612.136], [192115.8009, 533618.3519], [192126.2758, 533618.493], [192140.8867, 533618.6373], [192155.5815, 533618.7825], [192166.8745, 533618.8947], [192170.1804, 533622.2657], [192170.0446, 533609.0228], [192166.4976, 533612.4917], [192155.9366, 533612.4136], [192141.7438, 533612.3083], [192118.6159, 533612.136]]],
+    })
+    map.getProjection().projectGeom(polygon,'5186');
+    layer.addFeature(polygon);
+
+    var line = odf.FeatureFactory.produce({
+        geometryType : 'linestring',
+        coordinates : [[192220.6199, 533612.136], [192229.2758, 533618.493],[192259.5815, 533608.7825]],
+    })
+    map.getProjection().projectGeom(line,'5186');
+    layer.addFeature(line);
+    layer.setMap(map);
+    layer.fit();
+    map.setZoom(19);
+
+
+    /*스타일 생성*/
+	var styleOption = [
+		{
+			stroke: {
+				color: [222, 120, 252, 0.95],
+				lineCap: 'round',//선의 끝부분 모양('butt'(네모지게-선이 원래 길이보다 조금 일찍 끝남) / 'round' (둥글게) / 'square'(네모지게))
+				lineJoin: 'round',//('bevel' (꺾이는 부분을 지붕모양으로 )/ 'round' (둥글게)/ 'miter'(뾰족하게))
+				width: 2
+			},
+		},
+		{
+			//꼭지점 위치 추출
+			geometry: (feature) => {
+			//폴리곤/멀티폴리곤/라인/멀티라인 지오메트리 타입별로 상이
+              if(feature.getGeometry().getType()==='Polygon'){
+              	return odf.GeometryFactory.produce({
+					geometryType: 'multipoint',
+					coordinates: feature.getGeometry().getCoordinates()[0]
+				})
+              }
+              else{
+              	return odf.GeometryFactory.produce({
+					geometryType: 'multipoint',
+					coordinates: feature.getGeometry().getCoordinates()
+				})
+              }
+
+			},
+			image: {
+				circle: {
+					radius: 5,
+					fill: {
+						color: [111, 60, 126, 0.95]
+					},
+					stroke: {
+						color: [222, 120, 252, 0.95],
+						width: 1,
+					}
+				}
+			},
+		}
+	];
+    var style = odf.StyleFactory.produce(styleOption);
+    layer.setStyle(style);
+</script>
+</html>

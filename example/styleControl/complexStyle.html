@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/*면 레이어 추가*/
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wfs',
+	});
+	polygonLayer.setMap(map);
+	polygonLayer.fit();
+
+	/*아이콘 스타일 생성*/
+	var complexStyle = odf.StyleFactory.produce([ {
+		stroke : {
+			color : [ 132, 229, 252, 0.95 ],
+			lineCap : 'round',//선의 끝부분 모양('butt'(네모지게-선이 원래 길이보다 조금 일찍 끝남) / 'round' (둥글게) / 'square'(네모지게))
+			lineJoin : 'round',//('bevel' (꺾이는 부분을 지붕모양으로 )/ 'round' (둥글게)/ 'miter'(뾰족하게))
+			//lineDash : [10],//점선의 간격 크기
+			width : 10
+		},
+		fill : {
+			color : [ 0, 0, 0, 0.3 ]
+		}
+	}, {
+		geometry : function(feature) {
+			return feature.getGeometry().getInteriorPoints();
+		},
+		image : {
+			circle : {
+				fill : {
+					color : '#CC70B4'
+				},
+				radius : 20
+
+			}
+		},
+		text : {
+			font : 'bold 14px Courier New',//폰트 크기(필수) 및 글씨체(필수), 두께(옵션)
+			fill : {
+				color : 'white'
+			},
+			text : "복합"
+		}
+	} ]);
+	polygonLayer.setStyle(complexStyle);
+</script>
+</html>
+

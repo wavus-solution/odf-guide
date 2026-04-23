@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <link href="::OdfUrl::/odf.css" rel="stylesheet">
+  <script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+
+<body>
+  <div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+  /* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+  var mapContainer = document.getElementById('map');
+  var coord = new odf.Coordinate(::coordx::,::coordy::);
+  var mapOption = "::mapOpt::";
+  var map = new odf.Map(mapContainer, mapOption);
+
+  /* 베이스맵 컨트롤 생성 */
+  var basemapControl = new odf.BasemapControl();
+  basemapControl.setMap(map);
+
+  //멀티-다각형 feature 생성
+  var mPolygonFeature = odf.FeatureFactory.produce({
+    geometryType: 'multipolygon',
+    coordinates: ::multiPolygonCoordsSet::
+  });
+
+  //0.1. (선택) 빈 벡터 레이어 생성하여 다각형 feature 넣기
+  var layer = odf.LayerFactory.produce('empty', {});
+  layer.addFeature(mPolygonFeature);
+
+  layer.setMap(map);
+  //0.2. (선택) 멀티-다각형 feature 위치로 이동
+  layer.fit(true);
+  //0.3. (선택) 멀티-다각형 feature 레이어 비활성화
+  map.switchLayer(layer.getODFId(), false);
+
+
+  //배경레이어 멀티-다각형으로 자르기
+  basemapControl.setSwitchBaseLayerCallback(function (beforeLayer, afterLayer) {
+    if (beforeLayer) {
+      beforeLayer.revertLayer();
+    }
+    if (afterLayer) {
+      afterLayer.cropByFeature(mPolygonFeature);
+    }
+  });
+</script>
+
+</html>

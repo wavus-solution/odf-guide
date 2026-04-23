@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<textarea id="eventLog" style="width: 100%; height: 200px;"></textarea>
+	<div class="btnLogArea">
+		<div class="innerBox">
+			<input type="button" class="onoffBtn" value="로그 초기화" id="clearLog" />
+			<div>
+				이벤트 로깅 여부 변경 :
+				<input type="button" class="onoffBtn toggle" value="changePosition" id="changePositionFlag" title="position 변경 이벤트" />
+				<input type="button" class="onoffBtn toggle" value="changeDraggable" id="changeDraggableFlag" title="map 변경 이벤트" />
+				<input type="button" class="onoffBtn toggle" value="click" id="clickFlag" title="클릭" />
+				<input type="button" class="onoffBtn toggle" value="markerdragstart" id="markerdragstartFlag" title="draggable 마커 드래그를 시작했을때 트리거" />
+				<input type="button" class="onoffBtn toggle" value="markerdrag" id="markerdragFlag" title="draggable 마커를 중 마우스 이동 발생했을때 트리거" />
+				<input type="button" class="onoffBtn toggle" value="markerdragend" id="markerdragendFlag" title="draggable 마커 드래그가 종료됬을때 트리거" />
+			</div>
+		</div>
+	</div>
+	<p>※ 직접해보기에서는 이벤트 버튼 토글이 지원되지 않습니다.</p>
+
+</body>
+<script>
+	//이벤트 로깅 여부변경
+	var changePositionFlag = false;
+	var changeDraggable = false;
+	var clickFlag = false;
+	var markerdragstartFlag = false;
+	var markerdragFlag = false;
+	var markerdragendFlag = false;
+
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	var marker = new odf.Marker({
+		position : coord,
+		draggable : true,
+	});
+
+	marker.setMap(map);
+	// 로그 추가
+	var addLog = function(log) {
+		document.getElementById("eventLog").innerHTML = log + '\n' + document.getElementById("eventLog").value;
+	};
+	//로그 초기화
+	odf.event.addListener('#clearLog', 'click', function(evt) {
+		document.getElementById("eventLog").innerHTML = "";
+	});
+
+	//마커객체에  position 값 변경 이벤트 연결
+	odf.event.addListener(marker, 'change:position', function(evt) {
+		if (changePositionFlag)
+			addLog("positionchanged!!    ▣ 위치 : " + marker.getPosition('array').toString())
+	});
+
+	//마커객체에  map 값 변경 이벤트 연결
+	odf.event.addListener(marker, 'change:map', function(evt) {
+		if (changeMapFlag) addLog("marker map changed!!")
+	});
+
+	//마커객체에  draggable 값 변경 이벤트 연결
+	odf.event.addListener(marker, 'change:draggable', function(evt) {
+		addLog("marker draggable changed!!")
+	});
+
+
+
+	//마커객체에  click 이벤트 연결
+	odf.event.addListener(marker, 'click', function(evt) {
+		if (clickFlag) addLog("marker click!");
+	});
+
+	//마커객체에  markerdragstart 이벤트 연결
+	odf.event.addListener(marker, 'markerdragstart', function(evt) {
+		if (markerdragstartFlag)
+			addLog("marker drag start!!     ▣ 위치 : " + marker.getPosition('array').toString())
+	});
+
+	//마커객체에  markerdrag 이벤트 연결
+	odf.event.addListener(marker, 'markerdrag', function(evt) {
+		if (markerdragFlag)
+			addLog("marker drag중~~!!     ▣ 위치 : " + marker.getPosition('array').toString())
+	});
+
+	//마커객체에  markerdragend 이벤트 연결
+	odf.event.addListener(marker, 'markerdragend', function(evt) {
+		if (markerdragendFlag)
+			addLog("marker drag end!!     ▣ 위치 : "
+					+ marker.getPosition('array').toString())
+	});
+
+	odf.event.addListener('#changePositionFlag', 'click', function(evt) {
+		changePositionFlag = !changePositionFlag;
+	});
+
+	odf.event.addListener('#changeDraggableFlag', 'click', function(evt) {
+		marker.setDraggable(!changeDraggableFlag)
+		changeDraggableFlag = !changeDraggableFlag;
+	});
+	odf.event.addListener('#clickFlag', 'click', function(evt) {
+		clickFlag = !clickFlag;
+	});
+	odf.event.addListener('#markerdragstartFlag', 'click', function(evt) {
+		markerdragstartFlag = !markerdragstartFlag;
+	});
+	odf.event.addListener('#markerdragFlag', 'click', function(evt) {
+		markerdragFlag = !markerdragFlag;
+	});
+	odf.event.addListener('#markerdragendFlag', 'click', function(evt) {
+		markerdragendFlag = !markerdragendFlag;
+	});
+</script>
+</html>
+

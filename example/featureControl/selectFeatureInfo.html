@@ -1,0 +1,262 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div style="margin-top: 15px;">
+		<p>피처를 클릭하여 속성 정보를 확인합니다.</p>
+	</div>
+</body>
+<style>
+  #popup {
+	background-color: white;
+	padding : 5px;
+  }
+  #popup div{
+  	display:none;
+  }
+
+  #popup div.active{
+  	display:block;
+  }
+
+  #popup ul{
+  	margin-bottom: 5px;
+    list-style: none;
+    display: flex;
+  }
+  #popup li{
+  	font-weight : bold;
+    padding: 0px 5px;
+  }
+  #popup li.active{
+  	color : blue;
+  }
+  #popup table{
+  	width:100%
+  }
+  #popup td {
+  	border: 1px solid #949494 !important;
+    padding: 3px !important;
+    text-align: center;
+  }
+</style>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*wmsLayer 추가*/
+	var wmsLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WmsAPI::',
+		layer: '::polygonLayer1::',
+		service: 'wms',
+	});
+	wmsLayer.setMap(map);
+
+	/*wfsLayer 추가*/
+	var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method: 'get',
+		server: '::WfsAPI::',
+		layer: '::polygonLayer2::',
+		service: 'wfs',
+	});
+	wfsLayer.setMap(map);
+	"::viewOption::"
+	"::zoomOption::"
+
+
+
+	var marker;
+	/*지도 클릭시 해당 위치의 feature를 조회하도록 이벤트 리스너 추가*/
+	 odf.event.addListener(map, 'click', function (evt) {
+
+		 //기 추가된 마커 삭제
+		 if(marker&&marker.getMap()){
+			 marker.removeMap();
+		 }
+
+		//피처 조회
+		//해당 기능은 옵션이 많으니, 지도문서를 통해 상세한 옵션을 확인학세요.
+		var result = map.selectFeature({
+			/*대상 좌표에 버퍼를 지정 (단위:픽셀) (기본값 20)*/
+	        pointBuffer:20,
+			/** extractType 피쳐 추출 유형
+			  * - draw 직접 그린 도형 내에 속한 피쳐 추출
+			  * - view 현재 지도영역에서 피쳐 추출
+			  * - pixel 특정 픽셀에 곂치는 피쳐 추출
+			  * - feature 특정 도형(compareFeature) 내에 속한 피쳐 추출
+			  * - cql cql_filter로 피처 추출
+			  */
+			extractType: 'pixel',
+			pixel: evt.pixel,//피쳐 추출을 위한 좌표 기준. extractType의 값이 'pixel'일 경우 필수값.
+			/**
+			  * drawType 그리기 유형. extractType의 값이 'draw'일 경우 필수값
+			  * - polygon 다각형
+			  * - box 사각형
+			  * - circle 원형
+			  * - point 점
+			  */
+			/**
+			  * targetLayer 특정 Layer 내에서만 feature 추출, 미입력시 모든 레이어에서 추출
+			  */
+			//targetLayer : wfsLayer
+		});
+
+		//피처 있는것만 FILTERLING
+		var filteredResult = Object.entries(result).filter(([key, value]) => {
+			return value.features.length > 0;
+		})
+
+		if(filteredResult.length===0){
+			return;
+		}
+
+		//마커로 올릴 html element 생성
+		var content =constructInfoDiv(filteredResult);
+
+		//사용자정의 마커생성
+		marker = new odf.Marker({
+		  //마커를 올릴 좌표
+	      position: evt.coordinate, //마우스 클릭 좌표
+	      style: { //마커의 스타일 설정
+	    	  	element: content
+	      },
+	      //드래그 여부
+	      draggable: false,
+	      //마커 영역에서 클릭시 이벤트 버블링 차단
+	      stopEvent : true,
+	    });
+		marker.setMap(map);
+
+		//탭 클릭시 active 영역 전환
+		document.querySelectorAll('#popup li').forEach(li=>{
+			li.addEventListener('click',function(evt){
+
+				var parentDiv = evt.target.parentElement.parentElement;
+				var removeActiveTarget = parentDiv;
+				var addActiveClassTarget = [];
+				addActiveClassTarget.push(evt.target);
+				addActiveClassTarget.push(parentDiv.querySelector(`div#${evt.target.innerHTML}`));
+
+				if(parentDiv.id==='popup'){
+					var layerId = evt.target.innerHTML;
+					var childLi = parentDiv.querySelector(`#${layerId} li`);
+
+					addActiveClassTarget.push(childLi);
+					addActiveClassTarget.push(parentDiv.querySelector(`#${layerId} div#${childLi.innerHTML}`));
+					removeActiveTarget = removeActiveTarget.parentElement;
+				}
+
+				//기활성화된 tab 비활성화
+				removeActiveTarget.querySelectorAll('#popup .active').forEach(activeItem=>{
+					activeItem.classList.remove('active');
+				});
+
+				//클릭한 영역 활성화
+				addActiveClassTarget.forEach(activeTarget=>{
+					activeTarget.classList.add('active');
+				});
+			})
+		})
+
+	}.bind(this));
+
+	//레이어 정보 html element 생성
+	function constructInfoDiv(list) {
+
+		var featureCount = 0;
+		var content = document.createElement('div');
+		content.id='popup';
+
+		var layerTabUl = document.createElement('ul');
+		layerTabUl.classList.add('layerTabUl');
+		content.append(layerTabUl);
+
+		for (var i = 0; i < list.length; i++) {
+
+			var [layerId, layerItem] = list[i];
+			var layerDiv = document.createElement('div');
+			layerDiv.classList.add('layerDiv');
+			layerDiv.id = layerId;
+
+			var layerTabLi = document.createElement('li');
+			layerTabLi.innerHTML = layerId;
+			layerTabUl.append(layerTabLi);
+
+			if(i===0){
+				layerTabLi.classList.add('active');
+				layerDiv.classList.add('active');
+			}
+
+			var featureLen = layerItem.features.length;
+
+
+			var fetureTabUl = document.createElement('ul');
+			fetureTabUl.classList.add('fetureTabUl');
+			layerDiv.append(fetureTabUl);
+
+			for (var j = 0; j < featureLen; j++) {
+
+				var fetureTabLi = document.createElement('li');
+				fetureTabLi.innerHTML = `도형-${j + 1}`;
+				fetureTabUl.append(fetureTabLi);
+
+				var featureDiv = document.createElement('div');
+				featureDiv.classList.add('featureDiv');
+				featureDiv.id=`도형-${j + 1}`
+				if(featureCount===0){
+					fetureTabLi.classList.add('active');
+					featureDiv.classList.add('active');
+				}
+				constructFeatureInfoTable(layerItem.features[j],featureDiv)
+
+				layerDiv.append(featureDiv);
+				featureCount++;
+			}
+			content.append(layerDiv);
+		}
+
+		return content;
+	}
+
+
+	//도형 정보 html element 생성
+	function constructFeatureInfoTable(feature, target) {
+
+		var featureTable = document.createElement('table');
+		var properties = Object.entries(feature.getProperties());
+		var tbody = document.createElement('tbody');
+
+		var headerRow = document.createElement('tr');
+		var bodyRow = document.createElement('tr');
+
+		for (var i = 0; i < properties.length; i++) {
+			if(properties[i][0]!=='geometry'){
+				var row = document.createElement('tr');
+
+				var headerTd =  document.createElement('td');
+				headerTd.innerText = properties[i][0];
+				row.append(headerTd);
+
+				var bodyTd = document.createElement('td');
+				bodyTd.innerText = properties[i][1]?properties[i][1]:'-';
+				row.append(bodyTd);
+				tbody.append(row);
+			}
+		}
+
+		featureTable.append(tbody);
+		target.append(featureTable);
+	}
+</script>
+
+</html>

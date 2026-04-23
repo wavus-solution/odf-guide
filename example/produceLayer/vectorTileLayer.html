@@ -1,0 +1,414 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>
+		※ 도형 클릭시 도형 정보가 조회됩니다.<br/>
+		※ vectorTile 레이어는 레이어의 좌표계와 지도 좌표계가 동일해야합니다.
+	</div>
+	<div class="infoArea" id="featureInfo"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = [922176.2193716865, 1908044.99982566];
+	var mapOption = {
+	    center: coord,
+	    zoom: 16,
+	    projection: 'EPSG:5179',
+	    ::proxyOption::::basemapAirUrlDefine::,
+	    basemap: {
+	      ::basemapAir::,
+	    },
+  	};
+
+
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+  //vectorTile 레이어
+  var vectorTileLayer = odf.LayerFactory.produce('api', {
+    service: 'vectortile',
+    server: {
+      url: '::PbfUrl::/data/pbfData/{z}/{x}/{y}.pbf'
+    },
+    projection: 'EPSG:5179',
+    tileGrid: {
+      extent: [-200000.0, -28024123.62, 31824123.62, 4000000.0],
+      tileSize: 256,
+      minZoom: 13,
+      maxZoom: 15,
+    }
+  });
+  vectorTileLayer.setMap(map);
+
+  var styleFunction = odf.StyleFactory.produceFunction([
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "vl_scco_ctprvn_virtual" || feature.get("layer") == "vl_scco_ctprvn_simple_virtual" || feature.get("layer") == "vl_scco_ctprvn_simple_10_virtual";
+        },
+        style: {
+          fill: {
+            color: '#FFFFFFFF',
+          },
+          stroke: {
+            color: '#1020dd',
+            width: 2
+          },
+          zIndex: 1
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "vl_scco_sig_virtual" || feature.get("layer") == "vl_scco_sig_simple_virtual" || feature.get("layer") == "vl_scco_sig_simple_10_virtual";
+        },
+        style: {
+          fill: {
+            color: '#FFFFFFFF',
+          },
+          stroke: {
+            color: '#43dd10',
+            width: 2
+          },
+          zIndex: 2
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_fclty_zone_bndry_0818_virtual";
+        },
+        style: {
+          fill: {
+            color: '#b4c49b',
+          },
+          stroke: {
+            color: '#b4c49b',
+            width: 0.5
+          },
+          zIndex: 3
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_rodway_bndry_1518_virtual";
+        },
+        style: {
+          fill: {
+            color: '#f4f3f199'
+          },
+          stroke: {
+            color: '#cfcabe',
+            width: 1.25,
+          },
+          zIndex: 4
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_rodway_ctln_1214_virtual";
+        },
+        style: {
+          fill: {
+            color: '#cfcabe'
+          },
+          stroke: {
+            color: '#cfcabe',
+            width: 0.3
+          },
+          zIndex: 5
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return (feature.get("layer") == "new_vl_arrfc_1318_virtual" || feature.get("layer") == "new_vl_arrfc_1518_virtual") && ["도로교", "보행교", "철도교", "도로보행교", "도로철도교", "철도보행교", "생태교"].includes(feature.get("면형교통시설종류 구분"));
+        },
+        style: {
+          fill: {
+            color: '#eae6d0',
+
+          },
+          stroke: {
+            color: '#d8d2ba',
+            width: 1
+          },
+          zIndex: 6
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return (feature.get("layer") == "new_vl_arrfc_1318_virtual" || feature.get("layer") == "new_vl_arrfc_1518_virtual") && ["도로터널", "공용터널", "철도터널"].includes(feature.get("면형교통시설종류 구분"));
+        },
+        style: {
+          fill: {
+            color: '#e1e1e1',
+
+          },
+          stroke: {
+            color: '#e1e1e1',
+            width: 1
+          },
+          zIndex: 6
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return (feature.get("layer") == "new_vl_arrfc_1318_virtual" || feature.get("layer") == "new_vl_arrfc_1518_virtual") && ["고가차도"].includes(feature.get("면형교통시설종류 구분"));
+        },
+        style: {
+          fill: {
+            color: '#e2e2e2',
+
+          },
+          stroke: {
+            color: '#c7c4c4',
+            width: 1
+          },
+          zIndex: 6
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return (feature.get("layer") == "new_vl_arrfc_1318_virtual" || feature.get("layer") == "new_vl_arrfc_1518_virtual") && ["지하보도", "지하차도"].includes(feature.get("면형교통시설종류 구분"));
+        },
+        style: {
+          fill: {
+            color: '#eaeaea',
+
+          },
+          stroke: {
+            color: '#eaeaea',
+            width: 1
+          },
+          zIndex: 6
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return (feature.get("layer") == "new_vl_arrfc_1318_virtual" || feature.get("layer") == "new_vl_arrfc_1518_virtual") && ["육교"].includes(feature.get("면형교통시설종류 구분"));
+        },
+        style: {
+          fill: {
+            color: '#eaeaea',
+
+          },
+          stroke: {
+            color: '#eaeaea',
+            width: 1
+          },
+          zIndex: 6
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return (feature.get("layer") == "new_vl_arrfc_1318_virtual" || feature.get("layer") == "new_vl_arrfc_1518_virtual");
+        },
+        style: {
+          fill: {
+            color: 'aliceblue',
+
+          },
+          zIndex: 6
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_rlroad_ctln_rapid_1118_virtual" && resolution < 76.35146091935201;
+        },
+        style: {
+          fill: {
+            color: '#ff0000cc',
+          },
+          stroke: {
+            color: '#ff0000cc',
+            width: 1
+          },
+          zIndex: 7
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_rlroad_ctln_rapid_1118_virtual";
+        },
+        style: {
+          fill: {
+            color: '#FFF0',
+          },
+          stroke: {
+            color: '#FFF0',
+            width: 1
+          },
+          zIndex: 0
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_rlroad_ctln_basic_1118_virtual";
+        },
+        style: {
+          fill: {
+            color: '#2b4fffcc',
+          },
+          stroke: {
+            color: '#2b4fffcc',
+            width: 1
+          },
+          zIndex: 7
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_arwfc_1618_virtual";
+        },
+        style: {
+          fill: {
+            color: '#e1e1e1',
+          },
+          stroke: {
+            color: '#b2b2b233',
+            width: 1
+          },
+          zIndex: 8
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_buld_1618_virtual";
+        },
+        style: {
+          fill: {
+            color: '#f3f3f3',
+          },
+          stroke: {
+            color: '#ddd7d1',
+            width: 1
+          },
+          zIndex: 11
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_sprd_manage_1518_virtual";
+        },
+        style: {
+          fill: {
+            color: '#ffb80d4d',
+          },
+          stroke: {
+            color: '#ffb80d4d',
+            width: 1
+          },
+          zIndex: 9
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_spbd_buld_1618_virtual";
+        },
+        style: {
+          fill: {
+            color: '#00000080',
+          },
+          stroke: {
+            color: '#00000080',
+            width: 1
+          },
+          zIndex: 10
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "kais_tl_scco_ctprvn_virtual" || feature.get("layer") == "kais_tl_scco_sig_virtual";
+        },
+        style: {
+          fill: {
+            color: '#FFF0',
+          },
+          stroke: {
+            color: '#000',
+            width: 1
+          },
+          zIndex: 20
+        }
+      },
+      {
+        seperatorFunc: (feature, resolution) => {
+          return feature.get("layer") == "new_vl_poi_1718_virtual";
+        },
+        style: {
+          image: {
+            circle: {
+              radius: 5,
+              fill: {
+                color: '#00AAFF',
+              },
+              stroke: {
+                color: '#00AAFF',
+                width: 1
+              },
+            }
+          },
+          zIndex: 20
+        }
+      },
+      {
+        seperatorFunc: "default",
+        style: {
+          fill: {
+            color: '#F00',
+          },
+          stroke: {
+            color: '#F00',
+            width: 1
+          },
+          zIndex: 999
+        }
+      }
+    ]);
+  vectorTileLayer.setStyle(styleFunction);
+
+
+	// 레이어 삭제
+	// map.removeLayer(vectorTileLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(vectorTileLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(vectorTileLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// vectorTileLayer.setMinZoom(10);
+	// vectorTileLayer.setMaxResolution(152.70292183870401);
+	// vectorTileLayer.setMaxZoom(18);
+	// vectorTileLayer.setMinResolution(0.5964957884324376);
+
+	// 레이어 투명도 조절
+	// vectorTileLayer.setOpacity(0.5);
+
+
+  //지도 클릭시 클릭한 위치에 있는 feature 정보 조회
+  odf.event.addListener(map, 'click', function (evt) {
+    //클릭한 위치의 feature 정보 조회
+    var featureObject = map.selectFeatureOnClick(evt);
+    var creDiv = document.getElementById('creDiv');
+    if (!creDiv) {
+      creDiv = document.createElement('div');
+      creDiv.setAttribute('id', 'creDiv');
+    }
+    creDiv.innerText = featureObject&&featureObject.length>0?JSON.stringify(featureObject[0].feature.getProperties()):'';
+
+    document.getElementById('featureInfo').append(creDiv);
+
+    //iframe 크기 조절
+    if (parent.window.containerResize) parent.window.containerResize();
+  }.bind(this));
+
+
+</script>
+</html>

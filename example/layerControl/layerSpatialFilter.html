@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="::OdfUrl::/odf.css" rel="stylesheet">
+    <script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+<div id="map" class="odf-view" style="height:550px;"></div>
+<div>
+    <span>아래 버튼을 클릭하고 지도에 영역을 그려서 레이어에 공간 필터를 적용할 수 있습니다.</span>
+    <span>필터된 피쳐정보를 확인하고 싶을 경우에는 Console 창을 확인해주세요.</span>
+    <div>
+        <button class="onoffOnlyBtn" onclick="applySpatialFilter('point')">점</button>
+        <button class="onoffOnlyBtn" onclick="applySpatialFilter('polygon')">다각형</button>
+        <button class="onoffOnlyBtn" onclick="applySpatialFilter('box')">사각형</button>
+        <button class="onoffOnlyBtn" onclick="applySpatialFilter('circle')">원</button>
+        <button class="onoffOnlyBtn" onclick="applySpatialFilter('view')">현재영역</button>
+    </div>
+    <div>
+        <button class="onoffOnlyBtn" onclick="resetSpatialFilter()">초기화</button>
+    </div>
+</div>
+</body>
+<script>
+
+    /* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+    var mapContainer = document.getElementById('map');
+    var coord = new odf.Coordinate(::coordx::,::coordy::);
+    var mapOption = "::mapOpt::";
+    var map = new odf.Map(mapContainer, mapOption);
+
+    /* wms 레이어 생성 */
+    var wmsLayer = odf.LayerFactory.produce('geoserver', {
+        method : 'get',
+        server : '::WmsAPI::',
+        layer : '::polygonLayer1::',
+        service : 'wms',
+    });
+    wmsLayer.setMap(map);
+    wmsLayer.fit();
+
+    var highlightLayer = odf.LayerFactory.produce('empty'/*레이어를 생성하기위 한 테이터 호출 방법*/, {}/*레이어 생성을 위한 옵션*/);
+    highlightLayer.setMap(map);
+    var highlightStyle = odf.StyleFactory.produce({
+        fill : {
+            color:[255, 255, 255, 0.8]
+        },
+        stroke : {
+            color:[255, 0, 0],
+            width:2
+        }
+    });
+    highlightLayer.setStyle(highlightStyle);
+    //하이라이트레이어 z-index  조정
+    map.setZIndex(highlightLayer.getODFId(), map.getMaxZIndex()/*해당 지도에서 가장 z-index값이 높은 값 조회*/ + 1);
+
+
+    function applySpatialFilter(drawType){
+        var extractType = ['polygon', 'box', 'circle', 'point'].includes(drawType) ? 'draw' : 'view';
+        var selectFeatureParameter = {
+            //피쳐 추출 유형(draw,view,pixel)
+            extractType: extractType,
+            //그리기 유형. extractType의 값이 'draw'일 경우 필수값
+            drawType: extractType === 'draw' ? drawType : undefined,
+            //그리기 영역으로 부터 선택된 피쳐 배열을 리턴받을 콜백 함수. 없으면 selectFeature 함수에서 결과 반환됨(extractType의 값이 'draw' 타입일 경우 제외)
+            callback: function(data){
+                if(!data.result){
+                    alert(data.message);
+                    return;
+                }
+                //하이라이트 레이어에 피쳐 추가
+                Object.keys(data.result).forEach(layerInfo=>{
+                    data.result[layerInfo].features.forEach(feature=>{
+                        highlightLayer.addFeature(feature)
+                    })
+                })
+                // data.feature는 선택 영역
+                // data.result는 레이어별 선택된 피쳐 목록
+                console.dir('====================');
+                console.dir('feature는 선택영역 result는 레이어별 선택된 피쳐 목록 ↓');
+                console.dir(data);
+                let layersProperties = {}
+                Object.keys(data.result).forEach(item=>{
+                    layersProperties[item] = data.result[item].features.map(item=>item.getProperties())
+                })
+                console.dir('선택된 피쳐들의 속성 정보 ↓');
+                console.dir(layersProperties);
+                console.dir('====================');
+
+            },
+            //특정 Layer 내에서만 feature 추출, 미입력시 모든 레이어에서 추출
+            targetLayer: wmsLayer,
+            //필터링 대상이 되는 도형 또는 영역 정보를 함께 리턴할지 여부(기본값 false)
+            featureReturn: true,
+            // 공간검색시 최대 크기 (1000000이 1㎢)
+            maxAreaSize:100000000
+        };
+        map.selectFeature(selectFeatureParameter)
+    }
+
+    function resetSpatialFilter(){
+        //하이라이트 레이어 초기화
+        highlightLayer.clear();
+    }
+
+</script>
+</html>

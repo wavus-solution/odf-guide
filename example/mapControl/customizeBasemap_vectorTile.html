@@ -1,0 +1,243 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>
+		※ 도형 클릭시 도형 정보가 조회됩니다.<br />
+		※ vectorTile 레이어는 레이어의 좌표계와 지도 좌표계가 동일해야합니다.
+	</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = [922176.2193716865, 1908044.99982566];
+	var mapOption = {
+		center: coord,
+		zoom: 16,
+		projection: 'EPSG:5179',
+		::proxyOption::::basemapAirUrlDefine::,
+		basemap: {
+	      ::basemapAir::,
+	    },
+  };
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* 베이스맵 컨트롤 생성 */
+	var basemapControl = new odf.BasemapControl();
+	basemapControl.setMap(map);
+
+	//베이스맵에 새로운 그룹 추가
+	basemapControl.setGrp('myGrp');
+	//베이스맵에 등록된 그룹 제거// 해당 그룹에 속한 베이스레이어가 있다면 같이 제거
+	//basemapControl.removeGrp('myGrp');
+
+	//webFGLVectorTile 레이어
+	var vectorTileLayer = odf.LayerFactory.produce('api', {
+		service: 'vectortile',
+		server: {
+			url: '::PbfUrl::/data/pbfData/{z}/{x}/{y}.pbf'
+		},
+		projection: 'EPSG:5179',
+		tileGrid: {
+			extent: [-200000.0, -28024123.62, 31824123.62, 4000000.0],
+			tileSize: 256,
+			minZoom: 13,
+			maxZoom: 15,
+		},
+		//webgGLRender 적용여부
+		webGLRender: true,
+		//webGLRender 사용시 설정
+		renderOptions: {
+			style: {
+				builder: {
+					'fill-color': ['get', 'fillColor'],
+					'stroke-color': ['get', 'strokeColor'],
+					'stroke-width': ['get', 'strokeWidth'],
+					'z-index': ['get', 'zIndex'],
+					'circle-radius': 5,
+					'circle-fill-color': ['get', 'fillColor'],
+					'circle-stroke-color': ['get', 'strokeColor'],
+					'circle-stroke-width': ['get', 'strokeWidth'],
+				},
+				//사용자 정의 속성
+				attributes: {
+					fillColor: {
+						//사용자 정의 속성 크기
+						size: 2,
+						//사용자 정의 속성 정의
+						callback: (feature) => {
+							let color = '';
+							switch (feature.get("layer")) {
+								case "vl_scco_ctprvn_virtual":
+								case "vl_scco_ctprvn_simple_virtual":
+								case "vl_scco_ctprvn_simple_10_virtual":
+								case "vl_scco_sig_virtual":
+								case "vl_scco_sig_simple_virtual":
+								case "vl_scco_sig_simple_10_virtual": color = '#FFFFFFFF'; break;
+								case "new_vl_fclty_zone_bndry_0818_virtual": color = '#b4c49b'; break;
+								case "new_vl_rodway_bndry_1518_virtual": color = '#f4f3f199'; break;
+								case "new_vl_rodway_ctln_1214_virtual": color = '#cfcabe'; break;
+								case "new_vl_arrfc_1318_virtual":
+								case "new_vl_arrfc_1518_virtual": {
+									if (["도로교", "보행교", "철도교", "도로보행교", "도로철도교", "철도보행교", "생태교"].includes(feature.get("면형교통시설종류 구분"))) {
+										color = '#eae6d0';
+									}
+									else if (["도로터널", "공용터널", "철도터널"].includes(feature.get("면형교통시설종류 구분"))) {
+										color = '#e1e1e1';
+									}
+									else if (["고가차도"].includes(feature.get("면형교통시설종류 구분"))) {
+										color = '#e2e2e2';
+									}
+									else if (["지하보도", "지하차도", "육교"].includes(feature.get("면형교통시설종류 구분"))) {
+										color = '#eaeaea';
+									}
+									else {
+										color = 'aliceblue';
+									}
+								} break;
+								case "new_vl_rlroad_ctln_rapid_1118_virtual": color = '#ff0000cc'; break;
+								case "new_vl_rlroad_ctln_rapid_1118_virtual": color = '#FFF0'; break;
+								case "new_vl_rlroad_ctln_basic_1118_virtual": color = '#2b4fffcc'; break;
+								case "new_vl_arwfc_1618_virtual": color = '#e1e1e1'; break;
+								case "new_vl_buld_1618_virtual": color = '#f3f3f3'; break;
+								case "new_vl_sprd_manage_1518_virtual": color = '#ffb80d4d'; break;
+								case "new_vl_spbd_buld_1618_virtual": color = '#00000080'; break;
+								case "kais_tl_scco_ctprvn_virtual":
+								case "kais_tl_scco_sig_virtual": color = '#FFF0'; break;
+								case "new_vl_poi_1718_virtual": color = '#00AAFF'; break;
+								default: color = '#F00'; break;
+							}
+							return odf.ColorFactory.packColor(color);
+						},
+					},
+					strokeColor: {
+						//사용자 정의 속성 크기
+						size: 2,
+						//사용자 정의 속성 정의
+						callback: (feature) => {
+							let color = '';
+							switch (feature.get("layer")) {
+								case "vl_scco_ctprvn_virtual":
+								case "vl_scco_ctprvn_simple_virtual":
+								case "vl_scco_ctprvn_simple_10_virtual": color = '#1020dd'; break;
+								case "vl_scco_sig_virtual":
+								case "vl_scco_sig_simple_virtual":
+								case "vl_scco_sig_simple_10_virtual": color = '#43dd10'; break;
+								case "new_vl_fclty_zone_bndry_0818_virtual": color = '#b4c49b'; break;
+								case "new_vl_rodway_bndry_1518_virtual": color = '#cfcabe'; break;
+								case "new_vl_rodway_ctln_1214_virtual": color = '#cfcabe'; break;
+								case "new_vl_arrfc_1318_virtual":
+								case "new_vl_arrfc_1518_virtual": {
+									if (["도로교", "보행교", "철도교", "도로보행교", "도로철도교", "철도보행교", "생태교"].includes(feature.get("면형교통시설종류 구분"))) {
+										color = '#d8d2ba';
+									}
+									else if (["도로터널", "공용터널", "철도터널"].includes(feature.get("면형교통시설종류 구분"))) {
+										color = '#e1e1e1';
+									}
+									else if (["고가차도"].includes(feature.get("면형교통시설종류 구분"))) {
+										color = '#c7c4c4';
+									}
+									else if (["지하보도", "지하차도", "육교"].includes(feature.get("면형교통시설종류 구분"))) {
+										color = '#eaeaea';
+									}
+									else {
+										color = '';
+									}
+								} break;
+								case "new_vl_rlroad_ctln_rapid_1118_virtual": color = '#ff0000cc'; break;
+								case "new_vl_rlroad_ctln_rapid_1118_virtual": color = '#2b4fffcc'; break;
+								case "new_vl_rlroad_ctln_basic_1118_virtual": color = '#b2b2b233'; break;
+								case "new_vl_arwfc_1618_virtual": color = '#b2b2b233'; break;
+								case "new_vl_buld_1618_virtual": color = '#ddd7d1'; break;
+								case "new_vl_sprd_manage_1518_virtual": color = '#ffb80d4d'; break;
+								case "new_vl_spbd_buld_1618_virtual": color = '#00000080'; break;
+								case "kais_tl_scco_ctprvn_virtual":
+								case "kais_tl_scco_sig_virtual": color = '#000'; break;
+								case "new_vl_poi_1718_virtual": color = '#00AAFF'; break;
+								default: color = '#F00'; break;
+							}
+							return odf.ColorFactory.packColor(color);
+						},
+					},
+					strokeWidth: {
+						//사용자 정의 속성 크기
+						size: 1,
+						//사용자 정의 속성 정의
+						callback: (feature) => {
+							let width = 1;
+							switch (feature.get("layer")) {
+								case "vl_scco_ctprvn_virtual":
+								case "vl_scco_ctprvn_simple_virtual":
+								case "vl_scco_ctprvn_simple_10_virtual":
+								case "vl_scco_sig_virtual":
+								case "vl_scco_sig_simple_virtual":
+								case "vl_scco_sig_simple_10_virtual": width = 2; break;
+								case "new_vl_fclty_zone_bndry_0818_virtual": width = 0.5; break;
+								case "new_vl_rodway_bndry_1518_virtual": width = 1.25; break;
+								case "new_vl_rodway_ctln_1214_virtual": width = 0.3; break;
+								default: width = 1; break;
+							}
+							return width;
+						},
+					},
+					zIndex: {
+						//사용자 정의 속성 크기
+						size: 1,
+						//사용자 정의 속성 정의
+						callback: (feature) => {
+							let zIndex = 999;
+							switch (feature.get("layer")) {
+								case "vl_scco_ctprvn_virtual":
+								case "vl_scco_ctprvn_simple_virtual":
+								case "vl_scco_ctprvn_simple_10_virtual": zIndex = 1; break;
+								case "vl_scco_sig_virtual":
+								case "vl_scco_sig_simple_virtual":
+								case "vl_scco_sig_simple_10_virtual": zIndex = 2; break;
+								case "new_vl_fclty_zone_bndry_0818_virtual": zIndex = 3; break;
+								case "new_vl_rodway_bndry_1518_virtual": zIndex = 4; break;
+								case "new_vl_rodway_ctln_1214_virtual": zIndex = 5; break;
+								case "new_vl_arrfc_1318_virtual":
+								case "new_vl_arrfc_1518_virtual": zIndex = 6; break;
+								case "new_vl_rlroad_ctln_rapid_1118_virtual": zIndex = 7; break;
+								case "new_vl_rlroad_ctln_basic_1118_virtual": zIndex = 7; break;
+								case "new_vl_arwfc_1618_virtual": zIndex = 8; break;
+								case "new_vl_buld_1618_virtual": zIndex = 11; break;
+								case "new_vl_sprd_manage_1518_virtual": zIndex = 9; break;
+								case "new_vl_spbd_buld_1618_virtual": zIndex = 10; break;
+								case "kais_tl_scco_ctprvn_virtual":
+								case "kais_tl_scco_sig_virtual":
+								case "new_vl_poi_1718_virtual": zIndex = 20; break;
+								default: zIndex = 999; break;
+							}
+							return zIndex;
+						},
+					},
+				}
+			}
+		}
+	});
+	//vectorTileLayer.setMap(map);
+	basemapControl.setBaseLayer('myGrp', 'customBaseLayer', '사용자정의벡터타일', vectorTileLayer);
+
+	//사용자 정의 베이스레이어 제거 //해당 그룹에 베이스레이어가 하나뿐이면 그룹도 함께 삭제
+	//basemapControl.removeBaseLayer('temp');
+
+	//베이스맵 컨트롤 리빌드
+	basemapControl.rebuildElement();
+
+	console.log("현재배경지도레이어");
+	console.log(basemapControl.getPresentBaseLayer());
+	console.log("현재배경지도레이어키:"+basemapControl.getPresentBaseLayerKey());
+	console.log("배경지도설정가능목록");
+	console.log(basemapControl.getSetableBasemapList());
+	console.log("배경지도레이어 유무 확인:"+basemapControl.hasBaseLayer(basemapControl.getPresentBaseLayerKey()));
+	console.log("배경지도레이어그룹  유무 확인:"+basemapControl.hasGrp('myGrp'));
+
+</script>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnLogArea">
+		<div class="innerBox">
+			<button class="onoffOnlyBtn" onclick="setDragTranslate()">피처 편집 활성화</button>
+			<button class="onoffOnlyBtn" onclick="save()">저장</button>
+		</div>
+	</div>
+	<p>마우스 클릭을 통해 수정할 도형을 선택하세요.</p>
+	<p>'저장' 버튼 클릭 시 해당 결과값을 받을 수 있습니다.</p>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	//wfs 레이어 생성
+	var polygonLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer : '::polygonLayer1::',
+		service : 'wfs',
+	});
+	polygonLayer.setMap(map);
+	polygonLayer.fit();
+
+	/*포인트 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::',
+		layer :  '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wfs',
+	});
+	pointLayer.setMap(map);
+
+	//툴팁 메세지 셋팅
+	var divElem = document.createElement('div');
+	divElem.innerHTML = '편집을를 원하는 도형을 클릭하세요.';
+	var tooltipMessage = new odf.Marker({
+      position: [::coordx::,::coordy::],
+      style: {
+    	  	element: divElem
+      },
+	});
+	//마우스 이동시 툴팁메세지 위치 이동
+	odf.event.addListener(map, 'pointermove', function(event){
+		tooltipMessage.setPosition(event.coordinate);
+	});
+
+	var modifyFeature;
+
+	function setDragTranslate(){
+		//삭제 도형 목록 초기화
+		clear();
+		//툴팁메세지등록
+		tooltipMessage.setMap(map);
+		map.setDragTranslate(true,{
+			//사용할 변형 기능
+			translateType : [ 'move'/*이동*/, 'rotate'/*회전*/,'resize'/*확대/축소*/],
+			//변형 대상 도형 변경 가능 여부(기본값 false,targetType 값이 'feature'일때 사용됨)
+			changeTargetFeature : true,
+			//변형 대상 유형('layer' 또는 'feature')
+			targetType : 'feature',
+			/** targetLayer
+			  * - targetType 값이 'layer'일때 변형 대상 레이어
+			  * - targetType 값이 'feature'일때 도형 선택을 정의한 레이어로 제한
+			  */
+			targetLayer : polygonLayer,
+			//변형 대상 도형
+			//targetFeature :undefined,
+			//하이라이트 기능 사용여부
+			useHilight : true,
+			//사용자 정의 하이라이트 스타일( 미 정의시 기본 값 사용)
+			hilightStyle: {
+			    fill: { color: [0, 0, 0, 0.2] },
+			    stroke: {
+			      color: 'red',
+			      width: 5,
+			    },
+			  },
+			  //수정된 도형 정보를 받아 볼 수 있는 콜백
+			modifiedCallback : ({original,modify})=>{
+				modifyFeature = modify;
+			}
+		});
+	}
+
+
+	// 그린 도형을 서버로 전송
+	function save(){
+		if(!modifyFeature){
+			alert(`수정할 도형이 선택되지 않았습니다. '수정 도형 선택' 버튼을 이용하여 수정할 도형을 선택하여 수정 후 다시 시도하세요.`);
+			return;
+		}
+
+		// 지오서버에 보낼 xml 문자열
+		var xmlText = map.sendToServerModified([modifyFeature], polygonLayer, 'update');
+		alert('콘솔 창을 확인하세요.');
+		console.log(xmlText);
+
+		// 지오서버에 해당 xml 보내기
+		//  'Content-Type': 'application/xml'으로 요청 보내야함
+
+		//수정 도형  초기화
+		clear();
+		//툴팁 메세지 제거
+		tooltipMessage.removeMap();
+		map.setDragTranslate(false);
+		setDragTranslate();
+	}
+
+
+	//수정 도형 초기화
+	function clear(){
+		modifyFeature = undefined;
+	}
+</script>
+</html>

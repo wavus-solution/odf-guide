@@ -1,0 +1,136 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link href="::OdfUrl::/odf.css" rel="stylesheet">
+		<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	</head>
+	<style>
+		#mapContainer{
+			width:100%;
+			height: 100%;
+			padding:0px;
+			margin:0px;
+			right:0px;
+		}
+		.mapContent {
+			position:absolute;
+			-webkit-overflow-scrolling: touch;
+			-webkit-transform: translate3d(0, 0, 0);
+			-moz-transform: translate3d(0, 0, 0);
+			-ms-transform: translate3d(0, 0, 0);
+			-o-transform: translate3d(0, 0, 0);
+			transform: translate3d(0, 0, 0);
+			overflow: auto;
+			width: 1100px;
+			height: 550px;
+		}
+	</style>
+	<body>
+		<div id="mapContainer">
+			<!-- map : 배경지도 표출 / layeredMap: 레이어가 표출될 지도(배경지도는 off) -->
+			<div id="map" class="mapContent" style="height:550px;"></div>
+			<div id="layeredMap" class="mapContent" style="height:550px;"></div>
+		</div>
+	</body>
+	<script>
+		/* 레이어는 움직이지 않고 배경지도만 움직이는 로직 설명
+			* 1. 배경지도로 표출될 지도 요소(map)를 레이어가 레이어가 표출될 지도(layeredMap) 요소 위에 위치시킵니다. (layeredMap zindex > map zIndex)
+			* 2. 레이어가 표출될 지도(layeredMap)의 배경지도를 off 합니다.
+			* 4. 레이어가 표출될 지도(layeredMap) 객체에 레이어를 추가합니다. (배경지도로 표출될 지도요소 위에 레이어가 추가된 것처럼 보이게됨)
+			* 5. 화살표 키보드를 누를 때, 배경지도(map)만 이동할 수 있도록 합니다.
+			* 6. 마우스로 지도를 이동하거나 줌 확대/축소 할때는 레이어와 배경지도가 동일하게 움질 일 수 있도록 합니다.
+				* 6-1. 레이어가 표출될 지도(layeredMap)가 이동 될때 배경지도(map)도 이동될 수 있도록 합니다.
+				* 6-2. 레이어가 표출될 지도(layeredMap)가 확대/축소 될때 배경지도(map)도 확대/축소 될 수 있도록 합니다.
+		* */
+
+		var offset = [0,0];
+		var coord = new odf.Coordinate(::coordx::,::coordy::);
+		var mapOption = "::mapOpt::";
+		// 1. 배경지도 맵 객체 생성
+		var map = new odf.Map(document.getElementById('map'), mapOption);
+
+		// 2. 레이어가 표출될 지도(layeredMap) 맵 객체 생성
+		var layeredMap = new odf.Map( document.getElementById('layeredMap'), {
+			center : coord,
+			zoom : 11,
+			projection : 'EPSG:5186',
+			baroEMapURL : 'https://gsapi.geon.kr/map/api/map/baroemap',
+			baroEMapAirURL : 'https://gsapi.geon.kr/map/api/map/ngisair',
+			basemap : {},
+		});
+		// setConstrainResolution : true 시 지도의 줌레벨이 항상 정수값으로 고정 됩니다.
+		layeredMap.getView().setConstrainResolution(true)
+		map.getView().setConstrainResolution(true)
+
+		/* 레이어가 표출된 지도(layeredMap)가 이동 되면 배경지도(map)도 이동할 수 있도록 이벤트 추가 */
+		odf.event.addListener(layeredMap.getView(), 'change:center', (evt) => {
+			let mapCenter = evt.target.getCenter();
+			// 레이어가 추가된 지도(layeredMap)의 중심 좌표를 배경지도(map) 좌표계에 맞게 변환
+			let projection = map.getProjection();
+			let transformedCenter = projection.project(mapCenter, layeredMap.getView().getProjection().getCode().split('EPSG:')[1]);
+			map.setCenter([transformedCenter[0]+offset[0],transformedCenter[1]+offset[1]]);
+		})
+
+		/* 레이어가 표출된 지도(layeredMap)가 확대/축소 되면 배경지도(map)도 확대/축소 될 수 있도록 이벤트 추가 */
+		odf.event.addListener(layeredMap.getView(), 'change:resolution', (evt) => {
+			map.getView().setResolution(evt.target.getResolution())
+		})
+
+		// wfs 레이어를 layeredMap에 추가
+		var wfsLayer = odf.LayerFactory.produce('geoserver', {
+			method : 'get',//'post'
+			server : '::WfsAPI::', // 레이어가 발행된 서버 주소
+			layer : '::polygonLayer2::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+			service : 'wfs', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
+			geometryName : "the_geom",
+			geometryType : "MultiPolygon",
+		});
+		wfsLayer.setMap(layeredMap);
+		wfsLayer.fit();
+		// wfs 스타일 생성
+		var wfsLayerStyle =odf.StyleFactory.produce({
+			fill : {
+				color:[255, 0, 0, 0.7]
+			},
+			stroke : {
+				color:[0, 0, 0, 0.7],
+				width:2
+			}
+		});
+		wfsLayer.setStyle(wfsLayerStyle);
+
+		/* 화살표 키 누를 때 배경지도(map)만 이동 */
+		document.addEventListener('keydown', function(event) {
+			// 화살표 키만 동작하도록 필터링
+			if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+				return; // 화살표 키가 아니면 동작하지 않음
+			}
+			event.preventDefault(); // 기본 동작 방지 (예: 화면에 스크롤이 있는경우 방향키를 누르면 스크롤이 움직이는데 이를 방지)
+			// 이동 거리 설정, 픽셀을 늘리거나 줄이고싶으면 pixcel 값을 수정하면 된다.
+			var pixcel = 10;
+			var moveDistance = layeredMap.getView().getResolution()*pixcel;
+			switch(event.key) {
+				case 'ArrowUp':
+					offset = [offset[0],offset[1]+moveDistance];
+					break;
+				case 'ArrowDown':
+					offset = [offset[0],offset[1]-moveDistance];
+					break;
+				case 'ArrowLeft':
+					offset = [offset[0]-moveDistance,offset[1]];
+					break;
+				case 'ArrowRight':
+					offset = [offset[0]+moveDistance,offset[1]];
+					break;
+				default:
+					return;
+			}
+			let layeredMapCenter = layeredMap.getCenter();
+			// 두 배경지도가 다른 좌표계일 수도 있기 때문에  레이어가 표출된 지도(layeredMap)의 중심 좌표를 배경지도(map) 좌표계에 맞게 변환
+			let projection = map.getProjection();
+			let transformedCenter = projection.project(layeredMapCenter, layeredMap.getView().getProjection().getCode().split('EPSG:')[1]);
+			map.setCenter([transformedCenter[0]+offset[0],transformedCenter[1]+offset[1]]);
+		});
+
+	</script>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/* 베이스맵 컨트롤 생성 */
+	var basemapControl = new odf.BasemapControl();
+	basemapControl.setMap(map);
+
+	/* 초기화 컨트롤 생성 */
+	var clearControl = new odf.ClearControl();
+	clearControl.setMap(map);
+
+	/* 줌 컨트롤 생성 */
+	var zoomControl = new odf.ZoomControl({
+		zoomSlider : true,
+	});
+	zoomControl.setMap(map);
+
+	/* 이전,다음 컨트롤 생성 */
+	var moveControl = new odf.MoveControl();
+	moveControl.setMap(map);
+
+	/* 회전 컨트롤 생성 */
+	var rotationControl = new odf.RotationControl();
+	rotationControl.setMap(map);
+
+	/* 출력 컨트롤 생성 */
+	var printControl = new odf.PrintControl();
+	printControl.setMap(map);
+
+	/* 전체화면 컨트롤 생성 */
+	var fullScreenControl = new odf.FullScreenControl();
+	fullScreenControl.setMap(map);
+
+	/* 다운로드 컨트롤 생성 */
+	var downloadControl = new odf.DownloadControl();
+	downloadControl.setMap(map);
+
+	/* 오버뷰 컨트롤 생성 */
+	var overViewControl = new odf.OverviewMapControl();
+	overViewControl.setMap(map);
+
+	/* 측정 컨트롤 생성 */
+	var measureControl = new odf.MeasureControl();
+	measureControl.setMap(map);
+
+	/* 그리기 도구 컨트롤 생성 */
+	var drawControl = new odf.DrawControl({
+		style : {
+			fill : {
+				color : [ 254, 243, 255, 0.6 ]
+			},
+			stroke : {
+				color : [ 103, 87, 197, 0.7 ],
+				width : 2
+			},
+			image : {
+				circle : {
+					fill : {
+						color : [ 254, 243, 255, 0.6 ]
+					},
+					stroke : {
+						color : [ 103, 87, 197, 0.7 ],
+						width : 2
+					},
+					radius : 5,
+				},
+			},
+			text : {
+				textAlign : 'left',
+				font : '30px sans-serif',
+				fill : {
+					color : [ 103, 87, 197, 1 ]
+				},
+				stroke : {
+					color : [ 255, 255, 255, 1 ]
+				},
+			},
+		},
+		bufferStyle : {
+			stroke : {
+				color : [ 255, 255, 159, 1 ],
+				width : 2
+			},
+			fill : {
+				color : [ 255, 255, 159, 0.2 ],
+			},
+		}
+	});
+	drawControl.setMap(map);
+
+	/*
+	* controlOption 종류
+	*  - basemap: true/false,
+	*  - zoom: true/false,
+	*  - clear: true/false,
+	*  - download: true/false,
+	*  - print: true/false,
+	*  - overviewmap : true/false,
+	*  - draw: true/false,
+	*  - measure: true/false,
+	*  - move: true/false,
+	*  - dividemap: true/false,
+	*
+	*/
+
+	var dmc = new odf.DivideMapControl({
+		dualMap : [ {
+			position : 1,
+			mapOption : {
+				//지정안한 map옵션은 mainmap 생성시 사용한 mapoption적용
+				basemap : {
+					::basemapType:: : [ '::basemap_white::' ]
+				},
+			},
+			controlOption : {//사용할 컨트롤 지정
+				overviewmap : true,
+			},
+		}, ],
+		quadMap : [ {
+			// position: 1, //지정안하면 기본 1
+			mapOption : {
+				basemap : {
+					::basemapType::  : [ '::basemap_white::' ]
+				},
+			},
+		}, {
+			//position: 2, //지정안하면 기본 3
+			mapOption : {
+				basemap : {
+					::basemapType::  : [ '::basemap_color::' ]
+				},
+			},
+		}, {
+			//position: 4,//지정안하면 기본 4
+			mapOption : {
+				basemap : {
+					::basemapType::  : [ '::basemap_air::' ]
+				},
+			},
+// 			controlOption : {//사용할 컨트롤 지정
+// 				dividemap : true,
+// 			},
+		}, ],
+	});
+	dmc.setMap(map);
+</script>
+</html>

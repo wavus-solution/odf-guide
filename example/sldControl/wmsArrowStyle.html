@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div class="btnDiv">
+		유형 :
+		<select class="selectCustom" id="arrowType" onChange="setStyle()">
+			<option value="ALL_POINT">모든 포인트</option>
+			<option value="START_AND_END_POINT" selected="true">처음과 끝</option>
+		</select>
+		시작점 모양 :
+		<select class="selectCustom" id="startIcon" onChange="setStyle()">
+			<option value="ttf://Serif#U+25B8" selected="true">◀</option>
+			<option value="ttf://Serif#U+25B9">◁</option>
+			<option value="ttf://SansSerif#U+003E"><</option>
+			<option value="ttf://SansSerif#U+27A4">⮜</option>
+			<option value="ttf://SansSerif#U+2B24">●</option>
+			<option value="ttf://SansSerif#U+25CB">○</option>
+			<option value="">없음</option>
+		</select>
+		종료점 모양 :
+		<select class="selectCustom" id="endIcon" onChange="setStyle()">
+			<option value="ttf://Serif#U+25B8">▶</option>
+			<option value="ttf://Serif#U+25B9">▷</option>
+			<option value="ttf://SansSerif#U+003E">></option>
+			<option value="ttf://SansSerif#U+27A4">⮞</option>
+			<option value="ttf://SansSerif#U+2B24" selected="true">●</option>
+			<option value="ttf://SansSerif#U+25CB">○</option>
+			<option value="">없음</option>
+		</select>
+	</div>
+</body>
+<script>
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	/*라인 레이어 추가*/
+	var lineLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'post',
+		server : '::WmsAPI::',
+		layer : '::lineLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'wms'
+	});
+	lineLayer.setMap(map);
+	lineLayer.fit();
+
+
+
+
+	/*스타일 생성*/
+	function setStyle(){
+		var arrowType = document.getElementById('arrowType').value;
+		var startIcon = document.getElementById('startIcon').value;
+		var endIcon = document.getElementById('endIcon').value;
+
+		var symbolizers = [];
+		var commonSymbolizer = {
+			kind: 'Mark',
+             color:'#338866',
+             fillOpacity: 0.7,
+             radius: 5,
+		};
+		if(startIcon){
+			symbolizers.push({
+				...commonSymbolizer,
+				wellKnownName: startIcon,
+	               geometryFunction: 'startPoint',
+	               rotationFunction: 'startAngle'
+			})
+			if(arrowType==='ALL_POINT'){
+				symbolizers.push({
+					...commonSymbolizer,
+					wellKnownName: startIcon,
+	                geometryFunction: 'vertices',
+	                rotationFunction: 'startAngle'
+				})
+			}
+		}
+		if(endIcon){
+			symbolizers.push({
+				...commonSymbolizer,
+				wellKnownName: endIcon,
+	               geometryFunction: 'endPoint',
+	               rotationFunction: 'endAngle'
+			})
+			if(arrowType==='ALL_POINT'){
+				symbolizers.push({
+					...commonSymbolizer,
+					wellKnownName: endIcon,
+	                geometryFunction: 'vertices',
+	                rotationFunction: 'endAngle'
+				})
+			}
+
+		}
+
+
+		/*선 스타일 생성*/
+		var sld = odf.StyleFactory.produceSLD({
+			rules : [
+				{
+				name : 'Arrow', /*룰 이름*/
+				symbolizers : [
+					{
+					kind : 'Line',
+					/*라인 색상
+						rgba 값 입력시 자동변환. 네번째 인수 (투명도) 존재시 opacity보다 우선 적용됨
+					 */
+					color : '#338866',
+					/*라인의 끝 표현 방식
+						- 'butt' : (Default) sharp square edge 끝부분을 수직으로 절단
+						- 'round' : rounded edge 끝부분이 둥근 모양
+						- 'square' :  slightly elongated square edge 끝부분에 사각형 추가
+					 */
+					cap : 'round',
+					/*라인이 꺽이는 부분 표현 방식
+					- 'mitre' : (Default) sharp corner 코너가 뾰족    /＼
+					- 'round' : rounded corner 코너가 동글동글
+					- 'bevel' :  diagonal corner 코너의 끝이 잘림 /￣＼
+					 */
+					join : 'round',
+					/*투명도 0~1 */
+					opacity : 0.7,
+					/*두께 */
+					width : 3,
+					/*대시 간격 조절 */
+					//dasharray : [ 16, 10 ],
+					/*선의 시작점에서 얼마나 떨어진 곳에서부터 점선을 표시할지 */
+					//dashOffset : 16,
+				},
+
+				...symbolizers,
+				],
+			}, ],
+		});
+
+		//sld 적용
+		lineLayer.setSLD(sld);
+	}
+	setStyle();
+
+</script>
+</html>

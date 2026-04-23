@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div id="coordDiv"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+	map.setZoom(17);
+
+
+	//피쳐를 담을 빈레이어 생성
+	var EmptyLayer = odf.LayerFactory.produce('empty', {});
+
+	//새로운 원형 피쳐 생성
+	var centerCoordx = ::coordx::;
+	var circleFeature = odf.FeatureFactory.produce({
+		geometryType : 'circle',
+		coordinates : [ centerCoordx-200, ::coordy:: ],
+		circleSize : 100,
+	});
+	//원형 도형에 입힐 스타일 생성
+	var circleStyle = odf.StyleFactory.produce({
+		fill : {
+			color : [ 206, 252, 254, 0.8 ]
+		},
+		text : {
+			text : 'Circle',//텍스트 내용
+			font : '35px Courier New',
+		}
+	});
+	circleFeature.setStyle(circleStyle);
+
+	//새로운 원형 피쳐 생성
+	var circleFeature2 = odf.FeatureFactory.produce({
+		geometryType : 'circle',
+		coordinates : [ centerCoordx+200, ::coordy:: ],
+		circleSize : 100,
+	});
+	//다각형 도형에 입힐 스타일 생성
+	var polygonStyle = odf.StyleFactory.produce({
+		fill : {
+			color : [ 206, 252, 254, 0.8 ]
+		},
+		text : {
+			text : 'Polygon',//텍스트 내용
+			font : '35px Courier New',
+		}
+	});
+
+	//원 도형을 폴리곤 형태로 변환
+	var polygonFeature = circleFeature2.polygonFromCircle(circleFeature2/*변환을 수행할 피처*/, 32/*꼭지점 갯수*/, 0/*첫번째 시작 각도(라디안)*/);
+
+	//레이어에 피처 추가
+	polygonFeature.setStyle(polygonStyle);
+	EmptyLayer.addFeature(circleFeature);
+	EmptyLayer.addFeature(polygonFeature);
+	EmptyLayer.setMap(map);
+</script>
+</html>
+

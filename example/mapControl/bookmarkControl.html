@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<link href="::OdfUrl::/odf.css" rel="stylesheet">
+<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<body>
+
+	<div id="map" class="odf-view" style="height:550px;"></div>
+		<div class="btnLogArea">
+		<p>북마크 컨트롤 제어</p>
+		<input type="button" class="onoffBtn" value="서울시청북마크추가" onClick="bookmarkControl.addbookmark({zoom : 19, center : [953916.0381470984, 1952052.875646862], name : '서울시청'})">
+				<input type="button" class="onoffBtn" value="북마크 리스트 확인하기(콘솔창확인)" onClick="console.log(bookmarkControl.getBookmarkList())">
+		<input type="button" class="onoffBtn" value="북마크 삭제(추가된 순서 역순)" onClick="bookmarkControl.removeBookmark()">
+		</div>
+		<div class="btnLogArea">
+		<p>홈 이동 컨트롤 제어</p>
+		<input type="button" class="onoffBtn" value="홈 위치 변경하고 홈으로 이동하기" onClick="changeOptionAndMoveHome({center : [945156.7761, 1951925.0984], zoom:13})">
+		</div>
+</body>
+<script>
+	/* 맵 타겟 */
+	var mapContainer = document.getElementById('map');
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+
+	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapOption = "::mapOpt::";
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var map = new odf.Map(mapContainer, mapOption);
+
+	var bookmarkControl = new odf.BookmarkControl([]);
+	bookmarkControl.setMap(map);
+
+	var homeControl = new odf.HomeControl({
+		center : [::coordx::, ::coordy::],
+		zoom : 11,
+	})
+	homeControl.setMap(map);
+
+	function changeOptionAndMoveHome(options) {
+		homeControl.changeOption(options);
+		homeControl.moveHome();
+	}
+</script>
+</html>

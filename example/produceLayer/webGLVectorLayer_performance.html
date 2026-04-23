@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" style="height:550px;"></div>
+	<div class="btnDiv">
+		렌더링 방식 : <select class="selectCustom" id="changeLayer">
+			<option value="webGL" selected="true">webGL</option>
+			<option value="canvas">canvas</option>
+		</select>
+	</div>
+	<div>
+		※ 렌더링 방식을 webGL에서 canvas로 변경하여 렌더링 속도 차이를 확인하세요.
+	</div>
+	<div class="infoArea" id="featureInfo"></div>
+</body>
+<script>
+
+
+/* 맵객체1 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+var mapContainer = document.getElementById('map');
+var coord = [180922.10112856654,562824.6799562417];
+var mapOption = "::mapOpt::";
+var map = new odf.Map(mapContainer, {
+	...mapOption,
+	zoom : 10.71104611366121,
+});
+
+
+//도형 생성
+var featureCount = 50000;
+var features = new Array(featureCount);
+var feature;
+for (var i = 0; i < featureCount; ++i) {
+    feature = odf.FeatureFactory.fromGeoJson({
+        geometry: {
+            type: 'point',
+            coordinates: [130921.79009398595 + Math.random() * 100000, 537824.7031615801 + Math.random() * 50000]
+        }
+
+    });
+    features[i] = feature;
+}
+
+//webgl 방식 렌더링 레이어 생성
+var webGLPointLayer = odf.LayerFactory.produce('empty', {
+    webGLRender :true,
+    renderOptions: {
+	    style: {
+	            'circle-stroke-color': 'rgba(255, 100, 100, 0.7)',
+	            'circle-stroke-width': 1,
+	            'circle-fill-color': '#ffffff55',
+	            'circle-radius': 5,
+	    }
+	}
+});
+webGLPointLayer.setMap(map);
+webGLPointLayer.addFeatures(features);
+
+//canvas 방식 렌더링 레이어 생성
+var canvasPointLayer = odf.LayerFactory.produce('empty', {});
+canvasPointLayer.setStyle({
+	 'circle-stroke-color': 'rgba(100, 100, 255, 0.7)',
+     'circle-stroke-width': 1,
+     'circle-fill-color': '#00000055',
+     'circle-radius': 5,
+});
+canvasPointLayer.setMap(map);
+
+
+odf.event.addListener('#changeLayer','change',(evt)=>{
+	if(evt.target.value==='canvas'){
+		webGLPointLayer.clear();
+		canvasPointLayer.addFeatures(features);
+	}else{
+		canvasPointLayer.clear();
+		webGLPointLayer.addFeatures(features);
+	}
+})
+</script>
+</html>

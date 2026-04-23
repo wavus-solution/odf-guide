@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div id="result" style="width: 1000px; height: 120px;">지도를 움직이시면 내용을 확인하실 수 있습니다.</div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+	//지도 이동시 중심점 좌표를 좌표변환 하여 출력
+	odf.event.addListener(map, 'pointerdrag', function(evt) {
+		/* 현재 View의 Center Point*/
+		var div = document.getElementById("result");
+		var centerPoint = map.getView().getCenter();
+		div.innerText = "변경 전(::srid::) 중심점 => X : " + centerPoint[0] + " / Y : " + centerPoint[1];
+
+		/* 방법 1 */
+		var projection = map.getProjection();
+		var pojPoint = projection.unproject(centerPoint, '4326');
+		div.innerText += "\n\n변경 후(4326) 중심점  => X : " + pojPoint[0] + " / Y : " + pojPoint[1];
+
+		pojPoint = projection.project(pojPoint, '4326');
+		div.innerText += "\n\n재 변경 후(::srid::) 중심점  => X : " + pojPoint[0] + " / Y : " + pojPoint[1];
+	});
+</script>
+</html>

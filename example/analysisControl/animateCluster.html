@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	/* 분석 결과 레이어 추가*/
+	var pointLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : '::WfsAPI::', // 분석결과 레이어가 발행된 주소
+		layer : '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '::crtfckey::',
+		service : 'animatedCluster',
+		//distance : 50, default : 50,
+		//animationDuration :700  애니메이션 표출 시간 단위 ms
+	});
+	pointLayer.setMap(map);
+	"::viewOption::"
+	map.setZoom(11);
+
+
+	var styleCache = {};
+	  var styleObj;
+	  var clusterStyle = odf.StyleFactory.produceFunction([ {
+			seperatorFunc : "default",
+			style : {
+			},
+			callbackFunc : function(style, feature, resolution) {
+	      	var size = feature.get('features').length; //콜백시 피쳐 개수 카운트
+	        var styleNew = styleCache[size]; //피쳐 개수에 따른 스타일 관리
+	        var color = size>25 ? [192,0,0] : size>8 ? [255,128,0] : [0,128,0]; //피쳐 개수에 따른 색 분류값 적용
+	        var radius = Math.max(8, Math.min(size*0.75, 20)); //동적으로 원형 스타일 반지름 길이 지정
+	        var dash = 2*Math.PI*radius/6;
+	        dash = [ 0, dash, dash, dash, dash, dash, dash ];
+	        styleNew = styleCache[size] = odf.StyleFactory.produce({
+	          image: {
+	            circle : {
+	            radius: radius,
+	            stroke: {
+	              color: "rgba("+color+",0.5)",
+	              width: 15 ,
+	              lineDash: dash,
+	              lineCap: "butt"
+	            },
+	            fill: {
+	              color:"rgba("+color+",1)"
+	            }
+	          },
+	        },
+	          text: {
+	            text: size.toString(),
+	            //font: 'bold 12px comic sans ms',
+	            //textBaseline: 'top',
+	            fill: {
+	              color: '#fff'
+	            }
+	          }
+	        });
+	        return [styleNew]
+			},
+		} ]);
+	 pointLayer.setStyle(clusterStyle);
+	/*클러스터 객체 클릭 시 하위 피쳐 표출 인터렉션 추가*/
+	map.setSelectCluster({
+		layers : [pointLayer], //클러스터 클릭 인터렉션 설정 할 레이어 배열 목록
+		addCallback : function(e){ //클러스터 클릭 시 지도에 피쳐 추가 콜백 함수
+			console.log(e) ;
+			},
+		removeCallback : function(e){ //지도에서 피쳐 사라질 시 콜백 함수
+			console.log(e);
+				}
+			});
+	//map.removeSelectCluster() 클러스터 객체 클릭 인터렉션 제거 함수
+</script>
+</html>
+

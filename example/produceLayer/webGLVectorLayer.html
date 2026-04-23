@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="::OdfUrl::/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+</head>
+<body>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	<div>
+		※ 레이어 스타일 지정은 레이어 생성시 renderOptions의 style 속성을 통해서 가능합니다. 스타일을 재지정하고자 한다면 레이어를 새로 생성해야합니다.<br/>
+		※ 현재 webGL vector 레이어는 클릭하여 해당 위치의 좌표를 가져오는 selectFeatureOnClick/forEachFeatureAtPixel 등의 메서드(서버 없이 메모리의 feature로 조회)로 조회 불가능, selectFeature를 통해서만 가능합니다.<br/>
+		※ webGL vector 레이어에는 flat 스타일을 적용합니다.<br/>
+		※ MultiPolygon유형의 webgl vector 레이어에 [] 빈 배열 값이 있다면 "Invalid array length" 에러(ol 버그)
+	</div>
+	<div class="infoArea" id="featureInfo"></div>
+</body>
+<script>
+
+	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var mapOption = "::mapOpt::";
+	var map = new odf.Map(mapContainer, mapOption);
+
+
+	// wfs 레이어 생성
+	// LayerFactory의 produce 함수는 option이 다양하니 개발자지원센터 '지도문서'를 확인하세요
+	var wfsLayer = odf.LayerFactory.produce('geoserver'/*레이어를 생성하기위 한 테이터 호출 방법*/, {
+		method : 'get',//'post'
+		server : '::WfsAPI::', // 레이어가 발행된 서버 주소
+		layer : '::polygonLayer2::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		service : 'wfs', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
+
+		//webgGLRender 적용여부
+		webGLRender :true,
+		//webGLRender 사용시 설정
+		renderOptions: {
+	          style: {
+				'stroke-color': 'red',
+				'stroke-width': 2,
+				//'fill-color': '#fff',
+	          }
+	      }
+	}/*레이어 생성을 위한 옵션*/);
+	wfsLayer.setMap(map);
+	// 해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+	wfsLayer.fit();
+
+
+
+
+	// 레이어 삭제
+	// map.removeLayer(wfsLayer.getODFId());
+
+	// 레이어 on/off
+	// map.switchLayer(wfsLayer.getODFId()/*odf id*/, false/*on/off여부*/);
+
+	// 레이어 z-index 조절
+	// map.setZIndex(wfsLayer.getODFId(), 0);
+
+	// 레이어 가시범위 설정
+	// wfsLayer.setMinZoom(10);
+	// wfsLayer.setMaxResolution(152.70292183870401);
+	// wfsLayer.setMaxZoom(18);
+	// wfsLayer.setMinResolution(0.5964957884324376);
+
+	// 레이어 투명도 조절
+	// wfsLayer.setOpacity(0.5);
+
+	//지도 클릭시 클릭한 위치에 있는 feature 정보 조회
+	odf.event.addListener(map, 'click', function (evt) {
+		var creDiv = document.getElementById('creDiv');
+		if(creDiv){
+			creDiv.innerText = '';
+		}
+
+		//클릭한 위치의 feature 정보 조회
+		var result = map.selectFeature({
+		/*대상 좌표에 버퍼를 지정 (단위:픽셀) (기본값 20)*/
+				//pointBuffer:20,
+		/** extractType 피쳐 추출 유형
+			* - draw 직접 그린 도형 내에 속한 피쳐 추출
+			* - view 현재 지도영역에서 피쳐 추출
+			* - pixel 특정 픽셀에 곂치는 피쳐 추출
+			* - feature 특정 도형(compareFeature) 내에 속한 피쳐 추출
+			* - cql cql_filter로 피처 추출
+			*/
+		extractType: 'pixel',
+		pixel: evt.pixel,//피쳐 추출을 위한 좌표 기준. extractType의 값이 'pixel'일 경우 필수값.
+		});
+
+    		//피처 있는것만 FILTERLING
+		var filteredResult = Object.entries(result).filter(([key, value]) => {
+			return value.features.length > 0;
+		})
+		if(filteredResult.length===0){
+			return;
+		}
+		if (!creDiv) {
+			creDiv = document.createElement('div');
+			creDiv.setAttribute('id', 'creDiv');
+		}
+		if(filteredResult&&filteredResult.length>0&&filteredResult[0][1].features&&filteredResult[0][1].features.length>0){
+				creDiv.innerText =JSON.stringify(filteredResult[0][1].features[0].getProperties());
+		}
+		document.getElementById('featureInfo').append(creDiv);
+
+		//iframe 크기 조절
+		if (parent.window.containerResize) parent.window.containerResize();
+	}.bind(this));
+
+</script>
+</html>
