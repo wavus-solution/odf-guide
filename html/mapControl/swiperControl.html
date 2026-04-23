@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" style="height:550px;"></div>
@@ -15,8 +15,18 @@
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
-	var mapOption = "::mapOpt::";
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	var map = new odf.Map(mapContainer, mapOption);
 
 
@@ -25,13 +35,13 @@
 
 	var wfsLayer = odf.LayerFactory.produce('geoserver', {
 		method : 'get',
-		server : '::WfsAPI::',
-		layer : '::polygonLayer1::',
+		server : 'https://geoserver.geon.kr/geoserver',
+		layer : 'geonpaas:L100000254',
 		service : 'wfs',
 	});
 	wfsLayer.setMap(map);
-	"::viewOption::"
-	"::zoomOption::"
+	map.setCenter([192396.63847319243, 534166.8213405443]);
+	map.setZoom(14);
 
 	//스와이퍼 컨트롤 추가
 	var swiperControl = new odf.SwiperControl({
@@ -58,12 +68,12 @@
 		 - [[레이어1, 레이어2, ...],[레이어5, 레이어6, ...]] : useOriginalLayerFlag가 false일때 이와 같은 양식 적용.
 		 											  [왼쪽 영역에 표출할 레이어 배열, 오른쪽 영역에 표출할 레이어 배열]
 		*/
-		layers : [ basemapControl.getBaseLayer('::basemap_air::') ],
+		layers : [ basemapControl.getBaseLayer('vSatellite') ],
 	});
 	swiperControl.setMap(map);
 
 	//layers 값 셋팅
-	//swiperControl.setLayers([ basemapControl.getBaseLayer('::basemap_color::') ]);
+	//swiperControl.setLayers([ basemapControl.getBaseLayer('vHybrid') ]);
 
 	//SwiperControl의 슬라이더 값 셋팅
 	//swiperControl.setSliderValue(30/*셋팅할 슬라이더 값 (0~100사이의 숫자)*/);

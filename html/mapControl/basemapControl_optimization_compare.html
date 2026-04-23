@@ -1,0 +1,157 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
+	<style>
+		.map-container {
+			display: flex;
+			gap: 20px;
+		}
+		.map-wrapper {
+			flex: 1;
+		}
+		.map-wrapper h3 {
+			margin: 0 0 10px 0;
+		}
+		.projection-info {
+			margin-top: 5px;
+			font-weight: bold;
+		}
+	</style>
+</head>
+<body>
+	<div class="map-container">
+		<div class="map-wrapper">
+			<h3>optimization: true</h3>
+			<div id="map1" class="odf-view" style="height:400px;"></div>
+			<div class="projection-info">현재 좌표계 : <span id="projection1"></span></div>
+		</div>
+		<div class="map-wrapper">
+			<h3>optimization: false</h3>
+			<div id="map2" class="odf-view" style="height:400px;"></div>
+			<div class="projection-info">현재 좌표계 : <span id="projection2"></span></div>
+		</div>
+	</div>
+	<div style="margin-top: 15px;">
+		※ 배경지도 변경시 좌표계가 변경되면서 콘솔로그에 변경된 좌표계 값이 찍힙니다.<br>
+		※ 같은 그룹 끼리는 좌표계가 변경되지 않습니다.<br>
+		※ optimization: true 일 때는 배경지도 변경 시 좌표계 변환 최적화가 적용됩니다.<br>
+		<br>
+		<b>[optimization 옵션 차이]</b><br>
+		- true: 배경지도의 좌표계와 해상도(resolutions)에 맞게 View를 변경하여 타일이 선명하게 표시됨<br>
+		- false: 좌표계를 변경하지 않고 현재 View 유지 (좌표계나 해상도가 맞지 않으면 타일이 흐릿하게 보일 수 있음)
+	</div>
+</body>
+<script>
+	/*
+		* 배경지도 종류
+		[브이월드]
+		vWorldBase - 브이월드 일반 지도
+		vWorldWhite - 브이월드 백지도
+		vWorldMidnight - 브이월드 야간 지도
+		vWorldHybrid - 브이월드 하이브리드 지도
+		vWorldSatellite - 브이월드 위성 지도
+
+		[바로e맵]
+		eMapBasic - 바로e맵 일반 지도
+		eMapColor - 바로e맵 색각 지도
+		eMapLowV - 바로e맵 큰글씨 지도
+		eMapWhite - 바로e맵 백지도
+		eMapEnglish - 바로e맵 영어 지도
+		eMapChinese - 바로e맵 중어 지도
+		eMapJapanese - 바로e맵 일어 지도
+		eMapWhiteEdu - 바로e맵 교육용 백지도
+		eMapAIR - 바로e맵 항공지도
+	 */
+
+	/* 맵 중심점 */
+	var coord = new odf.Coordinate(199312.9996, 551784.6924);
+
+	/* 맵 옵션 (브이월드 + 바로e맵 모두 포함) */
+	var mapOption = {
+		center: coord,
+		zoom: 11,
+		projection: 'EPSG:5186',
+		vWorldURL: 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		baroEMapURL: 'https://gsapi.geon.kr/map/api/map/baroemap',
+		baroEMapAirURL: 'https://gsapi.geon.kr/map/api/map/ngisair',
+		basemap: {
+			vWorld: ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+			baroEMap: ['eMapBasic', 'eMapAIR', 'eMapColor', 'eMapWhite']
+		}
+	};
+
+	/* 맵객체 생성 - optimization: true */
+	var map1 = new odf.Map(document.getElementById('map1'), {
+		...mapOption,
+		optimization: true
+	});
+
+	/* 맵객체 생성 - optimization: false */
+	var map2 = new odf.Map(document.getElementById('map2'), {
+		...mapOption,
+		optimization: false
+	});
+
+	/* 베이스맵 컨트롤 생성 */
+	new odf.BasemapControl({}, {optimization: true}).setMap(map1);
+	new odf.BasemapControl({}, {optimization: false}).setMap(map2);
+
+
+	/* 초기 좌표계 표시 */
+	document.querySelector('#projection1').innerText = map1.getView().getProjection().getCode();
+	document.querySelector('#projection2').innerText = map2.getView().getProjection().getCode();
+
+	/* 좌표계 변경 이벤트 - map1 (optimization: true) */
+	odf.event.addListener(map1, 'change:view', () => {
+		var projection = map1.getView().getProjection().getCode();
+		document.querySelector('#projection1').innerText = projection;
+		console.log('[optimization: true] 좌표계 변경: ' + projection);
+	});
+
+	/* 좌표계 변경 이벤트 - map2 (optimization: false) */
+	odf.event.addListener(map2, 'change:view', () => {
+		var projection = map2.getView().getProjection().getCode();
+		document.querySelector('#projection2').innerText = projection;
+		console.log('[optimization: false] 좌표계 변경: ' + projection);
+	});
+
+
+	/* WMS/WFS의 경우 좌표계 상관없이 추가해도 배경지도 좌표계가 변경되면 ODF가 자동으로 맞춰줌 */
+	/*var wfsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : 'https://geoserver.geon.kr/geoserver',
+		layer : 'geonpaas:L100000258',
+		service : 'wfs',
+	});
+	wfsLayer.setMap(map1);
+	wfsLayer.fit();
+
+	var wmsLayer = odf.LayerFactory.produce('geoserver', {
+		method : 'get',
+		server : 'https://geoserver.geon.kr/geoserver',
+		layer : 'geonpaas:L100000254',
+		service : 'wms',
+	});
+	wmsLayer.setMap(map1);
+	wmsLayer.fit();
+    */
+
+	/* ※ 주의! GeoJSON은 optimization: true일 때 배경지도에 따라 좌표계가 변경되므로 현재 지도의 좌표계로 설정해야 함
+	   단, 레이어 추가 후 배경지도 변경 시에는 ODF가 자동으로 좌표 변환하므로 초기 설정 시에만 주의 필요 */
+	/* var geoJsonObject = { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [195098.0478, 533155.4291] }, properties: { name: 'Point' } }, { type: 'Feature', geometry: { type: 'Point', coordinates: [197713.0234, 532917.3928] }, properties: { name: 'Point' } }, { type: 'Feature', geometry: { type: 'Point', coordinates: [197939.0266, 533262.3867] }, properties: { name: 'Point' } }], properties: { name: 'layer' } };
+	var geojsonLayer = odf.LayerFactory.produce('geojson', {
+		data : geoJsonObject,
+		//원본 좌표계
+		dataProjectionCode : 'EPSG:5186',
+		//변환 좌표계 (※ 현재 지도의 좌표계 구하는법 : map1.getView().getProjection().getCode())
+		featureProjectionCode : map1.getView().getProjection().getCode()
+	});
+	geojsonLayer.setMap(map1);
+	geojsonLayer.fit();
+	*/
+
+</script>
+</html>

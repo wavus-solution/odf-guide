@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -16,16 +16,26 @@
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
-	var mapOption = "::mapOpt::";
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	var map = new odf.Map(mapContainer, mapOption);
 
 
 	/*면 레이어 추가*/
 	var polygonLayer = odf.LayerFactory.produce('geoserver', {
 		method : 'post',
-		server : '::WmsAPI::',
-		layer : '::polygonLayer1::',
+		server : 'https://geoserver.geon.kr/geoserver',
+		layer : 'geonpaas:L100000254',
 		service : 'wms',
 	});
 	polygonLayer.setMap(map);
@@ -88,7 +98,43 @@
 		/*★★ rule 2  면 스타일은 항시 보이게 (id==1일경우) 초록색 테두리★★*/
 		{
 			name : 'My Rule', /*룰 이름*/
-			filter : [ '*=', 'DGM_NM', '대학' ], //[기본 비교][ , 칼럼명, 기준값]
+			/*해당 룰 적용 대상 한정
+			 ★ 기본 비교
+				- filter[0] : 비교연산자 ('==' , '!=' ,  '>' , '<' , '>=', '<=')
+				- filter[1] : 속성명 (DB 컬럼과 동일한 개념, 예: id, DGM_NM)
+				- filter[2] : 속성값 (비교 기준 값)
+
+				- 예시) filter: ['<', 'id', '20'] → id 속성값이 20 미만인 경우만 표출
+
+			 ★ like 비교
+				- filter[0] : '*='
+				- filter[1] : 속성명
+				- filter[2] : 비교 문자열 (wildCard="*" singleChar="." escape="!")
+
+				- wildCard 예시1) filter: ['*=', 'DGM_NM', '*대학*'] → DGM_NM 속성값에 '대학'이 포함되는 경우 표출
+				- wildCard 예시2) filter: ['*=', 'code', 'A*'] → code 속성값이 'A'로 시작되는 경우 표출
+				- singleChar 예시1) filter: ['*=', 'code', 'type_.'] → code 속성값이 type_1, type_2 등 'type_' 뒤에 한 글자 더 있는 경우 표출
+				- singleChar 예시2) filter: ['*=', 'dong', '..동'] → dong 속성값이 정확히 3글자이고 '동'으로 끝나는 경우 표출 (예: "강남동", "서초동")
+				- escape 예시) filter: ['*=', 'filename', '*!.txt'] → filename 속성값이 '.txt'로 끝나는 경우 표출 (! 다음 문자를 그대로 검색)
+				- 조합 예시) filter: ['*=', 'code', 'A*_.'] → 'A'로 시작하고 '_' + 한 글자로 끝나는 경우 (예: "ABC_1", "A_X")
+
+			 ★ null 비교
+				- filter[0] : 비교연산자 ('==' , '!=')
+				- filter[1] : 속성명
+				- filter[2] : null
+
+				- 예시) filter: ['!=', 'id', null] → id 속성값이 null이 아닌 경우 표출
+
+			 ★ 두 개 이상의 조건
+				- filter[0] : 논리연산자 ('&&','||')
+				- filter[1] : 조건1
+				- filter[2] : 조건2
+
+				- 예시) filter:['&&',['>=','id','3'],['<','id','1000']]
+				  → id 속성값이 3 이상이면서 1000 미만인 경우 표출
+			*/
+
+			filter : [ '*=', 'DGM_NM', '*대학*' ],
 			symbolizers : [ {
 				kind : 'Fill',
 				/*채우기색*/
@@ -103,7 +149,7 @@
 		/*★★ rule 3 면 스타일은 항시 보이게 (id==2일경우) 붉은빛깔 테두리★★*/
 		{
 			name : 'My Rule', /*룰 이름*/
-			filter : [ '*=', 'DGM_NM', '중학교' ], //[기본 비교][ , 칼럼명, 기준값]
+			filter : [ '*=', 'DGM_NM', '*중학교*' ], //[기본 비교][ , 칼럼명, 기준값]
 			symbolizers : [ {
 				kind : 'Fill',
 				/*채우기색*/
@@ -117,7 +163,7 @@
 		/*★★ rule 3 면 스타일은 항시 보이게 (id==3일경우) 붉은빛깔 테두리★★*/
 		{
 			name : 'My Rule', /*룰 이름*/
-			filter : [ '*=', 'DGM_NM', '초등학교' ], //[기본 비교][ , 칼럼명, 기준값]
+			filter : [ '*=', 'DGM_NM', '*초등학교*' ], //[기본 비교][ , 칼럼명, 기준값]
 			symbolizers : [ {
 				kind : 'Fill',
 				/*채우기색*/

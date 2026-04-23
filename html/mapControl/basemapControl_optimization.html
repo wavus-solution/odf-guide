@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -18,10 +18,20 @@
 	var mapContainer = document.getElementById('map');
 
 	/* 맵 중심점 */
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
 
 	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
-	var mapOption = "::mapOpt::";
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	/*
 		* 배경지도 종류
 		eMapBasic - 바로e맵 일반 지도
@@ -53,8 +63,8 @@
 	/* wms 레이어 생성 */
 	var wmsLayer = odf.LayerFactory.produce('geoserver', {
 		method : 'get',
-		server : '::WmsAPI::',
-		layer : '::polygonLayer1::',
+		server : 'https://geoserver.geon.kr/geoserver',
+		layer : 'geonpaas:L100000254',
 		service : 'wms',
 	});
 	wmsLayer.setMap(map);
@@ -88,8 +98,8 @@
 	// LayerFactory의 produce 함수는 option이 다양하니 개발자지원센터 '지도문서'를 확인하세요
 	var wfsLayer = odf.LayerFactory.produce('geoserver'/*레이어를 생성하기위 한 테이터 호출 방법*/, {
 		method : 'get',//'post'
-		server : '::WfsAPI::', // 레이어가 발행된 서버 주소
-		layer : '::polygonLayer2::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		server : 'https://geoserver.geon.kr/geoserver', // 레이어가 발행된 서버 주소
+		layer : 'geonpaas:L100000258', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
 		service : 'wfs', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
 	}/*레이어 생성을 위한 옵션*/);
 	wfsLayer.setMap(map);

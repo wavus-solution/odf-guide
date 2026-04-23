@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -13,13 +13,23 @@
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
-	var mapOption = "::mapOpt::";
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	var map = new odf.Map(mapContainer, mapOption);
 
 	var marker = new odf.Marker({
 		/*마커의 위치*/
-		position : [ ::coordx::, ::coordy:: ],
+		position : [ 199312.9996, 551784.6924 ],
 		/*드래그 가능 여부(기본 값 false)*/
 		draggable : true,
 		/*마커의 상대적 위치
@@ -81,7 +91,7 @@
 	var position = marker.getPosition();
 
 	// 마커 위치 지정
-	// marker.setPosition([::coordx::, ::coordy:: ]);
+	// marker.setPosition([199312.9996, 551784.6924 ]);
 
 	// 마커 상대적 위치 값 변경
 	marker.setPositioning('bottom-center'

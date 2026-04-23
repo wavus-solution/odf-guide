@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 
-<link href="::OdfUrl::/odf.css" rel="stylesheet">
-<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 <!-- TOC 관련 lib -->
 <link rel="stylesheet"
-	href="::DeveloperUrl::/vendor/jqtree/dist/themes/default/style.min.css" />
+	href="https://developer.geon.kr/vendor/jqtree/dist/themes/default/style.min.css" />
 <link rel="stylesheet"
-	href="::DeveloperUrl::/vendor/colorpicker/css/colorpicker.css" />
-<link rel="stylesheet" href="::DeveloperUrl::/css/toc.css" />
+	href="https://developer.geon.kr/vendor/colorpicker/css/colorpicker.css" />
+<link rel="stylesheet" href="https://developer.geon.kr/css/toc.css" />
 <script type="text/javascript"
-	src="::DeveloperUrl::/vendor/jquery/jquery-1.12.4.js"></script>
+	src="https://developer.geon.kr/vendor/jquery/jquery-1.12.4.js"></script>
 <script type="text/javascript"
-	src="::DeveloperUrl::/vendor/jquery/jquery-ui.min.js"></script>
+	src="https://developer.geon.kr/vendor/jquery/jquery-ui.min.js"></script>
 <script type="text/javascript"
-	src="::DeveloperUrl::/vendor/jqtree/dist/jstree.min.js"></script>
+	src="https://developer.geon.kr/vendor/jqtree/dist/jstree.min.js"></script>
 <script type="text/javascript"
-	src="::DeveloperUrl::/vendor/colorpicker/js/colorpicker.js"></script>
-<script type="text/javascript" src="::DeveloperUrl::/js/sample/toc.js"></script>
+	src="https://developer.geon.kr/vendor/colorpicker/js/colorpicker.js"></script>
+<script type="text/javascript" src="https://developer.geon.kr/js/sample/toc.js"></script>
 
 
 </head>
@@ -47,10 +47,20 @@
 	var mapContainer = document.getElementById('map');
 
 	/* 맵 중심점 */
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
 
 	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
-	var mapOption = "::mapOpt::";
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var map = new odf.Map(mapContainer, mapOption);
@@ -77,8 +87,8 @@
 		symbolCndCn : "",
 		filterCndCn : "",
 		serverType : "geoserver",
-		serverUrl : "::APIGW::/bag/api/map/wfs",
-		wfsServerUrl : "::APIGW::/bag/api/map/wfs"
+		serverUrl : "https://developer.geon.kr/proxy/api/bag/api/map/wfs",
+		wfsServerUrl : "https://developer.geon.kr/proxy/api/bag/api/map/wfs"
 	}, {
 		id : "5",
 		parent : "1",
@@ -90,8 +100,8 @@
 		symbolCndCn : "",
 		filterCndCn : "",
 		serverType : "geoserver",
-		serverUrl : "::APIGW::/bag/api/map/wfs",
-		wfsServerUrl : "::APIGW::/bag/api/map/wfs"
+		serverUrl : "https://developer.geon.kr/proxy/api/bag/api/map/wfs",
+		wfsServerUrl : "https://developer.geon.kr/proxy/api/bag/api/map/wfs"
 	}, {
 		id : "9",
 		parent : "",
@@ -103,8 +113,8 @@
 		symbolCndCn : "",
 		filterCndCn : "",
 		serverType : "geoserver",
-		serverUrl : "::APIGW::/bag/api/map/wfs",
-		wfsServerUrl : "::APIGW::/bag/api/map/wfs"
+		serverUrl : "https://developer.geon.kr/proxy/api/bag/api/map/wfs",
+		wfsServerUrl : "https://developer.geon.kr/proxy/api/bag/api/map/wfs"
 	}, {
 		id : "10",
 		parent : "",
@@ -116,8 +126,8 @@
 		symbolCndCn : "",
 		filterCndCn : "",
 		serverType : "geoserver",
-		serverUrl :"::APIGW::/bag/api/map/wfs",
-		wfsServerUrl : "::APIGW::/bag/api/map/wfs"
+		serverUrl :"https://developer.geon.kr/proxy/api/bag/api/map/wfs",
+		wfsServerUrl : "https://developer.geon.kr/proxy/api/bag/api/map/wfs"
 	}, {
 		id : "11",
 		parent : "",
@@ -129,7 +139,7 @@
 		symbolCndCn : "",
 		filterCndCn : "",
 		serverType : "geoserver",
-		serverUrl : "::APIGW::/bag/api/map/wmts",
+		serverUrl : "https://developer.geon.kr/proxy/api/bag/api/map/wmts",
 	}, ];
 	var toc = new TOC(map, tocData, {
 		level1 : {//레이어 목록
@@ -156,7 +166,7 @@
 					style : true,
 					legend : true,
 				},
-				imageUrl : '::DeveloperUrl::'
+				imageUrl : 'https://developer.geon.kr'
 			},
 		},
 	});
@@ -184,8 +194,8 @@
 				symbolCndCn : "",
 				filterCndCn : "",
 				serverType : "geoserver",
-				serverUrl :  "::APIGW::/bag/api/map/wfs",
-				wfsServerUrl : "::APIGW::/bag/api/map/wfs"
+				serverUrl :  "https://developer.geon.kr/proxy/api/bag/api/map/wfs",
+				wfsServerUrl : "https://developer.geon.kr/proxy/api/bag/api/map/wfs"
 			});
 		}
 		idx++;

@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -15,8 +15,18 @@
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
-	var mapOption = "::mapOpt::";
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	mapOption = {
 		...mapOption,
 		// 이미지 확대/축소시 비율 유지 여부 옵션(기본값 true)
@@ -27,8 +37,8 @@
 	var sinlimdongExtent = map.getProjection().projectExtent([191061.55, 537370.7406, 197395.8321, 543434.1944],5186);
 
 	var imageLayer = odf.LayerFactory.produce('geoImage', {
-		url: '::developerUrl::/images/sinlimdong.png', //이미지 정보
-		projection: 'EPSG:::srid::',// 좌표계 정보
+		url: 'https://developer.geon.kr/images/sinlimdong.png', //이미지 정보
+		projection: 'EPSG:5186',// 좌표계 정보
 
 		//방법 1) extent로 이미지 위치 설정 (이때, imageCenter값과 imageScale 값은 무시된다.)
 		extent: sinlimdongExtent,//이미지 중심점 좌표

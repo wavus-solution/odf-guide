@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -47,7 +47,17 @@
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
 	var coord = new odf.Coordinate(194788.8765403359, 541953.9854540826);
-	var mapOption = "::mapOpt::";
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	mapOption.projection ='EPSG:5186';
 	var map = new odf.Map(mapContainer, mapOption);
     map.setZoom(15);
@@ -108,7 +118,7 @@
 
 				//geoTiff 파일 경로
 				//geoTiff가 타일링 되어있다면 아래와 같이 {{}}로 x/y/z를 표현
-                url: '::TifUrl::/data/geotiff/L100005603.tif',//'https://s2downloads.eox.at/demo/EOxCloudless/2020/rgbnir/s2cloudless2020-16bits_sinlge-file_z0-4.tif',//'https://s2downloads.eox.at/demo/EOxCloudless/2019/rgb/{{z}}/{{y}}/{{x}}.tif',
+                url: '/data/geotiff/L100005603.tif',//'https://s2downloads.eox.at/demo/EOxCloudless/2020/rgbnir/s2cloudless2020-16bits_sinlge-file_z0-4.tif',//'https://s2downloads.eox.at/demo/EOxCloudless/2019/rgb/{{z}}/{{y}}/{{x}}.tif',
 
                 // url로 tiff를 가져올때 proxy jsp로 가져올경우 proxy 정보를 설정
                 // undefined 설정시 map에서 proxy정보를 정의했다해도 이 레이어에서는 proxy 사용 안함

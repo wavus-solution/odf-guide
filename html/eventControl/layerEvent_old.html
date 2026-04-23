@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 </head>
-<link href="::OdfUrl::/odf.css" rel="stylesheet">
-<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
 	<textarea id="eventLog" style="width: 100%; height: 200px;"></textarea>
@@ -46,10 +46,20 @@
 	var mapContainer = document.getElementById('map');
 
 	/* 맵 중심점 */
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
 
 	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
-	var mapOption = "::mapOpt::";
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var map = new odf.Map(mapContainer, mapOption);
@@ -61,20 +71,20 @@
 	// 			version : '1.0.0' // 발행 된 레이어의 버전 (default. 1.1.0)
 	// 		}
 		method : 'post',
-		server : '::WfsAPI::', // 레이어가 발행된 서버 주소
-		layer : '::polygonLayer1::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		server : 'https://geoserver.geon.kr/geoserver', // 레이어가 발행된 서버 주소
+		layer : 'geonpaas:L100000254', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
 		service : 'wms', // 호출하고자 하는 레이여 형태(wms, wfs)
 	});
 	wmsLayer.setMap(map);
-	"::viewOption::"
-	"::zoomOption::"
+	map.setCenter([192396.63847319243, 534166.8213405443]);
+	map.setZoom(14);
 
 	/*wfs 레이어 추가*/
 	var wfsLayer = odf.LayerFactory.produce('geoserver', {
-		// 		server: '::GeoserverUrl::',
+		// 		server: 'https://geoserver.geon.kr/geoserver',
 		method : 'post',
-		server : '::WmsAPI::', // 레이어가 발행된 서버 주소
-		layer : '::polygonLayer2::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		server : 'https://geoserver.geon.kr/geoserver', // 레이어가 발행된 서버 주소
+		layer : 'geonpaas:L100000258', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
 		service : 'wfs', // 호출하고자 하는 레이여 형태(wms, wfs)
 	});
 	wfsLayer.setMap(map);

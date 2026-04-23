@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 </head>
-<link href="::OdfUrl::/odf.css" rel="stylesheet">
-<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 <body>
 	<div id="map" style="height:550px;"></div>
 	<div style="margin-top: 15px">
@@ -21,10 +21,20 @@
 	var mapContainer = document.getElementById('map');
 
 	/* 맵 중심점 */
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
 
 	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
-	var mapOption = "::mapOpt::";
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var map = new odf.Map(mapContainer, mapOption);
@@ -34,8 +44,8 @@
 
 	//스와이퍼 컨트롤 추가
 	var swiperControl = new odf.SwiperControl({
-		layers : [ basemap.getBaseLayer('::basemap_color::'),
-				basemap.getBaseLayer('::basemap_white::') ],
+		layers : [ basemap.getBaseLayer('vHybrid'),
+				basemap.getBaseLayer('vWhite') ],
 		size : '200',
 		useOriginalLayerFlag : false,//원본레이어를 왼쪽영역에 나타낼지 여부, 기본값 true
 		swipeStrictFlag : false,
@@ -69,13 +79,13 @@
 				if (switchLayerFlag) {
 					//색각지도와 기본지도
 					swiperControl.setLayers([
-							basemap.getBaseLayer('::basemap_air::'),
-							basemap.getBaseLayer('::basemap_etc::') ]);
+							basemap.getBaseLayer('vSatellite'),
+							basemap.getBaseLayer('vMidnight') ]);
 				} else {
 					//기본지도와 교육용백지도
 					swiperControl.setLayers([
-							basemap.getBaseLayer('::basemap_color::'),
-							basemap.getBaseLayer('::basemap_white::') ]);
+							basemap.getBaseLayer('vHybrid'),
+							basemap.getBaseLayer('vWhite') ]);
 				}
 				switchLayerFlag = !switchLayerFlag;
 			});

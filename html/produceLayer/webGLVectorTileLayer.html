@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -22,9 +22,10 @@
 		center: coord,
 		zoom: 16,
 		projection: 'EPSG:5179',
-		::proxyOption::::basemapAirUrlDefine::,
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',,
 		basemap: {
-			::basemapAir::,
+			vSatellite,
 		},
 	};
 	var map = new odf.Map(mapContainer, mapOption);
@@ -34,7 +35,7 @@
 	var vectorTileLayer = odf.LayerFactory.produce('api', {
 		service: 'vectortile',
 		server: {
-			url: '::PbfUrl::/data/pbfData/{z}/{x}/{y}.pbf'
+			url: '/data/pbfData/{z}/{x}/{y}.pbf'
 		},
 		projection: 'EPSG:5179',
 		tileGrid: {

@@ -1,12 +1,12 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
-	<input type="button" id="setBasemapDefault" class="onoffBtn" onClick="basemapControl.switchBaseLayer('::basemap_base::')" value="배경지도 원래대로 변경"/>
+	<input type="button" id="setBasemapDefault" class="onoffBtn" onClick="basemapControl.switchBaseLayer('vBase')" value="배경지도 원래대로 변경"/>
 	<p id="positionStr">자세한 정보는 Console창을 확인하세요</p>
 </body>
 <script>
@@ -14,10 +14,20 @@
 	var mapContainer = document.getElementById('map');
 
 	/* 맵 중심점 */
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
 
 	/* 맵객체 옵션 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
-	var mapOption = "::mapOpt::";
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	/*
 		* 배경지도 종류
 		eMapBasic - 바로e맵 일반 지도
@@ -50,12 +60,12 @@
 	var _wmtsLayer = odf.LayerFactory.produce('geoserver', {
 		method : 'get',
 		service: 'wmts',
-		server: '::WmtsAPI::',
-		layer: '::wmtsLayer::',
-		crtfckey : '::crtfckey::',
+		server: 'https://geoserver.geon.kr/geoserver',
+		layer: 'geonpaas:L100000252',
+		crtfckey : '',
 	});
 	basemapControl.setBaseLayer('myGrp','customBaseLayer','사용자정의지도',_wmtsLayer);
-	map.setCenter(::wmtsCenterCoord::);
+	map.setCenter([237215.6853091594, 423858.49713423196]);
 	map.setZoom(15);
 	//사용자 정의 베이스레이어 제거 //해당 그룹에 베이스레이어가 하나뿐이면 그룹도 함께 삭제
 	//basemapControl.removeBaseLayer('temp');

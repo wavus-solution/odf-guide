@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -21,8 +21,18 @@
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
-	var mapOption = "::mapOpt::";
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	var map = new odf.Map(mapContainer, mapOption);
 
 
@@ -36,8 +46,8 @@
 		},// API 주소
         layer: '0', //레이어명. 여러개일경우, 쉼표(,)로 구분
         service: 'wms',
-        authkey : '::nsdiApiKey::',//발급받은 api key
-        crs : 'EPSG:::srid::',// 요청 좌표계
+        authkey : '132d391c091bf7d7e0659e',//발급받은 api key
+        crs : 'EPSG:5186',// 요청 좌표계
         //originalOption : {//odf에서 제공해주는 기본 파라미터 적용 여부
 		  //SERVICE : true,//(기본값 true)
           //REQUEST : true, //(기본값 true)

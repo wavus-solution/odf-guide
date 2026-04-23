@@ -1,8 +1,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 	<script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=xgcrfniyjl"></script>
 	<!--
     ★ 네이버 지도 API(Web Dynamic Map)는 10,000,000건 이하 무료입니다. 무료 사용량 이상 사용할 경우 1건당 0.1원 입니다.
@@ -86,10 +86,10 @@
 	/* 4. odf 맵 객체에 레이어를 추가합니다. */
 	var polygonLayer = odf.LayerFactory.produce('geoserver', {
 		method: 'get',
-		server: '::WfsAPI::',
-		layer: '::polygonLayer1::',
+		server: 'https://geoserver.geon.kr/geoserver',
+		layer: 'geonpaas:L100000254',
 		service : 'wfs',
-		projection: 'EPSG:::srid::',
+		projection: 'EPSG:5186',
 	});
 	polygonLayer.setMap(map);
 	polygonLayer.fit();

@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -12,16 +12,26 @@
 <script>
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
-	var mapOption = "::mapOpt::";
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	var map = new odf.Map(mapContainer, mapOption);
 
 	/*포인트 레이어 추가*/
 	var pointLayer = odf.LayerFactory.produce('geoserver', {
 		method : 'get',
-		server : '::WfsAPI::',
-		layer : '::pointLayer::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
-		crtfckey : '::crtfckey::',
+		server : 'https://geoserver.geon.kr/geoserver',
+		layer : 'geonpaas:L100000256', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+		crtfckey : '',
 		service : 'wfs',
 	});
 	pointLayer.setMap(map);

@@ -2,8 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <link href="::OdfUrl::/odf.css" rel="stylesheet">
-  <script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+  <link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+  <script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
   <div id="map" class="odf-view" style="height:550px;"></div>
@@ -12,8 +12,18 @@
 
   /* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
   var mapContainer = document.getElementById('map');
-  var coord = new odf.Coordinate(::coordx::,::coordy::);
-  var mapOption = "::mapOpt::";
+  var coord = new odf.Coordinate(193478.51861949265,533912.3877249222);
+  var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
   var map = new odf.Map(mapContainer, mapOption);
 
 
@@ -24,7 +34,7 @@
   //0.0. 원 feature 생성
   var circleFeature = odf.FeatureFactory.produce({
     geometryType: 'circle',
-    coordinates: [::coordx::, ::coordy::],
+    coordinates: [193478.51861949265, 533912.3877249222],
     circleSize: 3732
   });
   //0.1. (선택) 빈 벡터 레이어 생성하여 원 feature 넣기
@@ -50,8 +60,8 @@
   //wms레이어 생성
   var wmsLayer = odf.LayerFactory.produce('geoserver', { // 레이어 호출 방법 (ex. geoserver, geojson)
     method: 'get',
-    server: '::WmsAPI::', // 레이어가 발행된 서버 주소
-    layer: '::polygonLayer1::', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
+    server: 'https://geoserver.geon.kr/geoserver', // 레이어가 발행된 서버 주소
+    layer: 'geonpaas:L100000254', // 발행된 레이어 명칭 (ex. 저장소명:레이어명)
     service: 'wms', // 호출하고자 하는 레이여 형태(wms, wfs, wmts)
   });
   wmsLayer.setMap(map);

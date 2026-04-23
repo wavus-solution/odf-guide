@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -20,8 +20,18 @@
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
-	var mapOption = "::mapOpt::";
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	var map = new odf.Map(mapContainer, mapOption);
 
 
@@ -37,7 +47,7 @@
       layers: 'lt_c_adsigg_info,lt_c_ademd_info', //하나 또는 쉼표(,)로 분리된 지도레이어 목록, 최대 4개  ※https://www.vworld.kr/dev/v4dv_wmsguide2_s001.do 에서 사용가능한 레이어 목록 확인 가능
       styles: 'lt_c_adsigg,lt_c_ademd_3d', //LAYERS와 1대1 관계의 하나 또는 쉼표(,)로 분리된 스타일 목록
       //version : '1.3.0',//요청 서비스 버전
-      crs : 'EPSG:::srid::',//응답결과 좌표계와 bbox 파라미터의 좌표계
+      crs : 'EPSG:5186',//응답결과 좌표계와 bbox 파라미터의 좌표계
       //transparent : 'true',//지도 배경의 투명도 여부
       //bgcolor:'0xFFFFFF',//배경색
       //exceptions:'text/xml',
@@ -46,7 +56,7 @@
           //REQUEST : true, //(기본값 true)
           //WIDTH : true,//(기본값 true)
           //HEIGHT : true,//(기본값 true)
-      		BBOX : '::bbox::',
+      		BBOX : '{{miny}},{{minx}},{{maxy}},{{maxx}}',
 	/* ★BBOX★
 	  odf에서 기본 제공하는 bbox 배열은 minx,miny,maxx,maxy 순인 반면에
 	  vworld에서는 EPSG:4326/EPSG:5186/EPSG:5187일 경우 bbox 배열을 miny,minx, maxy,maxx 순으로 입력받음
@@ -59,8 +69,8 @@
           //VERSION : false,//(기본값 false)
       },
       /* 직접해보기에서 api 를 실행할 때는 아래 domain 값 부분을 주석처리해야 api 가 정상 동작합니다. */
-      domain:'::vWorldDomain::',//API KEY를 발급받을때 입력했던 URL
-      key : '::vWorldApiKey::',//발급받은 api key
+      domain:'https://developer.geon.kr',//API KEY를 발급받을때 입력했던 URL
+      key : 'DDDCE8C7-0E04-3921-8403-73A2F501BCC2',//발급받은 api key
   });
   apiLayer.setMap(map);
 </script>

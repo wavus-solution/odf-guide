@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>wizard page</title>
+</head>
+<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
+<link rel="stylesheet" href="https://developer.geon.kr/vendor/jqtree/dist/themes/default/style.min.css" />
+<link rel="stylesheet" href="https://developer.geon.kr/vendor/colorpicker/css/colorpicker.css"/>
+<link rel="stylesheet" href="https://developer.geon.kr/css/toc.css"/>
+<script type="text/javascript" src="https://developer.geon.kr/vendor/jquery/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="https://developer.geon.kr/vendor/jquery/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://developer.geon.kr/vendor/jqtree/dist/jstree.min.js"></script>
+<script type="text/javascript" src="https://developer.geon.kr/vendor/colorpicker/js/colorpicker.js"></script>
+<script type="text/javascript" src="https://developer.geon.kr/js/sample/toc.js"></script>
+<body>
+	<div class=toc_content>
+	<div id="map" class="odf-view" style="height:550px;"></div>
+	</div>
+</body>
+<script id="wizard_script">
+	var mapContainer = document.getElementById('map');
+	var coord = new odf.Coordinate(199312.9996, 551784.6924);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
+	var map = new odf.Map(mapContainer, mapOption);
+	//마우스 드래그를 통한 지도 이동 허용
+	map.setDraggable(true);
+	//마우스 휠을 통한 지도 확대, 축소 허용
+	map.setZoomable(true);
+</script>
+</html>

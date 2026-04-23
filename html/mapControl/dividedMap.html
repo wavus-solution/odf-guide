@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" style="height:550px; position:absolute"></div>
@@ -19,8 +19,18 @@
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
-	var mapOption = "::mapOpt::";
+	var coord = new odf.Coordinate(199312.9996,551784.6924);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	var map = new odf.Map(mapContainer, mapOption);
 
 
@@ -40,7 +50,7 @@
 					// 해당 분할지도의 basemap 옵션
 					// 정의하지 않는 경우, map 객체 생성시 사용한 basemap option 사용
 					basemap : {
-						::basemapType:: : [ '::basemap_white::' ]
+						VWORLD : [ 'vWhite' ]
 					},
 				},
 				// 사용할 컨트롤 지정
@@ -63,7 +73,7 @@
 				// position: 1, //지정안하면 기본 1
 				mapOption: {
 					basemap: {
-						::basemapType:: :['::basemap_white::']
+						VWORLD :['vWhite']
 					},
 				},
 			},
@@ -71,7 +81,7 @@
 				// position: 2, //지정안하면 기본 3
 				mapOption: {
 					basemap:{
-						::basemapType:: : ['::basemap_color::']
+						VWORLD : ['vHybrid']
 					},
 				},
 		    }
@@ -81,7 +91,7 @@
 				// position: 1, //지정안하면 기본 1
 				mapOption : {
 					basemap : {
-						::basemapType::  : [ '::basemap_white::' ]
+						VWORLD  : [ 'vWhite' ]
 					},
 				},
 			},
@@ -89,7 +99,7 @@
 				//position: 2, //지정안하면 기본 3
 				mapOption : {
 					basemap : {
-						::basemapType::  : [ '::basemap_color::' ]
+						VWORLD  : [ 'vHybrid' ]
 					},
 				},
 			},
@@ -97,7 +107,7 @@
 				//position: 4,//지정안하면 기본 4
 				mapOption : {
 					basemap : {
-						::basemapType::  : [ '::basemap_air::' ]
+						VWORLD  : [ 'vSatellite' ]
 					},
 				},
 				controlOption : {//사용할 컨트롤 지정

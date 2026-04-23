@@ -2,8 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link href="::OdfUrl::/odf.css" rel="stylesheet">
-	<script type="text/javascript" src="::OdfUrl::/odf.min.js"></script>
+	<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+	<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
 </head>
 <body>
 	<div id="map" class="odf-view" style="height:550px;"></div>
@@ -20,8 +20,18 @@
 
 	/* 맵객체 생성 (외부에서 사용할 때는 proxyURL, proxyParam 옵션이 필요합니다.) */
 	var mapContainer = document.getElementById('map');
-	var coord = new odf.Coordinate(::coordx::,::coordy::);
-	var mapOption = "::mapOpt::";
+	var coord = new odf.Coordinate(195328.99221877696,547167.721604856);
+	var mapOption = {
+		center : coord,
+		zoom : 11,
+		projection : 'EPSG:5186',
+		//proxyURL: 'proxyUrl.jsp',
+        //proxyParam: 'url',
+		vWorldURL : 'https://gsapi.geon.kr/map/api/vworld/wmts',
+		basemap : {
+			vWorld : ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite'],
+		},
+    };
 	var map = new odf.Map(mapContainer, mapOption);
 
 	 //vWorld 오픈 api > wms/wfs api 2.0 레퍼런스
@@ -34,7 +44,7 @@
 	     //server : 'http://api.vworld.kr/req/wfs',// API 주소
 	     service: 'wfs', // wms/wfs
 	     typename: "lt_c_tdwarea",//레이어명   ※https://www.vworld.kr/dev/v4dv_wmsguide2_s001.do 에서 사용가능한 레이어 목록 확인 가능
-	     srsname : 'EPSG:::srid::',//사용 좌표계
+	     srsname : 'EPSG:5186',//사용 좌표계
 	     //version : '1.1.0',//버젼
 	     //exceptions:'text/xml',//에러 받는 타입
 	     output: 'application/json',//응답결과 포맷
@@ -49,8 +59,8 @@
 	     //    SERVICE : true,
 	     //},
 	     /* 직접해보기에서 api 를 실행할 때는 아래 domain 값 부분을 주석처리해야 api 가 정상 동작합니다. */
-	     domain:'::vWorldDomain::',//API KEY를 발급받을때 입력했던 URL
-	     key: '::vWorldApiKey::',//발급받은 api key
+	     domain:'https://developer.geon.kr',//API KEY를 발급받을때 입력했던 URL
+	     key: 'DDDCE8C7-0E04-3921-8403-73A2F501BCC2',//발급받은 api key
 	 });
 	 apiLayer.setMap(map);
 	 map.setZoom(14);
