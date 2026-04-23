@@ -1,0 +1,107 @@
+---
+title: "Popup"
+description: "팝업 생성 클래스"
+---
+## API
+```
+Popup(content, [options]): void
+openOn(map): void
+setPosition(coord): void
+setPositioning(position): void
+setOffset(array): void
+getPosition(coord): void
+isOpen(): Boolean
+close(): void
+```
+
+## Popup
+
+팝업 클래스 생성자  
+
+### new Popup(content, [options])
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| content | `string` \| `HTMLElement` |  | Popup으로 생성할 HTML 문자열 또는 Element |
+| [options] | [`PopupOption`](#PopupOption) | `` | 팝업 옵션 정보 |
+
+**Example**  
+```js
+// String(text) 형태로 HTML을 구성하여 Parameter로 사용
+let content = '<div><table><tbody><tr><td>내용</td></tr></tbody></table></div>';
+
+// document.createElement로 Element 생성하여 사용
+let element = document.createElement('div');
+element.innerHTML = '팝업 내용';
+
+let options = {
+  autoPan: true,
+  autoPanAnimation: { duration: 250 }
+};
+let popup = new odf.Popup(content, options);
+popup.openOn(map);
+popup.setPosition(new odf.Coordinate([126, 37]));
+```
+
+### openOn(map)
+Popup를 map 객체와 연결
+```javascript
+let map = new odf.Map(...);
+odf.event.addListener(map, 'click', (evt) => {
+  popup.openOn(map); //openOn() 실행 후 좌표를 지정하지 않았기 때문에 setPosition 함수를 통해 위치를 지정해주어야합니다.
+});
+```
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | Popup 객체와 map 객체 연결 |
+
+### setPosition(coord)
+Popup의 위치 설정
+
+| Param | Type | Description |
+| --- | --- | --- |
+| coord | `Coordinate` | 위치 좌표 odf.Coordinate 객체로 생성 |
+
+### setPositioning(position)
+Popup의 오버레이가 속성과 관련하여 실제로 배치되는 방식을 정의 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| position | `String` | 오버레이가 지도의 해당 지점을 기준으로 배치되는 방식 (가능한 값 : 'bottom-left', 'bottom-center', 'bottom-right', 'center-left', 'center-center', 'center-right', 'top-left', 'top-center', 'top-right' |
+
+### setOffset(array)
+popup 배치할 때 사용되는 오프셋(픽셀)입니다. 배열의 첫 번째 요소는 수평 오프셋(양수 값은 오버레이를 오른쪽으로 이동) 배열의 두 번째 요소는 수직 오프셋(양수 값은 오버레이를 아래로 이동합니다.)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| array | `Array.<number>` | 오프셋 배열 [수평오프셋, 수직오프셋] |
+
+### getPosition(coord)
+Popup의 위치 가져오기 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| coord | `Coordinate` | 위치 좌표 odf.Coordinate 객체로 생성 |
+
+### isOpen() → Boolean
+Popup Open 되어 있는지 확인
+
+→ Boolean: Popup이 열려있는지 결과에 따라 true/false 값 리턴  
+
+### close()
+열려있는 Popup을 닫는다
+
+## PopupOption
+**Type**: `Object`
+팝업 옵션 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [autoPan] | `boolean` | 팝업이 잘려나올 경우 지도 이동 여부 (기본값: false) |
+| [autoPanAnimation] | `Object` | autoPan 애니메이션 설정 |
+| [autoPanAnimation.duration] | `number` | 애니메이션 지속시간 (기본값: 250) |
+| [autoPanMargin] | `number` | 팝업과 지도 사이 여백 픽셀 (기본값: 20) |
+| [stopEvent] | `boolean` | 이벤트 전파 중지 여부 (기본값: true) |

@@ -1,0 +1,146 @@
+---
+title: "FormatFactory"
+description: "FormatFactory API"
+---
+## API
+```
+FormatFactory(param): void
+```
+
+## FormatFactory
+**Since**: 2020.08.18  
+**Version**: 1.1  
+
+### new FormatFactory(param)
+format 모음집
+
+| Param | Type |
+| --- | --- |
+| param | [`odf_geojson_format_object`](#odf_geojson_format_object) \| [`odf_kml_format_object`](#odf_kml_format_object) \| [`odf_esrijson_format_object`](#odf_esrijson_format_object) \| [`odf_mvt_format_object`](#odf_mvt_format_object) \| [`odf_wfs_format_object`](#odf_wfs_format_object) \| [`odf_wmsgetfeatureinfo_format_object`](#odf_wmsgetfeatureinfo_format_object) \| [`odf_wkt_format_object`](#odf_wkt_format_object) \| [`odf_gml3_format_object`](#odf_gml3_format_object) | 
+
+**Example**  
+```js
+[GeoJSON]
+   let return FormatFactory.produce({
+			format : 'GeoJSON' // 대소문자 구분하지 않음
+			,originSRS : 'EPSG:3857'  // 대소문자 구분하지 않음
+			,outputSRS : 'EPSG:4326'  // 대소문자 구분하지 않음
+		});
+```
+**Example**  
+```js
+[EsriJSON]
+   let return FormatFactory.produce({
+			format : 'EsriJSON' // 대소문자 구분하지 않음
+		});
+```
+**Example**  
+```js
+[WFS]
+   let return FormatFactory.produce({
+			format : 'WFS' // 대소문자 구분하지 않음
+		});
+```
+**Example**  
+```js
+[WMSCapabilities]
+   let return FormatFactory.produce({
+			format : 'WMSCapabilities' // 대소문자 구분하지 않음
+		});
+```
+**Example**  
+```js
+[WMTSCapabilities]
+   let return FormatFactory.produce({
+			format : 'WMTSCapabilities' // 대소문자 구분하지 않음
+		});
+```
+**Example**  
+```js
+[WMSGepFeatureInfo]
+   let return FormatFactory.produce({
+			format : 'WMSGepFeatureInfo' // 대소문자 구분하지 않음
+		});
+```
+
+## odf_geojson_format_object
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| format | `&#x27;geojson&#x27;` | geojson 형식 |
+| originSRS | `String` | 원본 좌표계 (ex)'EPSG:3857' |
+| outputSRS | `String` | 변환 좌표계 (ex)'EPSG:5186' |
+
+## odf_kml_format_object
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| format | `&#x27;kml&#x27;` | kml 형식 |
+| extractStyles | `Boolean` | 스타일 추출 여부 |
+| showPointNames | `Boolean` | 지점이 포함된 플레이스마크의 라벨로 이름 표시 여부 |
+| defaultStyle | `odf_styleOption` | 기본 스타일 |
+| writeStyles | `Boolean` | KML 생성시 스타일 정보 생성 |
+| crossOrigin | `String` | 로드된 이미지의 속성 |
+| iconUrlFunction | `function` | url 문자열을 받아서 url 문자열을 반환하는 함수.아이콘 경로를 변경하거나 KMZ 배열 버퍼에서 얻은 데이터 url을 대체하는 데 사용 |
+
+## odf_esrijson_format_object
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| format | `&#x27;esrijson&#x27;` | kml 형식 |
+| geometryName | `String` | 지오메트리 칼럼명 |
+
+## odf_mvt_format_object
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| format | `&#x27;mvt&#x27;` | kml 형식 |
+
+## odf_wfs_format_object
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| format | `&#x27;wfs&#x27;` | wfs 형식 |
+
+## odf_wmsgetfeatureinfo_format_object
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| format | `&#x27;wmsgetfeatureinfo&#x27;` | wmsgetfeatureinfo 형식 |
+
+## odf_wkt_format_object
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| format | `&#x27;wkt&#x27;` | wkt 형식 |
+
+## odf_gml3_format_object
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| format | `&#x27;gml3&#x27;` | gml3 형식 |
+| featureNS | `Object` | feature 네임스페이스. |
+| featureType | `Array.<string>` | gml3 형식 |
+| srsName | `String` | ggeometry를 만들때 사용할 좌표계 |
+| surface | `Boolean` | gml:Polygon 요소 대신 gml:Surface를 쓸지 여부 |
+| curve | `Boolean` | gml:LineString 요소 대신 gml:Curve 쓸지 여부 |
+| multiCurve | `Boolean` | gml:MultiLineString 대신 gml:MultiCurve를 쓸지 여부 |
+| multiSurface | `Boolean` | gml:MultiPolygon 대신 gml:multiSurface를 쓸지 여부 |
+| schemaLocation | `String` | GML을 작성할 때 사용할 선택적 schemaLocation |
+| hasZ | `Boolean` | 좌표에 Z 값이 있는지 여부 |

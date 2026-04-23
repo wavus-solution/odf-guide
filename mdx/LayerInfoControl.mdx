@@ -1,0 +1,43 @@
+---
+title: "LayerInfoControl"
+description: "레이어 정보 조회 클래스"
+---
+## API
+```
+LayerInfoControl(options): void
+setMap(map): void
+```
+
+## LayerInfoControl
+
+LayerInfoControl 생성자
+
+ ```javascript
+ let layerInfoControl = new odf.LayerInfoControl(options)//LayerInfoControl 생성
+```  
+
+### new LayerInfoControl(options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Object` | LayerInfo 객체생성 옵션 |
+| options.clickEvt | `event` | 발생시킬 이벤트 |
+| options.callbackFunc | `function` | 이벤트 성공시 실행시킬 함수 |
+
+### setMap(map)
+레이어 속성정보 조회 설정
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | LayerInfoControl 객체와 연결할 Map 객체 |
+
+## LayerInfoControlOption
+**Type**: `Object`
+LayerInfoControl 생성 옵션 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [clickEvt] | `Event` | 발생시킬 이벤트 |
+| [callbackFunc] | `function` | 이벤트 성공시 실행시킬 함수 |

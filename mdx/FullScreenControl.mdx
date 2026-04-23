@@ -1,0 +1,56 @@
+---
+title: "FullScreenControl"
+description: "전체화면 생성 클래스"
+---
+## API
+```
+FullScreenControl(options): void
+getConstructorOptions(): Array
+setMap(_map, createElementFlag): void
+removeMap(): void
+doFullScreen(): void
+getState(): Boolean
+```
+
+## FullScreenControl
+
+FullScreenControl 생성자
+ ```javascript
+ let fullScreenControl = new odf.FullScreenControl();//FullScreenControl 생성
+```  
+
+### new FullScreenControl(options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Object` | 전체화면 컨트롤 생성 옵션 |
+| options.target | `Boolean` | 전체화면 영역 정의 |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(_map, createElementFlag)
+FullScreenControl map 객체 연결
+FullScreen HTMLElement를 만들고, 이벤트 바인딩 시켜, map 객체와 연결
+
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| _map | `Map` | FullScreenControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | FullScreenControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+FullScreenControl map 객체 연결 해제
+
+### doFullScreen()
+FullScreenControl 활성화/비활성화
+
+### getState() → Boolean
+FullScreenControl의 상태 반환 
+
+→ Boolean: FullScreenControl의 상태
+- true :  fullscreen 활성화 상태
+- false :  fullscreen 비활성화 상태

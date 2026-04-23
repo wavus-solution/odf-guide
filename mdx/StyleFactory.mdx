@@ -1,0 +1,649 @@
+---
+title: "StyleFactory"
+description: "스타일 생성 클래스"
+---
+## API
+```
+validationCheck(options): Boolean
+produceStroke(options): odf
+produceFill(options): odf
+produceFillPattern(options): odf
+produceText(options): odf
+produceCircle(options): odf
+produceIcon(options): odf
+produceChart(options): odf
+produceRegularShape(options): odf
+produce(options): odf
+produceSLD(options): SLD
+cvtSLD2Object(sld): Promise
+produceElement(options, size, labelFlag): HTMLElement
+produceFunction(options, mode): function
+cvtStyle2Json(style): String
+cvtStyle2Object(style): Array
+getValidFillPatternList(): Array
+addPattern(title, options): void
+createTextStyleFromFlatStyle(textProps): function
+```
+
+## StyleFactory
+
+### validationCheck(options) → Boolean
+스타일 생성 Option의 유효성검사
+
+```javascript
+   //스타일 유효성 검사
+   odf.StyleFactory.validationCheck({
+     image : {
+       circle : {
+         radius:50,//크기
+         fill:{
+           color:'gray'//채우기 색
+          },//채우기
+          stroke: {//윤곽선
+            color:'red',//테두리 색
+            width:10,//굵기
+            lineDash:[4, 8]//점선 설정
+          },
+        }
+      },
+      text : {
+        text : '텍스트 내용', //텍스트 내용
+        font : 'bold 20px Courier New' //폰트 크기(필수) 및 글씨체(필수), 두께(옵션)
+      }
+    });
+```
+
+→ Boolean: 파라미터로 넘어온 options의 값이 스타일을 생성하기에 유효하다면 true 값 반환  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | [`odf_styleOption`](#odf_styleOption) | 스타일 생성을 위한 option |
+
+### produceStroke(options) → odf.Stroke
+Stroke Style 생성
+
+→ odf.Stroke: Stroke Style  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | [`odf_styleOption_stroke`](#odf_styleOption_stroke) | Stroke Style 생성을 위한 옵션 |
+
+### produceFill(options) → odf.Fill
+fill Style 생성
+
+→ odf.Fill: Fill Style  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `odf_styleOption_fill` | Fill Style 생성을 위한 옵션 |
+
+### produceFillPattern(options) → odf.FillPattern
+fillPattern Style 생성
+
+→ odf.FillPattern: Fill Style  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `odf_styleOption_fillPattern` | FillPattern Style 생성을 위한 옵션 |
+
+### produceText(options) → odf.Text
+Text Style 생성
+
+→ odf.Text: Text Style  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `odf_styleOption_text` | Text Style 생성을 위한 옵션 |
+
+### produceCircle(options) → odf.Circle
+Circle Style 생성
+
+→ odf.Circle: Circle Style  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | [`odf_styleOption_circle`](#odf_styleOption_circle) | Circle Style 생성을 위한 옵션 |
+
+### produceIcon(options) → odf.Icon
+Icon Style 생성
+
+→ odf.Icon: Icon Style  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | [`odf_styleOption_icon`](#odf_styleOption_icon) | Icon Style 생성을 위한 옵션 |
+
+### produceChart(options) → odf.Chart
+Chart Style 생성
+
+→ odf.Chart: chart Style  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | [`odf_styleOption_chart`](#odf_styleOption_chart) | chart Style 생성을 위한 옵션 |
+
+### produceRegularShape(options) → odf.RegularShape
+RegularShape Style 생성
+
+→ odf.RegularShape: regularShape Style  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | [`odf_styleOption_regularShape`](#odf_styleOption_regularShape) | chart Style 생성을 위한 옵션 |
+
+### produce(options) → odf.Style
+스타일 객체 생성
+
+   
+
+ 
+ 
+ 
+   
+   
+
+→ odf.Style: 파라미터로 넘어온 options의 값으로 스타일 객체 생성  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | [`odf_styleOption`](#odf_styleOption) \| [`Array.<odf_styleOption>`](#odf_styleOption) \| `String` | 스타일 생성을 위한 option |
+
+### produceSLD(options) → SLD
+스타일 객체 생성
+ 
+ 
+ 
+ 
+ 
+ 
+
+→ SLD: 파라미터로 넘어온 options의 값으로 스타일 객체 생성  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | [`odf_sld_option`](#odf_sld_option) | 스타일 생성을 위한 option |
+
+### cvtSLD2Object(sld) → Promise
+SLD 형식 문자열 -&gt; SLD 객체 생성 옵션
+
+→ Promise: 변환된 SLD 생성 object를 Promise Value로 갖는 Promise  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| sld | `String` | SLD 형식 문자열 |
+
+### produceElement(options, size, labelFlag) → HTMLElement
+스타일 옵션으로 범례용 element 생성
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | [`odf_styleOption`](#odf_styleOption) \| `String` | 스타일 생성 옵션(Object/JSON String) |
+| size | `Number` | element 크기(width,height등에 사용). default 10 최소 0 최대 2000 |
+| labelFlag | `Boolean` | 라벨 스타일 적용 여부. true=&gt; 적용, false=&gt;미적용. default false |
+
+### produceFunction(options, mode) → function
+스타일 Function 생성
+
+→ function: 파라미터로 넘어온 options의 값으로 스타일 함수 생성  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| options | [`Array.<odf_StyleFunctionOption>`](#odf_StyleFunctionOption) \| `String` |  | 스타일 Function 생성을 위한 옵션 배열 |
+| mode | `String` | `normal` | 'fast'모드 스타일 사용여부 - 'fast' : 스타일 적용 속도 빠름 - 'normal' : 스타일 적용 속도 느림(default) |
+
+### cvtStyle2Json(style) → String
+EXTStyle 또는 Style을 JSON 형태로 변환
+
+→ String: JSON형태로 변환된 스타일 생성옵션  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| style | `odf.Style` \| `odf.ExtStyle` \| `function` | 변환 대상 style 또는 styleFunction |
+
+### cvtStyle2Object(style) → Array.<odf_styleOption>(#odf_styleOption) \| [`odf_styleOption`](#odf_styleOption) \| [`Array.<odf_StyleFunctionOption>`](#odf_StyleFunctionOption)
+EXTStyle 또는 Style을 Object 형태로 변환
+
+→ Array.<odf_styleOption>: Object 형태로 변환된 스타일 생성옵션  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| style | `odf.Style` \| `odf.ExtStyle` \| `function` | 변환 대상 style 또는 FunctionStyle |
+
+### getValidFillPatternList() → Array.<odf_default_pattern_define>(#odf_default_pattern_define)
+기본으로 제공하는 패턴명과 이미지 조회
+
+→ Array.<odf_default_pattern_define>: Object 형태로 변환된 스타일 생성옵션  
+
+### addPattern(title, options)
+사용자 정의 패턴 추가
+
+| Param | Type | Description |
+| --- | --- | --- |
+| title | `String` | 추가할 패턴의 이름 |
+| options | `Object` | 추가할 패턴 옵션 |
+| options.char | `String` | 문자열 패턴 (ex) "©" , '\uf188', '\uf118' |
+| options.size | `Number` | 패턴의 크기 |
+| options.font | `String` | 폰트 크기와 폰트 (ex) "10px FontAwesome" |
+| options.angle | `String` | 회전각 |
+
+### createTextStyleFromFlatStyle(textProps) → function
+Flat style 속성으로부터 텍스트 스타일 함수 생성
+
+→ function: 스타일 함수  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| textProps | `Object` | flat style 텍스트 속성 객체 - text-value: &#123;String|Array&#125; 텍스트 값 또는 ['get', 'propertyName'] 형태의 배열 - text-font: &#123;String&#125; 폰트 (기본값: '12px sans-serif') - text-fill-color: &#123;String&#125; 텍스트 채우기 색상 (기본값: '#000') - text-stroke-color: &#123;String&#125; 텍스트 외곽선 색상 - text-stroke-width: &#123;Number&#125; 텍스트 외곽선 두께 (기본값: 2) - text-offset-x: &#123;Number&#125; 텍스트 X축 오프셋 - text-offset-y: &#123;Number&#125; 텍스트 Y축 오프셋 |
+
+## odf_sld_option
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| rules | [`Array.<odf_sld_rule>`](#odf_sld_rule) | 적용 rule 배열  (table) |
+
+## odf_sld_rule
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| scaleDenominator | `Object` | 스타일 적용 시킬 최대/최소 축척 제한 (table) |
+| scaleDenominator.min | `Number` | 적용 가능 최소 축척 |
+| scaleDenominator.max | `Number` | 적용 가능 최대 축척 |
+| filter | `Array` | 스타일 적용 대상 도형 제한 ★ 기본 비교 - filter[0] : 비교연산자 ('==' , '!=' ,  '&gt;' , '&lt;' , '&gt;=', '&lt;=') - filter[1] : 칼럼명 - filter[2] : 기준 값 ★ like 비교 - filter[0] : '*=' - filter[1] : 칼럼명 - filter[2] : 비교 문자열 (wildCard="*" singleChar="." escape="!")                   (ex 1) *_2  =&gt; [somthing] + '_2'                   (ex 2) *_.   =&gt; [somthing] + '_' +[어떤 문자이든 한개의 문자] ★ null 비교   - filter[0] : 비교연산자 ('==' , '!=')   - filter[1] : 칼럼명   - filter[2] : null ★ 두개 이상의 조건   - filter[0] : 논리연산자('&&','||')   - filter[1] : 조건1   - filter[2] : 조건2   (ex) filter:['&&',['&gt;=','id','3'],['!=',id,null]] |
+| symbolizers | `Array.<odf_sld_symbolizer>` | 적용 스타일 설정 |
+| symbolizers[0]; | [`odf_sld_mark_symbolizer`](#odf_sld_mark_symbolizer) | 점 스타일 옵션 |
+| symbolizers[1]; | [`odf_sld_icon_symbolizer`](#odf_sld_icon_symbolizer) | 심볼 스타일 옵션 |
+| symbolizers[2]; | [`odf_sld_line_symbolizer`](#odf_sld_line_symbolizer) | 선 스타일 옵션 |
+| symbolizers[3]; | [`odf_sld_fill_symbolizer`](#odf_sld_fill_symbolizer) | 면 스타일 옵션 |
+| symbolizers[4]; | [`odf_sld_text_symbolizer`](#odf_sld_text_symbolizer) | 라벨 스타일 옵션 |
+
+## odf_sld_mark_symbolizer
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| kind | `String` | 'Mark' 점 스타일 (table) |
+| wellKnownName | `String` | 포인트에 표현될 도형 종류 |
+| wellKnownName.circle | `String` | 원 |
+| wellKnownName.square | `String` | 네모 |
+| wellKnownName.triangle | `String` | 세모 |
+| wellKnownName.star | `String` | 별 모양 |
+| wellKnownName.cross | `String` | '+' 모양 |
+| wellKnownName.x | `String` | 'x' 모양 |
+| radius | `Number` | 포인트에 표현될 도형의 반지름 |
+| color | `String` | 포인트에 표현될 도형의 채우기색 (ex)'#FF0000' |
+| fillOpacity | `Number` | 포인트에 표현될 도형의 채우기색 투명도 0~1 |
+| strokeColor | `Number` | 포인트에 표현될 도형의 윤곽선 색 |
+| strokeOpacity | `Number` | 포인트에 표현될 도형의 윤곽선 투명도 0~1 |
+| strokeWidth | `Number` | 포인트에 표현될 도형의 윤곽선 두께 |
+| offset | `Array.<Number>` | 기준 좌표의 x/y축 이동량 (단위 : pixel), [x이동량,y이동량] |
+| offsetGeometry | `String` | 기준되는 geometry 타입의 컬럼명 ※기본값 : 'the_geom' |
+
+## odf_sld_icon_symbolizer
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| kind | `String` | 'Icon' 심볼 스타일 (table) |
+| image | `String` | 심볼 이미지 경로 ※ geoserver가 접근할 수 있는 경로 |
+| opacity | `Number` | 심볼 이미지 투명도 0~1 |
+| rotate | `Number` | 심볼 이미지 회전각(도) |
+| size | `Number` | 심볼 이미지 크기 |
+| offset | `Array.<Number>` | 기준 좌표의 x/y축 이동량 (단위 : pixel), [x이동량,y이동량] |
+| offsetGeometry | `String` | 기준되는 geometry 타입의 컬럼명 ※기본값 : 'the_geom' |
+
+## odf_sld_line_symbolizer
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| kind | `String` | 'Line' 라인 스타일 (table) |
+| color | `String` | 라인 색상 (ex)'#338866' |
+| cap | `String` | 라인의 끝 표현 방식 |
+| cap.butt | `String` | (Default) sharp square edge 끝부분을 수직으로 절단 |
+| cap.round | `String` | rounded edge 끝부분이 둥근 모양 |
+| cap.square | `String` | slightly elongated square edge 끝부분에 사각형 추가 |
+| join | `String` | 라인이 꺽이는 부분 표현 방식 |
+| join.miter | `String` | (Default) sharp corner 코너가 뾰족    /＼ |
+| join.round | `String` | rounded corner 코너가 동글동글 |
+| size.bevel | `String` | diagonal corner 코너의 끝이 잘림 /￣＼ |
+| opacity | `Number` | 라인의 투명도 0~1 |
+| width | `Number` | 라인의 두께 |
+| dasharray | `Array.<Number>` | 대시 간격 조절. 선의 길이 대비 공백의 길이 표현 (ex) [16,10] |
+| dashOffset | `Number` | 선의 시작점에서 얼마나 떨어진 곳에서부터 점선을 표시할지. dasharray의 첫번째 요소보다 같거나 작은값 |
+
+## odf_sld_fill_symbolizer
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| kind | `String` | 'Fill' 다각형 스타일 (table) |
+| color | `String` | 채우기 색상 (ex)'#338866' |
+| fillOpacity | `Number` | 채우기색 투명도 0~1 |
+| outlineColor | `String` | 윤곽선 색상 (ex)'#338866' |
+| outlineWidth | `Number` | 윤곽선 두께 |
+| outlineOpacity | `Number` | 윤곽선 투명도 0~1 |
+| outlineDasharray | `Array.<Number>` | 윤곽선 대시 간격 조절. 선의 길이 대비 공백의 길이 표현 (ex) [16,10] |
+
+## odf_sld_text_symbolizer
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| kind | `String` | 'Text' 라벨 스타일 (table) |
+| font | `Array.<String>` | 라벨 폰트 (ex) ['Times'] |
+| fontStyle | `String` | 라벨 모양 |
+| fontStyle.normal | `String` | 기본 |
+| fontStyle.italic | `String` | 이탤릭체(italic체로 디자인된 폰트) |
+| fontStyle.oblique | `String` | 기본 글씨체를 비스듬하게 기울여 적용 |
+| fontWeight | `String` | 라벨 두께 |
+| fontWeight.normal | `String` | 기본 |
+| fontWeight.bold | `String` | 굵게 |
+| label | `String` | 표현할 text  (ex) '&#123;&#123;id&#125;&#125; &#123;&#123;name&#125;&#125;', |
+| size | `Number` | 라벨 크기 |
+| haloColor | `String` | 후광 색상 (ex) '#ffffff' |
+| haloWidth | `Number` | 후광 두께 |
+| overflow | `Boolean` | 오버플로우 여부(라벨이 도형 영역을 넘어서는 경우에도 표현 할지 여부)(POLYGON 타입 적용) |
+| followLine | `Boolean` | 레이블이 선의 곡선을 따르도록 할지 여부 ※LabelPlacement 값이 LinePlacement일 경우, 적용 |
+| followLine.true | `Boolean` | 레이블이 선의 곡선을 따르도록 설정 |
+| followLine.false | `Boolean` | 레이블이 선의 곡선을 따르지 않도록 설정 |
+| repeat | `Number` | 레이블 반복 간격 조절 - 0 : 라벨 반복 x - 양수 값 :  라인에 따라 라벨을 표시하는 빈도 조정. 값이 클수록 띄엄띄엄 나타남 ※LabelPlacement 값이 LinePlacement일 경우, 적용 |
+| maxDisplacement | `Number` | 선을 따라 레이어의 변위를 제어. repeat 속성과 함께 사용할 경우, repeat속성보다 작은 값을 설정 ※LabelPlacement 값이 LinePlacement일 경우, 적용 |
+| LabelPlacement | `Array.<(odf_sld_point_label\|odf_sld_line_label)>` | 라벨 표현 방식 |
+
+## odf_sld_point_label
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| PointPlacement | [`Array.<odf_sld_point_label_inner>`](#odf_sld_point_label_inner) | 라벨표현방식- 기준점에 표현  (table) |
+
+## odf_sld_point_label_inner
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| AnchorPoint | [`Array.<odf_sld_point_label_inner_anchorpoint>`](#odf_sld_point_label_inner_anchorpoint) | 기준점을 기준으로 라벨이 배치되는 위치 결정  (table) |
+| Displacement | [`Array.<odf_sld_point_label_inner_displacement>`](#odf_sld_point_label_inner_displacement) | 라벨 기준점 좌표 이동(단위:pixel) |
+| Rotation | `Array.<Number>` | 라벨 회전 각도 |
+
+## odf_sld_point_label_inner_anchorpoint
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| AnchorPointX | `Array.<Number>` | 라벨이 x 기준점의 어느부분에 표시되는지(0~1) AnchorPointX : [0.5]  (table) - 0(default) :left - 0.5 :center - 1 : right |
+| AnchorPointY | `Array.<Number>` | 라벨이 y 기준점의 어느부분에 표시되는지(0~1) (ex)[0.5] - 0(default) :bottom - 0.5 :center - 1 : top |
+
+## odf_sld_point_label_inner_displacement
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| DisplacementX | `Array.<Number>` | 라벨 x 기준점 좌표 이동량  (table)  - 양수 : 왼쪽 방향 이동  - 음수 : 오른쪽 방향 이동 |
+| DisplacementY | `Array.<Number>` | 라벨 y 기준점 좌표 이동량  - 양수: 위쪽 방향 이동  - 음수 : 아래쪽 방향 이동 |
+
+## odf_sld_line_label
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| LinePlacement | [`Array.<odf_sld_line_label_inner>`](#odf_sld_line_label_inner) | 라벨표현방식- 선을 따라서 표현  (table) |
+
+## odf_sld_line_label_inner
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| PerpendicularOffset | `Array.<Number>` | 라인 기준 상단에 위치할지 하단에 위치할지  (table) - 양수 : 라벨이 라인의 위에 위치 - 음수 : 라벨이 라인의 아래에 위치 (ex) [10] |
+
+## odf_styleOption_stroke
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| color | `String` \| `Array.<Number>` | 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| lineCap | `String` | 선의 끝 모양 |
+| lineJoin | `String` | 선이 꺾이는 부분의 모양 |
+| lineDash | `Array.<Number>` | 점선 |
+| lineDashOffset | `Number` | 윤곽선 Line dash offset. |
+| miterLimit | `Number` | 윤곽선 Miter limit. |
+| width | `Number` | 너비 |
+
+## odf_StyleOption_fill
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| color | `String` \| `Array.<Number>` | 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+
+## odf_StyleOption_fillPattern_pattern
+**Type**: `String`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| hatch | `String` | 해치(스트라이프) |
+| cross | `String` | 십자형(체크) |
+| dot | `String` | 점(채워진 원) |
+| circle | `String` | 원(빈 원) |
+| square | `String` | 정사각형(빈 사각형) |
+| tile | `String` | 타일(채워진 사각형) |
+| woven | `String` | 직물(─│─│ 모양) |
+| crosses | `String` | 십자가(x 모양) |
+| caps | `String` | 모자(^ 모양) |
+| nylon | `String` | 나일론(┌ ┘ 모양) |
+| hexagon | `String` | 육각형 |
+| cemetry | `String` | 십자가 모양 |
+| sand | `String` | 모래(불규칙한 사각형 점) |
+| conglomerate | `String` | 역암(블규칙 도형) |
+| gravel | `String` | 자갈(블규칙 도형) |
+| brick | `String` | 벽돌 |
+| dolomite | `String` | 백운석(비스듬한 벽돌 모양) |
+| coal | `String` | 석탄(채워진 삼각형) |
+| breccia | `String` | 각력암(빈 삼각형) |
+| clay | `String` | 점토 |
+| flooded | `String` | 침수(─_─_) |
+| chaos | `String` | 혼돈(기하학무늬) |
+| grass | `String` | 잔디 |
+| swamp | `String` | 늪 |
+| wave | `String` | 물결(^^^^) |
+| vine | `String` | 덩굴(│) |
+| forest | `String` | 숲(작은원,큰원) |
+| scrub | `String` | 스크럽(v,o) |
+| tree | `String` | 나무 |
+| pine | `String` | 소나무1 |
+| pines | `String` | 소나무2 |
+| rock | `String` | 돌1 |
+| rocks | `String` | 돌2 |
+
+## odf_StyleOption_fillPattern
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| image | `Object` | 패턴 이미지 |
+| image.icon | `Object` | 패턴 이미지 아이콘 |
+| opacity | `Number` | 패턴 투명도 |
+| pattern | [`odf_StyleOption_fillPattern_pattern`](#odf_StyleOption_fillPattern_pattern) | 패턴명 |
+| patternColor | `String` \| `Array.<Number>` | 패턴색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| fill | [`odf_StyleOption_fill`](#odf_StyleOption_fill) | 패턴 배경 색상 |
+| offset | `Number` | 패턴 위치 이동 (오른쪽 아래 방향), hash/dot/circle/cross pattern 패턴에서 사용 |
+| size | `Number` | 도형의 크기, hash/dot/circle/cross pattern 패턴에서 사용 |
+| spacing | `Number` | 도형간의 간격, hash/dot/circle/cross pattern 패턴에서 사용 |
+| angle | `Boolean` \| `Number` | 회전각 - true :45도 - false : 0도 - [Number] : 입력한 각도 |
+| scale | `Number` | 패턴 크기 |
+
+## odf_StyleOption_text
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| text | `String` | 텍스트 값 |
+| textAlign | `String` | 텍스트 수직정렬 |
+| textBaseline | `String` | 텍스트 수평정렬 |
+| font | `String` | 폰트 크기(필수) 및 글씨체(필수), 두께(옵션) (ex) 'bold 10px sans-serif' |
+| placement | `String` | 텍스트를 타나낼 위치를 점 기준으로 할지, 피쳐의 모양에 따라 나타나게 할지 여부.'line' 또는 'point'(default) |
+| overflow | `Boolean` | 텍스트를 나열한 길이보다 선이 짧을 경우, 넘치는 글자를 쭉 나열할지 여부(placement 속성이 'line'일때 적용) |
+| maxAngle | `Number` | 텍스트가 꺾이는 정도를 제한(placement 속성이 'line'일때 적용) (단위:라디안) (ex)Math.PI*270/180 |
+| offsetX | `Number` | 텍스트의 수평 이동(양수일 때 오른쪽으로 이동) |
+| offsetY | `Number` | 텍스트의 수직 이동(양수일 때 아래로 이동) |
+| scale | `Number` | 텍스트 크기를 정해진 값의 n배로 적용 |
+| rotateWithView | `Boolean` | 지도가 회전할때 텍스트도 적절하게 회전할지 여부 |
+| rotation | `Number` | 텍스트 회전 각도(단위:라디안) (ex)Math.PI*270/180 |
+| justify | `String` | 텍스트 상자 내의 텍스트 맞춤 - 'left', 'center', 'right' |
+| fill | [`odf_StyleOption_fill`](#odf_StyleOption_fill) | 텍스트 채우기 스타일 옵션 |
+| stroke | `odf_StyleOption_stroke` | 텍스트 테두리 스타일 옵션 |
+| backgroundFill | [`odf_StyleOption_fill`](#odf_StyleOption_fill) | 텍스트 배경 채우기 스타일 속성 |
+| backgroundStroke | `odf_StyleOption_stroke` | 택스트 배경 테두리 스타일 속성 |
+| padding | `Array.<Number>` | text와 background영역 사이의 여백(placement 속성이 'point'일때 적용) (ex)[10,5,5,5] |
+
+## odf_styleOption_icon
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| anchor | `Array.<Number>` | 아이콘 위치 조정 (ex) [70, 0.7] |
+| anchorOrigin | `String` | 기준점으로부터의 아이콘 위치. (default)'top-left' 또는 'top-right' 또는 'bottom-left' 또는 'bottom-right' 값 중 하나 |
+| anchorXUnits | `String` | 아이콘 x축 위치 조정 단위.(default)'fraction' 또는 'pixels' |
+| anchorYUnits | `String` | 아이콘 y축 위치 조정 단위.(default)'fraction' 또는 'pixels' |
+| color | `String` \| `Array.<Number>` | 이미지 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| crossOrigin | `String` | CORS 관련 셋팅. (default)'anonymous' |
+| offset | `Array.<Number>` | x축 y축 좌표위치 이동 |
+| offsetOrigin | `&#x27;bottom-left&#x27;` \| `&#x27;bottom-right&#x27;` \| `&#x27;top-left&#x27;` \| `&#x27;top-right&#x27;` | 오프셋 원점 |
+| opacity | `Number` | 투명도 |
+| scale | `Number` \| `Array.<Number>` | 크기를 정해진 값의 n배로 셋팅 |
+| snapToPixel | `Boolean` | true(sharp) 또는 false(blur) |
+| rotateWithView | `Boolean` | 지도가 회전할 때 이미지도 적절하게 회전할지 여부 |
+| rotation | `Number` | 회전 (ex) 30*Math.PI/180 |
+| size | `Array.<Number>` | 자연수 배열 (단위 : 픽셀) |
+| imgSize | `Array.<Number>` | 자연수 배열 (단위 : 픽셀) |
+| src | `String` | 이미지 경로 |
+| img | `HTMLImageElement` \| `HTMLCanvasElement` \| `ImageBitmap` | 아이콘의 이미지 객체 |
+| displacement | `Array.<Number>` | 위치이동. 양수 값은 모양을 오른쪽 및 위쪽으로 이동 (기본값 [0,0]) |
+| width | `Number` | 아이콘의 너비(픽셀). `scale`과 함께 이용할 수 없음 |
+| height | `Number` | 아이콘의 높이(픽셀). `scale`과 함께 이용할 수 없음 |
+| declutterMode | `&quot;declutter&quot;` \| `&quot;obstacle&quot;` \| `&quot;none&quot;` \| `undefined` | 디클러터 모드. |
+
+## odf_styleOption_circle
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| fill | `odf_styleOption_fill` | 원 채우기 스타일 |
+| stroke | [`odf_styleOption_stroke`](#odf_styleOption_stroke) | 원 윤곽선 스타일 |
+| radius | `Number` | 원의 반지름 |
+| snapToPixel | `Boolean` | true(sharp) 또는 false(blur) |
+| displacement | `Array.<Number>` | 위치이동. 양수 값은 모양을 오른쪽 및 위쪽으로 이동 (기본값 [0,0]) |
+| scale | `Number` \| `Array.<Number>` | 원의 크기(radius로 정해진 크기의 n배), 배열일 때, [가로  축척, 세로 축척] 형태임 |
+| rotation | `Number` | 원의 회전각도 (scale이 배열형태로 되어 타원형태가 되었을때 의미있음) |
+| rotateWithView | `Boolean` | 뷰와 함께 모양을 회전할지 여부(기본값 false) |
+| declutterMode | `&quot;declutter&quot;` \| `&quot;obstacle&quot;` \| `&quot;none&quot;` \| `undefined` | 디클러터 모드. |
+
+## odf_styleOption_regularShape
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| fill | `odf_styleOption_fill` | 채우기 스타일 |
+| stroke | [`odf_styleOption_stroke`](#odf_styleOption_stroke) | 윤곽선 스타일 |
+| points | `Number` | 별과 정다각형의 점 수. 다각형의 경우 점의 개수는 변의 개수 |
+| radius | `Number` | 정다각형의 반경 |
+| radius1 | `Number` | 별의 외부 반경 |
+| radius2 | `Number` | 별의 내부 반경 |
+| angle | `Number` | 모양의 각도(라디안). 값이 0이면 모양의 점 중 하나가 위를 향하게 됩니다. 기본값은 0 |
+| snapToPixel | `Boolean` | true를 사용하면 "선명한" 렌더링(흐림 없음)이 가능하고, false를 사용하면 "정확한" 렌더링이 가능합니다. 모양의 위치에 애니메이션이 적용되는 경우 정확성이 중요합니다. 그렇지 않으면 모양이 눈에 띄게 흔들릴 수 있습니다. (기본값 true) - true : 출력 캔버스에 모양을 그릴 때 정수개의 픽셀이 X 및 Y 픽셀 좌표로 사용되는 경우 . - false 분수를 사용할 수 있는 경우 . |
+| rotation | `Number` | 라디안 단위의 회전입니다(시계 방향으로 양의 회전)(기본값 0) |
+| rotateWithView | `Boolean` | 뷰와 함께 모양을 회전할지 여부(기본값 false) |
+| displacement | `Array.<Number>` | 모양의 변위(픽셀). 양수 값은 모양을 오른쪽 및 위쪽으로 이동 (기본값 [0,0]) |
+| scale | `Number` | 규모. (기본값 1) 2차원 스케일링이 필요하지 않은 경우 반경, 반경1 및 반경2에 대한 적절한 설정을 사용하면 더 나은 결과를 얻을 수 있음 |
+| declutterMode | `String` | 디클러터 모드. "declutter","obstacle" ,"none" |
+
+## odf_styleOption_chart
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| type | `String` | 차트 타입  - pie =&gt; 파이 차트  - pie3D =&gt; 3D 파이 차트  - donut =&gt; 도넛 모양 차트  - bar =&gt; 막대 차트 |
+| radius | `Number` | (pie/pie3D/donut) 차트의 크기 |
+| barWidth | `Number` | (bar) 막대 너비.(단위 px) (기본값 10) |
+| barMaxHegiht | `Number` | (bar) 막대 최대 높이.(단위 px)  (기본값 50) |
+| barMinHegiht | `Number` | (bar) 막대 최소 높이. (단위 px) (기본값 1) |
+| barBufferSize | `Number` | (bar) 막대와 막대 사이의 여백 너비. (단위 px) (기본값 0) |
+| datas | `Array.<String>` | (동적데이터) feature의 속성 명을 정의 (추후 styleFunction의 콜백에서 활용)  ※ (ex) data : ["COL1","COL2","COL3","COL4"] |
+| data | `Array.<Number>` | (정적 데이터) 미리 정의해 놓은 값을 데이터로 이용  ※ (ex) data : [1,5,3,2] |
+| colors | `String` \| `Array.<String>` | 차트에 적용할 색상  1) 미리 정의되어있는 색상 값 이용  - classic =&gt; ["#ffa500","blue","red","green","cyan","magenta","yellow","#0f0"]  - dark =&gt; ["#960","#003","#900","#060","#099","#909","#990","#090"]  - pale =&gt; ["#fd0","#369","#f64","#3b7","#880","#b5d","#666"]  - pastel =&gt; ["#fb4","#79c","#f66","#7d7","#acc","#fdd","#ff9","#b9b"]  - neon =&gt; ["#ff0","#0ff","#0f0","#f0f","#f00","#00f"]  ※ (ex) colors : "dark"  2) 미리 정의되어있는 스타일 사용 (헥사 색상의 배열)  ※ (ex) colors : ['#FF4B4B','#FF7272','#FF9999','#FFC0C0','#FFE7E7'] |
+| offsetX | `Number` | 기준점으로부터 텍스트 x좌표 위치 이동 |
+| offsetY | `Number` | 기준점으로부터 텍스트 Y좌표 위치 이동 |
+| rotation | `Number` | 회전값 (단위:라디안) |
+| snapToPixel | `Number` | true(sharp) 또는 false(blur) |
+
+## odf_styleOption_geometryType
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| pointcircle | `String` | 점(원) 형태의 지오메트리 스타일(image/text 속성 적용가능) |
+| pointicon | `String` | 심볼 형태의 지오메트리 스타일(image/text 속성 적용가능) |
+| polygon | `String` | 면 형태의 지오메트리 스타일(fill/stroke/text 속성 적용가능) |
+| linestring | `String` | 선 형태의 지오메트리 스타일 |
+| free | `String` | [default]자유양식 지오메트리 스타일 |
+
+## odf_styleOption
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| geometryType | [`odf_styleOption_geometryType`](#odf_styleOption_geometryType) | 스타일을 적용할 지오메트리의 타입(아래 값들중 하나) |
+| image | `Object` | 이미지 스타일  속성 |
+| image.icon | [`odf_styleOption_icon`](#odf_styleOption_icon) | 아이콘 스타일 속성 |
+| image.circle | [`odf_styleOption_circle`](#odf_styleOption_circle) | 원 스타일 속성 |
+| image.chart | [`odf_styleOption_chart`](#odf_styleOption_chart) | 차트 스타일 속성 |
+| image.regularShape | [`odf_styleOption_regularShape`](#odf_styleOption_regularShape) | regularShape 스타일 속성 |
+| text | `odf_styleOption_text` | 텍스트 스타일 속성 |
+| stroke | [`odf_styleOption_stroke`](#odf_styleOption_stroke) | 윤곽선 스타일 속성 |
+| fill | `odf_styleOption_fill` | 채우기 스타일 속성 |
+
+## odf_StyleFunctionOption
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| seperatorFunc | `function` \| `String` | 필터링 조건을 검사하는 function(true나 false를 반환) 또는 'default'. |
+| style | [`odf_styleOption`](#odf_styleOption) | seperatorFunc의 조건이 참일 경우 적용할 스타일 |
+| priority | `Number` | 여러 seperatorFunc에서 참일경우, 스타일 적용 우선순위 |
+| callbackFunc | `function` \| `String` | 스타일 펑션 내에서 seperatorFunc의 결과가 true일 경우 정의된 스타일을 반환하기 전, 호출되어 스타일을 변경할 수 있는 콜백함수 매개변수로 style, feature, resolution을 전달받아 해당 function 내에서 feature, resolution 값을 이용하여 style을 변경할 수 있음 |
+
+## odf_default_pattern_define
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| name | `String` | 패턴명 |
+| image | `String` | 패턴 이미지(base64) |

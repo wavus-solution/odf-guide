@@ -1,0 +1,65 @@
+---
+title: "FeatureFactory"
+description: "Feature 생성을 위한 FeatureFactory 클래스"
+---
+## API
+```
+fromGeoJson(GeoJson): Feature
+toWKT(feature): JSON
+fromWKT(wkt, [property]): Feature
+produce(param): Feature
+```
+
+## FeatureFactory
+
+### fromGeoJson(GeoJson) → Feature
+GeoJson을 이용한 Feature 생성
+```javascript
+let feature = odf.FeatureFactory.fromGeoJson(geoJson);
+```
+
+→ Feature: ODF_Feature 형태의 Feature  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| GeoJson | `Object` | Feature를 만들기 위한 GeoJson형태의 데이터 |
+
+### toWKT(feature) → JSON
+feature 이용하여 WKT 생성
+
+→ JSON: WKT, Property를 담은 JSON 형태 값  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `Feature` | WKT를 만들기 위한 ODF_Feature형태의 데이터 |
+
+### fromWKT(wkt, [property]) → Feature
+WKT 이용하여 feature 생성
+
+→ Feature: ODF_Feature 형태의 Feature  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| wkt | `String` |  | WKT를 이용하여 Feature를 만들기 위한 String 형태의 WKT 데이터 |
+| [property] | `Object` | `` | 속성값 객체 |
+
+### produce(param) → Feature
+FeatureFactory를 이용한 Feature 생성
+
+→ Feature: 생성된 피쳐  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| param | [`odf_feature_option`](#odf_feature_option) \| `ol.Feature` | Feature 생성 옵션 |
+
+## odf_feature_option
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| geometryType | `odf_geometryType` | 지오메트리 타입 |
+| coordinates | `odf_coordinate` \| `Array.<odf_coordinate>` \| `Array.<Array.<odf_coordinate>>` \| `Array.<Array.<Array.<odf_coordinate>>>` | 지오메트리의 좌표정보 |
+| circleSize | `number` | (선택)geometry type이 'circle'일 경우 원의 크기 |
+| properties | `Object` | (선택)feature에서 관리할 정보 |
+| style | `StyleFunction` \| `Style` | (선택)Tile 레이어 생성 |

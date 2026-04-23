@@ -1,0 +1,204 @@
+---
+title: "DivideMapControl"
+description: "지도 분할 설정 클래스"
+---
+## API
+```
+DivideMapControl(options): void
+getConstructorOptions(): Array
+setMap(_map, createElementFlag): void
+removeMap(): void
+setOn(key, flag, sizeFlag, connectFlag): void
+setConnect(flag): void
+getDividMaps(): odf_divideMaps
+```
+
+## DivideMapControl
+
+DivideMapControl 생성자
+
+ ```javascript
+ let divideMapControl = new odf.DivideMapControl({
+        dualMap: [
+          {
+            position: 1,
+            mapOption: {
+              //지정안한 map옵션은 mainmap 생성시 사용한 mapoption적용
+              basemap: {baroEMap:['eMapColor']},
+            },
+            //controlOption: {//사용할 컨트롤 지정
+            // basemap: true,
+            // zoom: false,
+            // clear: false,
+            // download: false,
+            // print: false,
+            // overviewmap: false,
+            // draw: false,
+            // measure: false,
+            // move: false,
+            //},
+          },
+        ],
+        quadMap: [
+          {
+            // position: 1, //지정안하면 기본 1
+            mapOption: {
+              basemap: {baroEMap:['eMapColor']},
+            },
+          },
+          {
+            //position: 2, //지정안하면 기본 3
+            mapOption: {
+              basemap:{baroEMap: ['eMapWhite']},
+            },
+          },
+          {
+            //position: 4,//지정안하면 기본 4
+            mapOption: {
+              basemap: {baroEMap:['eMapEnglish']},
+            },
+          },
+        ],
+        config : {
+          dualMap:{
+            divType : 'vertical'//'vertical'(수직분할), 'horizonal'(수평분할)
+          }
+        }
+      });//DivideMapControl 생성
+```  
+
+### new DivideMapControl(options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Object` | 분할지도 생성을 위한 option |
+| options.dualMap | [`Array.<odf_divideMapOption>`](#odf_divideMapOption) | 2분할지도 option |
+| options.threepleMap | [`Array.<odf_divideMapOption>`](#odf_divideMapOption) | 3분할지도 option |
+| options.quadMap | [`Array.<odf_divideMapOption>`](#odf_divideMapOption) | 4분할지도 option |
+| options.config | `Object` | 분할지도 상세 생성 옵션 |
+| options.config.createElementFlag | `Boolean` | 분할지도 내 컨트롤 ui 생성 여부, 기본값 true |
+| options.config.minAreaSize | `Boolean` | 지도 영역의 최소 크기(단위 px),분할지도 영역 조절 기능 사용 여부가 true일때 적용. 기본값 100 |
+| options.config.useAreaControl | `Boolean` | 분할지도 영역 조절 기능 사용 여부, 기본값 false |
+| options.config.dualMap | `Object` | 2분할지도 상세 생성 옵션 |
+| options.config.dualMap.divType | `String` | 2분할지도 분할 유형. - 'vertical' : 수직 분할 (기본값) ┌─┬─┐ │1│2│ └─┴─┘ - 'horizonal' : 수평 분할 ┌───┐ │ 1 │ ├───┤ │ 2 │ └───┘ |
+| options.config.threepleMap | `Object` | 3분할지도 상세 생성 옵션 |
+| options.config.threepleMap.divType | `String` | 3분할지도 분할 유형 - 'vertical' : 수직 분할 (기본값) ┌─┬─┬─┐ │1│2│3│ └─┴─┴─┘ - 'horizonal' : 수평 분할 ┌───┐ │ 1 │ ├───┤ │ 2 │ ├───┤ │ 3 │ └───┘ - 'complex-01' : 복합형 1 ┌─┬───┐ │ │ 2 │ │1├───┤ │ │ 3 │ └─┴───┘ - 'complex-02' : 복합형 2 ┌─────┐ │  1  │ ├──┬──┤ │2 │ 3│ └──┴──┘ - 'complex-03' : 복합형 3 ┌──┬─┐ │2 │ │ ├──┤1│ │3 │ │ └──┴─┘ - 'complex-04' : 복합형 4 ┌──┬──┐ │ 1│2 │ ├──┴──┤ │  3  │ └─────┘ |
+| options.config.quadMap | `Object` | 4분할지도 상세 생성 옵션 |
+| options.config.quadMap.divType | `String` | 4분할지도 분할 유형. - 'complex' : 수직,수평 분할 (기본값) ┌───┬───┐ │ 1 │ 2 │ ├───┼───┤ │ 3 │ 4 │ └───┴───┘ - 'vertical' : 수직 분할 ┌─┬─┬─┬─┐ │1│2│3│4│ └─┴─┴─┴─┘ - 'horizonal' : 수평 분할 ┌─────┐ │  1  │ ├─────┤ │  2  │ ├─────┤ │  3  │ ├─────┤ │  4  │ └─────┘ |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(_map, createElementFlag)
+DivideMapControl map 객체 연결
+DivideMapControl HTMLElement를 만들고, 이벤트 바인딩 시켜, map 객체와 연결
+
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| _map | `Map` | DivideMapControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | DivideMapControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+DivideMapControl map 객체 연결 해제
+
+### setOn(key, flag, sizeFlag, connectFlag)
+분할지도 활성화/비활성화
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | `String` | (비)활성화 시킬 대상 =&gt; 'dualMap' 또는 'quadMap' |
+| flag | `Boolean` | 활성화 여부 =&gt;true : 활성화, false:비활성화 |
+| sizeFlag | `Boolean` | 사이즈 변환여부(default true) =&gt;true : 사이즈 변환, false:사이즈 변환x |
+| connectFlag | `Boolean` | 지도 동기화 여부(default true) =&gt;true : 지도 동기화, false:지도 비동기화 |
+
+### setConnect(flag)
+분할지도 뷰공유 활성화/비활성화
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| flag | `Boolean` | 지도 뷰공유 여부(default true) =&gt;true : 지도 뷰공유, false:지도 비공유 |
+
+### getDividMaps() → odf_divideMaps(#odf_divideMaps)
+분할지도 지도객체 조회
+ 
+
+→ odf_divideMaps: 분할지도 지도 객체  
+
+## DivideMapItem
+**Type**: `Object`
+분할 지도 항목 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [position] | `number` | 분할 지도 위치 (1-4) |
+| [mapOption] | `MapOption` | 지도 옵션 |
+| [controlOption] | `Object` | 사용할 컨트롤 옵션 |
+
+## DivideMapControlOption
+**Type**: `Object`
+DivideMapControl 생성 옵션 타입
+
+**Properties**
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| [dualMap] | [`Array.<DivideMapItem>`](#DivideMapItem) |  | 2분할 지도 설정 |
+| [quadMap] | [`Array.<DivideMapItem>`](#DivideMapItem) |  | 4분할 지도 설정 |
+| [config] | `Object` |  | 설정 옵션 |
+| [config.createElementFlag] | `boolean` | `true` | UI 엘리먼트 생성 여부 |
+
+## odf_divideMapOption
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| position | `number` | 분할지도가 위치할 번호(지정하지 않을 경우 기본값 지정) 2분할 지도(수직분할)의 경우 1은 좌측, 2는 우측 2분할 지도(수평분할)의 경우 1은 상단, 2는 하단 4분할 지도의 경우 1은 좌상단, 2는 우상단, 3은 좌하단, 4는 우하단 |
+| mapOption | `Object` | 지도 생성에 사용할 옵션 |
+| mapOption.center | `Odf.Coordinate` | 지도 중심점 좌표 |
+| mapOption.zoom | `Number` | 현재 확대 레벨 |
+| mapOption.maxZoom | `Number` | 최대 확대레벨 |
+| mapOption.minZoom | `Number` | 최소 확대레벨 |
+| mapOption.projection | `String` | 좌표계 SRS ID |
+| mapOption.proxyURL | `String` | 프록시 URL |
+| mapOption.proxyParam | `String` | 프록시 파라미터 |
+| mapOption.apiGateWayKey | `String` | api GateWay Key |
+| mapOption.basemap | `odf_basemap_option` | 사용할 베이스맵 선택 옵션 |
+| mapOption.baroEMapURL | `String` | 바로e맵 경로 |
+| mapOption.baroEMapKey | `String` | 바로e맵 API KEY |
+| controlOption | `Object` | 분할지도 내에서 사용할 컨트롤 지정 |
+| controlOption.basemap | `Boolean` | basemap 컨트롤을 사용할지 여부 |
+| controlOption.clear | `Boolean` | clear 컨트롤을 사용할지 여부 |
+| controlOption.download | `Boolean` | download 컨트롤을 사용할지 여부 |
+| controlOption.print | `Boolean` | print 컨트롤을 사용할지 여부 |
+| controlOption.overviewmap | `Boolean` | overviewmap 컨트롤을 사용할지 여부 |
+| controlOption.draw | `Boolean` | draw 컨트롤을 사용할지 여부 |
+| controlOption.measure | `Boolean` | measure 컨트롤을 사용할지 여부 |
+| controlOption.move | `Boolean` | move 컨트롤을 사용할지 여부 |
+
+## odf_divideMaps
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| dualMap | [`Array.<odf_divideMap_info>`](#odf_divideMap_info) | 2분할지도 객체 |
+| quadMap | [`Array.<odf_divideMap_info>`](#odf_divideMap_info) | 4분할지도 객체 |
+
+## odf_divideMap_info
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| map | `Map` | 분할지도 지도 객체 |
+| position | `Number` | 분할지도 위치 (1~4) |
+| mainMapFlag | `Boolean` | 메인 지도 여부 ※true이면 메인지도, false이면 분할지도 객체 |

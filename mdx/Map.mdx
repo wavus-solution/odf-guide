@@ -1,0 +1,867 @@
+---
+title: "Map"
+description: "지도 생성, 조작, 컴퍼넌트, 레이어 추가 설정 클래스"
+---
+## API
+```
+Map(mapContainer, mapOption): void
+setResizable(resizable): void
+getProjection(): Projection
+getInfo(): mapInfo
+getCenter(): odf
+setCenter(center): void
+getZoom(): number
+setZoom(zoom): void
+setMinZoom(zoom): void
+getMinZoom(): number
+setMaxZoom(zoom): void
+getMaxZoom(): number
+setMinResolution(resolution): void
+getMinResolution(): number
+setMaxResolution(resolution): void
+getMaxResolution(): number
+switchLayer(layerId, condition): void
+addLayer(param): void
+switchLayerList(layers): void
+modifyLayer(type, evt, tooltipflag): void
+setModifyLayer(type, evt, layer, tooltipflag): void
+modifyComplete(type): modifyObject
+sendToServerModified(result, layer, type, flag): String
+removeLayer(param): void
+setZIndex(odfId, zIdx): void
+getZIndex(odfId): Number
+findLayer(odfId): odf
+setDragRotate(param): void
+setDraggable(param): void
+setDoubleClickZoomable(param): void
+setSelectCluster(options): void
+removeSelectCluster(): void
+splitPolygonByLine(polygonFeature, lineFeature, callback): void
+setZoomable(param): void
+selectFeatureOnClick(evt, [layer]): void
+selectFeature(parameters): Array
+deleteVertex(extentFeature, targetFeature, callback): void
+selectFeatureOnArea(drawType, callback, targetLayer, featureReturn): Array
+getODFLayers(): List
+getODFLayerList(): List
+getODFLayer(searchString, likeStatus): List
+getMarkers(): js_Map
+getMarker(markerId): Marker
+getPopups(): js_Map
+getPopup(popupId): Popup
+setModifiable(flag): void
+setModifyFeature(feature): void
+setDraggableODFFeature(flag, [options]): void
+setDraggableODFLayer(layer, [options]): void
+setDraggableSelectFeature(feature, [options]): void
+setDragTranslate(flag, [options]): void
+getDragTranslateTarget(): void
+setDragTranslateTargetFeature(): void
+setDragTranslateTargetLayer(): void
+setTransformable(flag, [options]): void
+setTransformLayer(layer, [options]): void
+setTransformFeature(feature, [options]): void
+setTranslate(layer, [options]): void
+removeTranslate(): void
+setSnap(options, layerArray): void
+removeSnap(): void
+getSLDScale(): odf_scaleInfo
+hasFeatureAtPixel(evt): Boolean
+forEachFeatureAtPixel(pixel, callback, layerFlag, options): void
+getPixelFromCoordinate(coordinate): void
+getCoordinateFromPixel(pixel): void
+syncTo(syncMap): void
+unsyncFrom(): void
+```
+
+## Map
+
+Map 생성 클래스
+   ```javascript
+   let mapContainer = document.getElementById('map');
+   const center = new odf.Coordinate(955156.7761, 1951925.0984);
+   let mapOption = {
+     center: center,
+     zoom: 15,
+     projection: 'EPSG:5179',
+     maxZoom: 20,
+     minZoom: 8,
+   };
+   let map = new odf.Map(mapContainer, mapOption);
+   ```  
+
+### new Map(mapContainer, mapOption)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| mapContainer | `HTMLElement` | 지도에 사용할 Div Element |
+| mapOption | [`MapOption`](#MapOption) | 지도 생성에 사용할 옵션 (MapOption typedef 참조) |
+
+### setResizable(resizable)
+지도 리사이징
+
+| Param | Type | Description |
+| --- | --- | --- |
+| resizable | `Boolean` | 사용여부 True : 허용, false : 차단 |
+
+### getProjection() → Projection
+지도의 좌표계 정보 조회
+
+   
+
+→ Projection: 지도의 좌표계  
+
+### getInfo() → mapInfo(#mapInfo)
+지도 정보 조회
+
+   
+
+→ mapInfo: 지도 정보  
+
+### getCenter() → odf.Coordinate
+지도 중심점 좌표 정보 조회
+
+   
+
+→ odf.Coordinate: 중심 좌표  
+
+### setCenter(center)
+지도 중심점 좌표 설정
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| center | `Coordinate` | 지도 중심점 좌표 설정 &#123;위도, 경도&#125; |
+
+### getZoom() → number
+지도 줌레벨 조회
+   
+
+→ number: zoom level  
+
+### setZoom(zoom)
+지도 줌레벨 설정
+
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| zoom | `number` | 설정할 줌레벨 |
+
+### setMinZoom(zoom)
+지도 최소 줌레벨 설정
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| zoom | `number` | 설정할 최소 줌레벨 |
+
+### getMinZoom() → number
+지도 최소 줌레벨 조회
+   
+
+→ number: 설정된 지도 최소 줌레벨  
+
+### setMaxZoom(zoom)
+지도 최대 줌레벨 설정
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| zoom | `number` | 설정할 최대 줌레벨 |
+
+### getMaxZoom() → number
+지도 최대 줌레벨 조회
+   
+
+→ number: 설정된 지도 최대 줌레벨  
+
+### setMinResolution(resolution)
+지도 최소 레졸루션 설정
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| resolution | `number` | 설정할 최소 레졸루션 |
+
+### getMinResolution() → number
+지도 최소 레졸루션 조회
+   
+
+→ number: 설정된 지도 최소 레졸루션  
+
+### setMaxResolution(resolution)
+지도 최대 레졸루션 설정
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| resolution | `number` | 설정할 최대 레졸루션 |
+
+### getMaxResolution() → number
+지도 최대 레졸루션 조회
+   
+
+→ number: 설정된 지도 최대 레졸루션  
+
+### switchLayer(layerId, condition)
+지도 레이어 on/off
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| layerId | `string` | : odf-layer-생성시간 |
+| condition | `boolean` | : on/off 여부 |
+
+### addLayer(param) → void
+지도에 레이어 추가
+
+| Param | Type | Description |
+| --- | --- | --- |
+| param | `Layer` | 추가할 레이어 객체 |
+
+### switchLayerList(layers)
+지도에 등록된 레이어 목록을 layers로 교체
+
+| Param | Type | Description |
+| --- | --- | --- |
+| layers | `Array.<Layer>` | : 바꿔치기 할 레이어 목록 |
+
+### modifyLayer(type, evt, tooltipflag)
+레이어 편집 - 지도상에서 선택한 레이어 수정
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | `String` | : 레이어편집유형 ('update', 'insert', 'delete') |
+| evt | `event` | : 지도객체 마우스 클릭 이벤트 |
+| tooltipflag | `boolean` | : 툴팁생성여부 (default : false); |
+
+### setModifyLayer(type, evt, layer, tooltipflag)
+레이어 편집 - 특정 레이어에 대한 수정
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | `String` | : 레이어편집유형 ('update', 'insert', 'delete','moveFeature','transform') |
+| evt | `event` | : 지도객체 마우스 클릭 이벤트 |
+| layer | `Layer` | : layer 객체 |
+| tooltipflag | `boolean` | : 툴팁생성여부 (default : false); |
+
+### modifyComplete(type) → modifyObject(#modifyObject)
+레이어 수정 완료 - 수정된 피쳐값 리턴
+
+→ modifyObject: 피쳐 결과 배열  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | `String` | : 레이어편집유형 ('update', 'insert', 'delete' , 'moveFeature','transform') |
+
+### sendToServerModified(result, layer, type, flag) → String \| `Object`
+서버에 피쳐값 전송
+
+   
+
+**Returns**: `String` \| `Object` - Flag === True : 서버와 직접 통신 시 서버 통신 결과 ; Flag === false : 서버 전송할 XML 데이터 문자열  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| result | `Array` \| `Feature` | : 피쳐 배열 |
+| layer | `Layer` | 타겟 레이어 |
+| type | `String` | : 레이어편집유형 ('update', 'insert', 'delete') |
+| flag | `boolean` | : geoserver 통신 여부 - Default : false |
+
+### removeLayer(param) → void
+지도에서 레이어 제거
+
+| Param | Type | Description |
+| --- | --- | --- |
+| param | `Layer` \| `string` | 제거할 레이어 객체 또는 레이어 ID |
+
+### setZIndex(odfId, zIdx)
+해당 layer의 z-index 설정
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| odfId | `String` | : 레이어Id |
+| zIdx | `Number` | : z index 값 |
+
+### getZIndex(odfId) → Number
+해당 layer의 z-index 반환
+ 
+
+→ Number: 해당 layer의 z-index.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| odfId | `String` | : 레이어Id |
+
+### findLayer(odfId) → odf.Layer
+지도객체에 추가되있는 레이어를 odfId로 찾아 반환
+ 
+
+→ odf.Layer: 레이어 id와 일치하는 레이어  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| odfId | `String` | : 레이어Id |
+
+### setDragRotate(param)
+지도 회전 설정
+
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| param | `Boolean` | 사용여부 True : 허용, false : 차단 |
+
+### setDraggable(param)
+지도 마우스 드래그 설정
+
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| param | `Boolean` | 사용여부 True : 허용, false : 차단 |
+
+### setDoubleClickZoomable(param)
+지도 더블클릭 줌 설정
+
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| param | `Boolean` | 사용여부 True : 허용, false : 차단 |
+
+### setSelectCluster(options)
+클러스터 표출 인터렉션 추가
+
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `object` | 생성옵션 |
+| options.layers | `Array` | 적용할 대상 레이어 목록 |
+| options.addCallback | `function` | 객체 선택 시 콜백함수 |
+| options.removeCallback | `function` | 객체 선택 해제 시 콜백함수 |
+
+### removeSelectCluster()
+클러스터 표출 인터렉션 제거
+
+   
+
+### splitPolygonByLine(polygonFeature, lineFeature, callback)
+라인으로 다각형 자르기 (라인이 다각형을 2분할 시에만 가능 2분할 이상으로 분할 시 원본 유지)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| polygonFeature | `odf.Feature` | 대상 피쳐 (polygon, multipolygon 타입만 가능) |
+| lineFeature | `odf.Feature` | cutting 할 피쳐(line | lineString 타입) |
+| callback | `function` | 그리기 완료후 분할된 피쳐, 원본 피쳐 리턴받을 콜백 함수 return &#123;originalFeature : 원본피쳐, splitFeatures : [분할된피쳐1, ....]&#125; |
+
+### setZoomable(param)
+지도 마우스 휠 확대 축소 설정
+
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| param | `Boolean` | 사용여부 True : 허용, false : 차단 |
+
+### selectFeatureOnClick(evt, [layer])
+지도에서 클릭한 Feature를 선택
+
+   
+
+| Param | Type | Description |
+| --- | --- | --- |
+| evt | `event` | 마우스 지도 클릭 이벤트 |
+| [layer] | `Layer` \| `Array.<Layer>` | 단일 레이어 객체 또는 레이어 객체 배열 |
+
+### selectFeature(parameters) → Array.<Feature>
+지도에서 클릭한 Feature를 선택
+
+→ Array.<Feature>: 선택된 영역으로 부터 포함관계인 피쳐 배열  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| parameters | `Object` |  |  |
+| [parameters.extractType] | `&#x27;draw&#x27;` \| `&#x27;view&#x27;` \| `&#x27;pixel&#x27;` \| `&#x27;feature&#x27;` \| `&#x27;cql&#x27;` |  | 피쳐 추출 유형 - draw 직접 그린 도형 내에 속한 피쳐 추출 - view 현재 지도영역에서 피쳐 추출 - pixel 특정 픽셀에 곂치는 피쳐 추출 - feature 특정 도형(compareFeature) 내에 속한 피쳐 추출 - cql cql_filter로 피처 추출 |
+| [parameters.drawType] | `&#x27;polygon&#x27;` \| `&#x27;box&#x27;` \| `&#x27;circle&#x27;` \| `&#x27;point&#x27;` |  | 그리기 유형. extractType의 값이 'draw'일 경우 필수값 - polygon 다각형 - box 사각형 - circle 원형 - point 점 |
+| [parameters.targetLayer] | `Layer` |  | 특정 Layer 내에서만 feature 추출, 미입력시 모든 레이어에서 추출 |
+| [parameters.featureReturn] | `Boolean` |  | 필터링 대상이 되는 도형 또는 영역 정보를 함께 리턴할지 여부(기본값 false) |
+| [parameters.pixel] | `Number` |  | 피쳐 추출을 위한 좌표 기준. extractType의 값이 'pixel'일 경우 필수값. |
+| [parameters.callback] | `function` |  | 그리기 영역으로 부터 선택된 피쳐 배열을 리턴받을 콜백 함수. 없으면 selectFeature 함수에서 결과 반환됨(extractType의 값이 'draw' 타입일 경우 제외) |
+| [parameters.permanentDrawLifeCycle] | `Boolean` |  | 영구적 그리기 interaction 활성화 여부. extractType의 값이 'draw'일 경우 해당(기본값 true) |
+| [parameters.continuity] | `Boolean` |  | 연속 그리기 여부. extractType 값이 'draw'이고 permanentDrawLifeCycle 값이 true인 경우에만 사용 가능(기본값 false) |
+| [parameters.compareFeature] | `ODF.Feature` |  | extractType이 feature일 경우, 이 도형 내에 속한 피처 추출 - point 로 geometryType 제한 |
+| [parameters.includeNoGeometryData] | `Boolean` |  | geometry가 없는 feature도 조회할지 여부(기본값 false, geometry 없는 feature 조회  x) |
+| [parameters.cql] | `String` |  | cql 문자열 |
+| [parameters.maxAreaSize] | `Number` |  | 그리기 도형 크기 제한(1000000이 1㎢) |
+| [parameters.restrictDrawSize] | `Boolean` |  | box, circle 그리기 중 도형 크기가 maxAreaSize를 초과하지 않도록 제한 (기본값 false). polygon은 그린 후 검증만 가능 |
+| [parameters.pointBuffer] | `Number` |  | 대상 좌표에 버퍼를 지정 (단위:픽셀) (기본값 20) ※ 피처 추출 유형이 pixel이거나 draw이면서 drawType이 point일 경우 적용됨 |
+| [parameters.message] | `Object` |  | extractType이 'draw'일때, message 값 정의시 툴팁메세지에 사용자 정의 메세지 적용 |
+| parameters.message.DRAWSTART_POINT | `String` |  | 점 그리기 시작 안내 메세지 (기본값) '점을 그리기 위해 지도를 클릭해주세요' |
+| parameters.message.DRAWSTART_POLYGON | `String` |  | 면 그리기 시작 안내 메세지 (기본값) '면을 그리기 위해 지도를 클릭해주세요' |
+| parameters.message.DRAWSTART_CIRCLE | `String` |  | 원 그리기 시작 안내 메세지 (기본값) '원을 그리기 위해 지도를 클릭해주세요.' |
+| parameters.message.DRAWSTART_BOX | `String` |  | 사각형 그리기 시작 안내 메세지 (기본값) '사각형을 그리기 위해 지도를 클릭해주세요.' |
+| options.message.DRAWEND_DBCLICK | `String` |  | 그리기 종료 안내 메세지(더블클릭) (기본값) '더블클릭시 그리기가 종료됩니다.' |
+| [parameters.useVisible] | `Boolean` |  | 레이어 visible 여부에 따라 selectFeature 대상 변경 |
+| [parameters.polygonRightClickFinish] | `Boolean` | `false` | 다각형(polygon) 우클릭 종료 여부 (drawType이 'polygon'일 때만 적용) - false: 더블클릭으로 종료 (기본값) - true: 우클릭으로 종료 |
+
+**Example**  
+```js
+//01. 도형을 직접 그려서 그 영역에서 feature 검색
+map.selectFeature({
+  extractType : 'draw',
+  drawType : 'polygon', //그리기 유형 polygon, box, circle, point 가능. extractType값이 'draw'일때만 유효함
+  callback : function(response){//결과 정보를 받을 콜백 함수. 정의하지 않으면 결과 정보 받을 수 없음
+    //response.result => 선택된 도형 배열
+    //response.feature => 필터링 대상이 되는 도형 또는 영역 정보. featureReturn 값이 true여야 반환됨
+  },
+ //featureReturn : true, // 필터링 대상이 되는 도형 또는 영역 정보를 함께 리턴할지 여부(기본값 false)
+ //targetLayer : tempLayer,//특정 Layer 내에서만 feature 추출, 미입력시 모든 레이어에서 추출
+})
+   //02. 현재 지도 영역에서 feature 검색
+   map.selectFeature({
+     extractType : 'view',
+     callback : function(response){//결과 정보를 받을 콜백 함수, 없으면 selectFeature 함수에서 결과 반환됨
+       //response.result => 선택된 도형 배열
+       //response.feature => 필터링 대상이 되는 도형 또는 영역 정보. featureReturn 값이 true여야 반환됨
+     },
+    //featureReturn : true, // 필터링 대상이 영역 정보를 함께 리턴할지 여부(기본값 false)
+    //targetLayer : tempLayer,//특정 Layer 내에서만 feature 추출, 미입력시 모든 레이어에서 추출
+   })
+   //03. 지도 영역 pixel 값이 위치한 지점 근방에 있는 feature검색
+   let features = map.selectFeature({
+     extractType : 'pixel',
+     pixel : [x좌표,y좌표],//조회할 지도영역 pixel 좌표값
+     //callback : function(response){//결과 정보를 받을 콜백 함수, 없으면 selectFeature 함수에서 결과 반환됨
+     //  //response.result => 선택된 도형 배열
+     //  //response.feature => 필터링 대상이 되는 도형 또는 영역 정보. featureReturn 값이 true여야 반환됨
+     //},
+    //featureReturn : true, // 필터링 대상이 영역 정보를 함께 리턴할지 여부(기본값 false)
+    //targetLayer : tempLayer,//특정 Layer 내에서만 feature 추출, 미입력시 모든 레이어에서 추출
+   })
+```
+
+### deleteVertex(extentFeature, targetFeature, callback)
+지도에서 클릭한 Feature를 선택
+
+  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extentFeature | `Feature` | 버텍스를 삭제할 범위를 지정할 feature |
+| targetFeature | `Feature` | 버텍스 삭제 대상 feature |
+| callback | `function` \| `Object` | 결과값 리턴받을 콜백 함수 &#123;original : 원본피쳐, changed : 변경된 피쳐&#125; |
+
+### selectFeatureOnArea(drawType, callback, targetLayer, featureReturn) → Array
+지도에서 클릭한 Feature를 선택
+
+  
+
+→ Array: 선택된 영역으로 부터 포함관계인 피쳐 배열  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| drawType | `String` |  | 영역으로 선택할 그리기 타입 (polygon, box, circle, point, view : 현재지도영역, event 특정이벤트마다 함수 실행) |
+| callback | `splitPolygonCallback` |  | 그리기 영역으로 부터 선택된 피쳐 배열을 리턴받을 콜백 함수 , drawType event 일시 pixel 값 입력 필요 |
+| targetLayer | `Layer` |  | 특정 Layer 내에서만 feature 추출 |
+| featureReturn | `Boolean` | `false` | 필터링 대상이 되는 도형 또는 영역 정보를 함께 리턴할지 여부(기본값 false) |
+
+### getODFLayers() → List.<Layer>
+지도에 등록된 모든 레이어  조회
+   
+
+→ List.<Layer>: - 지도에 등록된 모든 레이어 목록  
+
+### getODFLayerList() → List.<Layer>
+지도에 등록된 모든 레이어  조회
+   
+
+→ List.<Layer>: - 지도에 등록된 모든 레이어 목록  
+
+### getODFLayer(searchString, likeStatus) → List.<Layer>
+지도에 등록된 레이어를 odfId로 조회
+   
+
+→ List.<Layer>: 지도에 등록된 모든 레이어 목록  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| searchString | `String` | 조회할 레이어의 id |
+| likeStatus | `Number` | 검색조건 - searchString 포함 : -1 - searchString과 일치(기본값) : 0, - searchString으로 시작 : 1, - searchString으로 끝남 : 2 |
+
+### getMarkers() → js_Map.<String, Marker>
+지도에 등록된 모든 Marker  조회
+   
+
+→ js_Map.<String, Marker>: - 지도에 등록된 모든 Marker를 보관하는 javascript Map 객체  
+
+### getMarker(markerId) → Marker
+지도에 등록된 Marker 중 특정 id를 갖는 마커 조회
+   
+
+→ Marker: - markerId를 id로 갖는 Marker 반환  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| markerId | `String` | 조회할 마커의 고유 id |
+
+### getPopups() → js_Map.<String, Popup>
+지도에 등록된 모든 Popup  조회
+   
+
+→ js_Map.<String, Popup>: - 지도에 등록된 모든 Popup을 보관하는 javascript Map 객체  
+
+### getPopup(popupId) → Popup
+지도에 등록된 Popup 중 특정 id를 갖는 Popup 조회
+   
+
+→ Popup: - popupId를 id로 갖는 Popup 반환  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| popupId | `String` | 조회할 팝업의 고유 id |
+
+### setModifiable(flag)
+도형 편집 기능 활성화 상태 변경
+
+| Param | Type | Description |
+| --- | --- | --- |
+| flag | `Boolean` | 변경할 활성화 상태 - true : 활성화 - false : 비활성화 |
+
+### setModifyFeature(feature)
+도형 편집 기능 특정 도형으로 제한
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `Feature` | 선택된 도형 |
+
+### setDraggableODFFeature(flag, [options])
+도형 이동 기능 활성화 상태 변경
+
+| Param | Type | Description |
+| --- | --- | --- |
+| flag | `boolean` | 변경할 활성화 상태 (true: 활성화, false: 비활성화) |
+| [options] | [`TransformOptions`](#TransformOptions) | 변형기능 상세 옵션 |
+
+### setDraggableODFLayer(layer, [options])
+도형 이동 레이어 제한
+
+| Param | Type | Description |
+| --- | --- | --- |
+| layer | `Layer` | 제한할 레이어 |
+| [options] | [`TransformOptions`](#TransformOptions) | 변형기능 상세 옵션 |
+
+### setDraggableSelectFeature(feature, [options])
+도형 이동 기능 특정 도형으로 제한
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `Feature` | 선택된 도형 |
+| [options] | [`TransformOptions`](#TransformOptions) | 변형기능 상세 옵션 |
+
+### setDragTranslate(flag, [options])
+벡터 레이어의 도형 변형(이동) 기능 활성화 상태 변경
+
+| Param | Type | Description |
+| --- | --- | --- |
+| flag | `boolean` | 변경할 활성화 상태 (true: 활성화, false: 비활성화) |
+| [options] | [`DragTranslateOptions`](#DragTranslateOptions) | 변형기능 상세 옵션 |
+
+### getDragTranslateTarget()
+벡터 레이어의 도형 변형(이동) 대상 도형 조회
+
+### setDragTranslateTargetFeature()
+벡터 레이어의 도형 변형(이동) 대상 도형 셋팅
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options.targetFeature | `Feature` | 변형 대상 도형 |
+
+### setDragTranslateTargetLayer()
+벡터 레이어의 도형 변형(이동) 대상 레이어 셋팅
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options.targetFeature | `Feature` | 변형 대상 도형 |
+
+### setTransformable(flag, [options])
+도형 변형(확대/축소/회전) 기능 활성화 상태 변경
+
+| Param | Type | Description |
+| --- | --- | --- |
+| flag | `boolean` | 변경할 활성화 상태 (true: 활성화, false: 비활성화) |
+| [options] | [`TransformOptions`](#TransformOptions) | 변형기능 상세 옵션 |
+
+### setTransformLayer(layer, [options])
+도형 변형(확대/축소/회전) 레이어 제한
+
+| Param | Type | Description |
+| --- | --- | --- |
+| layer | `Layer` | 제한할 레이어 |
+| [options] | [`TransformOptions`](#TransformOptions) | 변형기능 상세 옵션 |
+
+### setTransformFeature(feature, [options])
+도형 변형(확대/축소/회전) 기능 특정 도형으로 제한
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `Feature` | 선택된 도형 |
+| [options] | [`TransformOptions`](#TransformOptions) | 변형기능 상세 옵션 |
+
+### setTranslate(layer, [options])
+레이어 전체 이동 활성화 (현재 view영역에 속한 피쳐로 한정)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| layer | `Layer` | 타겟 레이어 |
+| [options] | [`TransformOptions`](#TransformOptions) | 변형기능 상세 옵션 |
+
+### removeTranslate()
+레이어 전체 이동 비활성화 (현재 view영역에 속한 피쳐로 한정)
+
+### setSnap(options, layerArray)
+편집/그리기 시 Snap 인터렉션 설정
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Object` | 스냅 인터렉션 옵션 |
+| [options.pixelTolerance] | `Number` | 픽셀 민감도 default 10 |
+| [options.edge] | `Boolean` | 선으로 Snap 활성화 여부 |
+| [options.vertex] | `Boolean` | 꼭지점으로 Snap 활성화 여부 |
+| layerArray | `Array` \| `Layer` | 스냅 인터렉션을 활성화할 ODF 레이어 배열 |
+
+### removeSnap()
+스Snap 인터렉션 비활성화
+
+### getSLDScale() → odf_scaleInfo(#odf_scaleInfo)
+해당  wms 레이어와 연결된 사용자정의 스타일 조회
+ 
+
+→ odf_scaleInfo: 해당 wms 레이어의  zoomLevel별 resolution과 sldScale 정보  
+
+### hasFeatureAtPixel(evt) → Boolean
+해당 마우스 포인터 아래 도형 정보가 있는지 조회
+ 
+
+→ Boolean: 도형이 있으면 true, 도형이 없으면 false 반환  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| evt | `Event` | map 관련 이벤트 객체(click, pointermove 등) |
+
+### forEachFeatureAtPixel(pixel, callback, layerFlag, options)
+해당 픽셀 아래 도형이 있으면 각 도형별로 콜백 호출
+ 
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| pixel | `Array.<Number>` |  | 도형을 조회할 위치 |
+| callback | [`forEachFeatureAtPixel_callback`](#forEachFeatureAtPixel_callback) |  | 해당 위치에 도형이 있다면 호출되는 콜백 |
+| layerFlag | `Array.<Number>` | `true` | 레이어 반환 여부 |
+| options | `Object` |  | 도형 조회 옵션 |
+| options.layerFilter | `function` |  | 레이어 필터 함수 |
+| options.hitTolerance | `Number` |  | 감지 허용 오차(css 픽셀 단위) |
+
+### getPixelFromCoordinate(coordinate)
+coordinate 값을 화면상의 좌표값(pixel)로 변경
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| coordinate | `Array.<Number>` | 좌표(지도 좌표계) |
+
+### getCoordinateFromPixel(pixel)
+coordinate 값을 화면상의 좌표값(pixel)로 변경
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| pixel | `Array.<Number>` | 화면상의 위치(pixel) |
+
+### syncTo(syncMap)
+지도 동기화
+- 다른 지도 객체와 View를 공유하여 중심점, 줌레벨, 회전값 등을 동기화
+- 동기화된 지도들은 하나의 View를 공유하므로 어느 한쪽을 조작하면 다른 쪽도 함께 변경됨
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| syncMap | [`Map`](#Map) | 동기화할 대상 지도 객체 |
+
+### unsyncFrom()
+지도 동기화 해제
+- syncTo()로 연결된 지도 동기화를 해제
+- 동기화 해제 시 현재 View 상태(중심점, 줌레벨, 회전값)를 유지한 채 독립적인 View로 분리됨
+ 
+
+## MapOption
+**Type**: `Object`
+Map 생성 옵션 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| center | `Coordinate` \| `Array.<number>` | 지도 중심점 좌표 |
+| zoom | `number` | 현재 확대 레벨 |
+| [maxZoom] | `number` | 최대 확대레벨 |
+| [minZoom] | `number` | 최소 확대레벨 |
+| projection | `string` | 좌표계 SRS ID (예: 'EPSG:5179') |
+| [proxyURL] | `string` | 프록시 URL |
+| [proxyParam] | `string` | 프록시에서 사용할 PARAM명 |
+| [apiGateWayKey] | `string` | API Gateway Key |
+| [basemap] | `Object` | 베이스맵 옵션 |
+| [baroEMapURL] | `string` | 바로e맵 경로 |
+| [baroEMapKey] | `string` | 바로e맵 API KEY |
+| [vWorldURL] | `string` | vWorld URL |
+| [vWorldKey] | `string` | vWorld API KEY |
+| [kakaoURL] | `string` | Kakao URL |
+| [kakaoSkyviewURL] | `string` | Kakao 스카이뷰 URL |
+| [controlGroup] | `Array.<Array.<string>>` | 컨트롤 그룹 구조 |
+| [optimization] | `boolean` | 배경지도 최적화 기능 사용여부 |
+| [crtfckey] | `string` | API 인증 키 |
+| [debugTile] | `boolean` | 디버그 타일 표시 |
+| [wfsPostPropertyNameEncodeYn] | `boolean` | WFS POST propertyName 인코딩 여부 |
+| [wfsPostCQLFilterTwiceEncodeYn] | `boolean` | WFS POST cql_filter 이중 인코딩 여부 |
+| [wmsPostCQLFilterTwiceEncodeYn] | `boolean` | WMS POST cql_filter 이중 인코딩 여부 |
+
+## SelectFeatureParams
+**Type**: `Object`
+selectFeature 메소드 파라미터 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [extractType] | [`SelectFeatureExtractType`](#SelectFeatureExtractType) | 피쳐 추출 유형 |
+| [drawType] | [`SelectFeatureDrawType`](#SelectFeatureDrawType) | 그리기 유형 (extractType이 'draw'일 때 필수) |
+| [targetLayer] | `Layer` | 특정 레이어 내에서만 피쳐 추출 |
+| [featureReturn] | `boolean` | 필터링 대상 도형/영역 정보 반환 여부 (기본값 false) |
+| [pixel] | `Array.<number>` | 피쳐 추출 좌표 (extractType이 'pixel'일 때 필수) |
+| [callback] | `function` | 선택된 피쳐 배열 콜백 함수 |
+| [permanentDrawLifeCycle] | `boolean` | 영구적 그리기 interaction 활성화 여부 (기본값 true) |
+| [continuity] | `boolean` | 연속 그리기 여부 (기본값 false) |
+| [compareFeature] | `Feature` | extractType이 'feature'일 때 비교 도형 |
+| [includeNoGeometryData] | `boolean` | geometry 없는 피쳐도 조회할지 여부 (기본값 false) |
+| [cql] | `string` | CQL 문자열 |
+| [maxAreaSize] | `number` | 그리기 도형 면적 제한 (1000000 = 1㎢) |
+| [restrictDrawSize] | `boolean` | 도형 크기 제한 여부 (기본값 false) |
+| [pointBuffer] | `number` | 대상 좌표 버퍼 (단위: 픽셀, 기본값 20) |
+| [message] | `Object` | 툴팁 메세지 커스텀 옵션 |
+| [useVisible] | `boolean` | 레이어 visible 여부에 따른 selectFeature 대상 변경 |
+| [polygonRightClickFinish] | `boolean` | 다각형 우클릭 종료 여부 (기본값 false) |
+
+## TransformOptions
+**Type**: `Object`
+도형 변형(이동/회전/확대축소) 옵션 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [targetFeature] | `Feature` | 변형 대상 도형 |
+| [targetLayer] | `Layer` | 도형 선택을 정의한 레이어로 제한 |
+| [changeTargetFeature] | `boolean` | 변형 대상 도형 변경 가능 여부 (기본값 false) |
+| [useHilight] | `boolean` | 선택 도형 하이라이트 스타일 적용 여부 (기본값 true) |
+| [hilightStyle] | `odf_styleOption` | 선택 도형 적용 hilightStyle |
+| [modifiedCallback] | [`modifiedCallback`](#modifiedCallback) | 도형 수정시 수정 도형을 받을 콜백함수 |
+
+## DragTranslateOptions
+**Type**: `Object`
+드래그 변형 옵션 타입 (setDragTranslate용)
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [translateType] | `Array.<(&#x27;move&#x27;\|&#x27;rotate&#x27;\|&#x27;resize&#x27;)>` | 사용할 변형 기능 |
+| [targetType] | `&#x27;layer&#x27;` \| `&#x27;feature&#x27;` | 변형 대상 유형 |
+| [targetFeature] | `Feature` | 변형 대상 도형 |
+| [targetLayer] | `Layer` | 변형 대상 레이어 또는 도형 선택 제한 레이어 |
+| [changeTargetFeature] | `boolean` | 변형 대상 도형 변경 가능 여부 (기본값 false) |
+| [useHilight] | `boolean` | 선택 도형 하이라이트 스타일 적용 여부 (기본값 true) |
+| [hilightStyle] | `odf_styleOption` | 선택 도형 적용 hilightStyle |
+| [modifiedCallback] | [`modifiedCallback`](#modifiedCallback) | 도형 수정시 수정 도형을 받을 콜백함수 |
+
+## mapInfo
+**Type**: `object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| center | `odf.Coordinate` | 현재 지도 중심 좌표 |
+| zoom | `number` | 현재 줌레벨 |
+| maxZoom | `number` | 최대 줌레벨 |
+| minZoom | `number` | 최소 줌레벨 |
+| resolution | `number` | 해상도 |
+| rotation | `number` | 회전 |
+| projection | `string` | 좌표계 |
+
+## modifyObject
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| update | `Object` | 원본 피쳐, 수정된 피쳐 배열 |
+| update.original | `Feature` | 원본 피쳐 |
+| update.modify | `Feature` | 수정된 피쳐 |
+| insert | `Array` \| `Feature` | 추가된 피쳐 배열 |
+| delete | `Feature` | 삭제할 피쳐 |
+| moveFeature | `Object` | 원본 피쳐, 수정된 피쳐 배열 |
+| moveFeature.original | `Feature` | 원본 피쳐 |
+| moveFeature.modify | `Feature` | 수정된 피쳐 |
+| transform | `Object` | 원본 피쳐, 수정된 피쳐 배열 |
+| transform.original | `Feature` | 원본 피쳐 |
+| transform.modify | `Feature` | 수정된 피쳐 |
+
+## splitFeatureCallback
+**Type**: `function`
+
+## modifiedCallback
+**Type**: `function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| callbackObject | `Object` | 수정 도형 정보 |
+| original | `Feature` | 수정 전 도형 정보 |
+| modify | `Feature` | 수정 후 도형 정보 |
+
+## odf_scaleInfo_object
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| zoomLevel | `Number` | geoserver 제공 소스로 레이어 생성(table) |
+| resolution | `Number` | geojson을 소스로 vector레이어 생성 |
+| sldScale | `Number` | 빈 vector레이어 생성 |
+
+## odf_scaleInfo
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| level | [`odf_scaleInfo_object`](#odf_scaleInfo_object) | zoomLevel별 resolution과 sldScale 정보 |
+
+## forEachFeatureAtPixel_callback
+**Type**: `function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `ODF.Feature` | 조회된 도형 |
+| layer | `ODF.Layer` | 조회된 도형이 속한 레이어(layerFlag가 true일때 반환됨) |
+
+---
+
+## Type Definitions
+
+## SelectFeatureExtractType : `&#x27;draw&#x27;` \| `&#x27;view&#x27;` \| `&#x27;pixel&#x27;` \| `&#x27;feature&#x27;` \| `&#x27;cql&#x27;`
+selectFeature 메소드 추출 유형 리터럴 유니온
+
+## SelectFeatureDrawType : `&#x27;polygon&#x27;` \| `&#x27;box&#x27;` \| `&#x27;circle&#x27;` \| `&#x27;point&#x27;`
+selectFeature 메소드 그리기 유형 리터럴 유니온

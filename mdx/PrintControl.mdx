@@ -1,0 +1,50 @@
+---
+title: "PrintControl"
+description: "프린트 설정 클래스"
+---
+## API
+```
+PrintControl(options): void
+getConstructorOptions(): Array
+setMap(map, createElementFlag): void
+removeMap(): void
+prints(): void
+```
+
+## PrintControl
+
+PrintControl 생성자
+
+```javascript
+ let printControl = new odf.PrintControl();
+  ```  
+
+### new PrintControl(options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Object` | PrintControl 객체생성 옵션 |
+| options.title | `Object` | 프린트 시 상단에 표시될 텍스트 (기본값: 공백) |
+| options.targetElementSelector | `HTMLElement` | 프린트 대상 element 선택자 |
+| options.exceptionElementSelectors | `Array.<String>` | 프린트 제외 element 선택자 |
+| options.proxyURL | `String` | 프록시 url |
+| options.proxyParam | `String` | 프록시 매개변수 명 |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(map, createElementFlag)
+PrintControl map 객체 연결
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | PrintControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | PrintControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+PrintControl map 객체 연결 해제
+
+### prints()
+PrintControl 프린트 실행 함수

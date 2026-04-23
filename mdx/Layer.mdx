@@ -1,0 +1,644 @@
+---
+title: "Layer"
+description: "레이어 관리 클래스로, 레이어는 odf.LayerFactory를 통해서만 생성가능하다."
+---
+## API
+```
+getInitialOption(): Object
+getRotation(): Number
+setRotation(rotation): void
+getCenter(): Array
+setCenter(center): void
+getScale(): Number
+setScale(scale): void
+getCrop(): Array
+setCrop(crop): void
+getEditOverlay(): Marker
+getEditMenuTarget(): HTMLElement
+setExtent(extent): void
+getExtent(): Array
+getAttributes(typeFilter, filterFlag): Array
+getAttributesRange(attributeName, limit): odf_attribute_range
+getAttributesFeaturesValueRange(attributeName): odf_attribute_range
+defineQuery(fParam): void
+getCQLFilter(): String
+getGeometryName(): String
+getGeometryType(): String
+setStyle(_style): void
+getStyle(): void
+produceDrawInteraction(drawInteractionOptions, map, [style]): Object
+getClosestFeatureToCoordinate(coordinate): ODF
+getFeatures(): Array
+addFeature(feature): void
+addFeatures(features): void
+getFeatureById(featureId): Feature
+buffer(meter): Array
+layerFilter(filterFunction): void
+toGeoJson(): odf_layer_geoJson_object
+fromKML(kml, dataProjectionCode, featureProjectionCode): void
+toKML(downloadFile): String
+removeFeature(feature): void
+removeFeatureById(featureId): void
+clear(): void
+clearFeatures(): void
+getFeatureInfoUrl(coordinate, resolution, projection, params): void
+setSLD(sld): void
+getSLD(): SLD
+getDefaultSLD(): Promise
+getProperties(): Object
+setSource(source): void
+getODFId(): String
+getOpacity(): Number
+setOpacity(val): void
+getFitExtent(calculateFlag): odf_extent
+fit(duration): void
+getZIndex(): Number
+setZIndex(): void
+setMap(): void
+getMap(): Map
+getVisible(): void
+setVisible(): void
+refresh(): void
+on(): void
+un(): void
+getMinResolution(): Number
+setMinResolution(최소): void
+getMaxResolution(): Number
+setMaxResolution(최대): void
+setMaxZoom(최대): void
+setMinZoom(최소): void
+getOriginCRS(): Array
+cropByFeature(feature): void
+revertLayer(): void
+getLegendUrl(): void
+```
+
+## Layer
+
+### getInitialOption() → Object
+LayerFactory를 통해 Layer 생성한 경우 , 생성 옵션 값을 반환
+ ```javascript
+let sample = odf.LayerFactory.produce(type, {
+  server: 'GeoServer URL 입력',
+  layer: 'Store 명칭:Layer 명칭 입력',
+  service: '서비스 종류',
+}); // sample은 Layer 클래스로 만들어진 객체
+sample.getInitialOption();
+```
+
+→ Object: 레이어 생성 옵션  
+
+### getRotation() → Number
+이미지 레이어 회전각 조회 기능
+ 
+
+→ Number: 이미지 레이어 회전각  
+
+### setRotation(rotation)
+이미지 레이어 회전각 수정 기능
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| rotation | `Number` | 이미지 레이어 회전각 |
+
+### getCenter() → Array.<Number>
+이미지 레이어 중심점 조회 기능
+ 
+
+→ Array.<Number>: 이미지 레이어 중심점  
+
+### setCenter(center)
+이미지 레이어 중심점 수정 기능
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| center | `Array.<Number>` | 이미지 레이어 중심점 |
+
+### getScale() → Number
+이미지 레이어 크기 조회 기능
+ 
+
+→ Number: 이미지 크기  
+
+### setScale(scale)
+이미지 레이어 크기 수정 기능
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| scale | `Number` | 이미지 크기 |
+
+### getCrop() → Array.<Number>
+이미지 레이어 잘린 영역 조회
+ 
+
+→ Array.<Number>: 잘린 이미지 영역  
+
+### setCrop(crop)
+이미지 레이어 잘린 영역 조회
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| crop | `Array.<Number>` | 잘린 이미지 영역 |
+
+### getEditOverlay() → Marker
+이미지 레이어 편집 오버레이 조회
+ 
+
+→ Marker: 편집 오버레이 객체  
+
+### getEditMenuTarget() → HTMLElement
+이미지 레이어 편집 오버레이 target html 조회
+ 
+
+→ HTMLElement: 이미지 레이어 편집 오버레이 target html  
+
+### setExtent(extent)
+이미지 레이어 영역 설정
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `Array.<Number>` | 이미지 영역 |
+
+### getExtent() → Array.<Number>
+이미지 레이어 영역 조회
+ 
+
+→ Array.<Number>: 이미지 영역  
+
+### getAttributes(typeFilter, filterFlag) → Array.<odf_attribute>(#odf_attribute)
+해당 WFS/WMS 레이어의 속성 정보 조회
+
+→ Array.<odf_attribute>: 레이어의 속성정보 배열  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeFilter | [`Array.<odf_attribute_dataType>`](#odf_attribute_dataType) | 생성할 색의 계열 |
+| filterFlag | `boolean` | typeFilter를 제외한 데이터 타입을 조회(true)할지, typeFilter에 해당하는 데이터 타입만 조회(false)할지 여부. true가 기본값 |
+
+### getAttributesRange(attributeName, limit) → odf_attribute_range(#odf_attribute_range)
+해당 WFS/WMS 레이어의 특성 속성 값의 범위 조회(지오서버로 조회한 feature 데이터 기준)
+ 
+
+→ odf_attribute_range: 조회된 속성 값의 범위  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attributeName | `String` | 조회할 속성명 |
+| limit | `Number` | 조회 피쳐 개수 제한 최소 0, 최대 100000 |
+
+### getAttributesFeaturesValueRange(attributeName) → odf_attribute_range(#odf_attribute_range)
+해당 WFS 레이어의 특성 속성 값의 범위 조회(실제 레이어가 갖는 feature 기준)
+ 
+
+→ odf_attribute_range: 조회된 속성 값의 범위  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attributeName | `String` | 조회할 속성명 |
+
+### defineQuery(fParam)
+layer 필터링
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| fParam | `Object` | 레이어 필터링 옵션 |
+| fParam.condition | `String` | 어떤 조건으로 필터링할 것인가에 대한 정의. CQL_FILTER 형식의 문자열 |
+
+### getCQLFilter() → String
+레이어에 적용된 cql 필터 값을 반환
+ 
+
+→ String: 레이어에 적용된 cql 필터 값  
+
+### getGeometryName() → String
+해당 layer의 geometry 칼럼명 조회
+ 
+
+→ String: 해당 레이어의 geometry 컬럼명  
+
+### getGeometryType() → String
+해당 layer의 geometry 타입 조회
+ 
+
+→ String: 해당 레이어의 geometry 타입  
+
+### setStyle(_style)
+해당 레이어와 연결된 스타일 변경
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| _style | `Style` \| `Array.<Style>` \| `StyleFunction` | 변경할 스타일 객체 |
+
+### getStyle()
+해당 레이어와 연결된 스타일 반환
+ 
+
+### produceDrawInteraction(drawInteractionOptions, map, [style]) → Object
+레이어에 그리기 인터랙션 생성
+
+→ Object: 생성된 그리기 인터랙션 객체  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| drawInteractionOptions | `Object` | 그리기 인터랙션 옵션 |
+| map | `Map` | 연결할 Map 객체 |
+| [style] | `Object` | 그리기 스타일 옵션 |
+
+### getClosestFeatureToCoordinate(coordinate) → ODF.Feature
+레이어의 도형중 입력 좌표와 가장 가까운 도형 반환
+ 
+
+→ ODF.Feature: 레이어의 도형중 입력 좌표와 가장 가까운 도형  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| coordinate | `coordinate` | 조회할 좌표 |
+
+### getFeatures() → Array.<Feature>
+해당 벡터레이어가 소유한 feature 배열 반환
+ 
+
+→ Array.<Feature>: 해당 벡터레이어가 소유한 feature 배열  
+
+### addFeature(feature)
+해당 벡터레이어에 feature 추가
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `Feature` | 추가할 feature |
+
+### addFeatures(features)
+해당 벡터레이어에 feature들 추가
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| features | `Array.<Feature>` | 추가할 feature 배열 |
+
+### getFeatureById(featureId) → Feature
+feature id로 feature 객체 리턴
+ 
+
+→ Feature: 입력한 featureId 값을 id로 갖는 Feature  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| featureId | `String` | 조회할 Featuer Id |
+
+### buffer(meter) → Array.<Feature>
+해당 벡터레이어의 모든 피쳐에 버퍼 적용
+ 
+
+→ Array.<Feature>: 해당 벡터레이어의 모든 피처의 버퍼 도형들의 배열  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| meter | `number` | 적용할 버퍼의 크기 |
+
+### layerFilter(filterFunction)
+해당 벡터레이어를 Style을 이용해 필터링
+ 필터링된 데이터는 화면상에서 보이지 않을 뿐 feature 목록에 여전히 존재
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| filterFunction | `function` | 필터링 function |
+
+### toGeoJson() → odf_layer_geoJson_object(#odf_layer_geoJson_object)
+해당 벡터레이어를 geojson 타입의 Object로 변환
+ 
+
+→ odf_layer_geoJson_object: 변환된 geojson 타입의 Object  
+
+### fromKML(kml, dataProjectionCode, featureProjectionCode)
+KML 형식 데이터 불러오기
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| kml | `String` | kml 형식의 문자열 |
+| dataProjectionCode | `String` | 원본 kml data 프로젝션 코드 (ex) 'EPSG:5179' , 'EPSG:4326' ... |
+| featureProjectionCode | `String` | 지도 프로젝션 코드 (ex) 'EPSG:5179' , 'EPSG:4326' ... |
+
+### toKML(downloadFile) → String
+KML 형식으로 변환
+ 
+
+→ String: kml 형식 문자열  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| downloadFile | `Boolean` | 다운로드 여부(기본값 false) |
+
+### removeFeature(feature)
+특정 feature 제거
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `Feature` | 제거할 feature |
+
+### removeFeatureById(featureId)
+특정 featureId를 갖는 feature 제거
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| featureId | `String` | 제거할 feature의 id |
+
+### clear()
+feature 리로드. server에서 끌어오는 데이터는 지우고 다시불러오고, 로컬데이터를 불러온 경우 모든 피쳐 삭제됨
+ 
+
+### clearFeatures()
+모든 feature 제거
+ 
+
+### getFeatureInfoUrl(coordinate, resolution, projection, params)
+GetFeatureInfo URL을 반환
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| coordinate | `Array` | 좌표 |
+| resolution | `Number` | 축척 |
+| projection | `String` | 좌표계 |
+| params | `Object` | GetFeatureInfo URL 생성 옵션 |
+| params.INFO_FORMAT | `String` | 출력물 포멧 |
+| params.QUERY_LAYERS | `String` | 쿼리할 레이어 |
+| params.LAYERS | `String` | 표시할 레이어 (QUERY_LAYERS 와 동일) |
+| params.VERSION | `String` | 서비스의 버전 |
+
+### setSLD(sld)
+해당 wms 레이어와 연결된 스타일 변경
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| sld | `SLD` | sld 객체 |
+
+### getSLD() → SLD
+해당  wms 레이어와 연결된 사용자정의 스타일 조회
+ 
+
+→ SLD: 해당 wms 레이어에 적용된 사용자정의 스타일  
+
+### getDefaultSLD() → Promise
+해당  wms 레이어와 연결된 사용자정의 스타일 조회
+ 
+
+→ Promise: 해당 wms 레이어에 적용된 사용자정의 스타일을 PromiseValue로 갖는 promise객체  
+
+### getProperties() → Object
+해당 객체가 갖고있는 모든 속성명과 속성값 정보 반환
+ 
+
+→ Object: 해당 객체가 갖고있는 모든 속성명과 속성값 정보  
+
+### setSource(source)
+layer와 연결된 source 변경
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| source | `Source` | layer와 연결할 source |
+
+### getODFId() → String
+해당 layer의 고유 id 반환
+ 
+
+→ String: 해당 layer의 고유 id  
+
+### getOpacity() → Number
+해당 layer의 투명도 조회
+ 
+
+→ Number: 해당 레이어의 투명도 값 조회  
+
+### setOpacity(val)
+해당 layer의 투명도 설정
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| val | `Number` | 해당 레이어의 투명도 값 설정 (0~1) |
+
+### getFitExtent(calculateFlag) → odf_extent(#odf_extent)
+해당 layer가 한눈에 보이는 보여주는 extent 반환
+ 
+
+→ odf_extent: 해당 layer가 한눈에 보이는 보여주는 extent형식의 문자열  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| calculateFlag | `Boolean` | extent값 계산 여부 .기본값 false - true : (wfs 레이어일 경우) 로드된 feature 기준으로 extent 계산 값 이용 / (geoImage 레이어인 경우) 로드된 이미지 기준으로 extent 계산 - false : geoserver에 등록된 extent 값 이용 |
+
+### fit(duration)
+해당 layer가 한눈에 보이는 보여주는 extent로 화면 위치 이동 및 줌 레벨 변경
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| duration | `Number` | 부드럽게 이동. 기본값 0 - 값의 크기가 클수록 천천히 이동 |
+
+### getZIndex() → Number
+해당 layer의 z-index 반환
+ 
+
+→ Number: 해당 layer의 z-index.
+- setMap을 한 순서 대로 drawing 한다. ( 1 -&gt; 2 -&gt; 3 )
+- 보이는 순서는 역순 이다. ( 3 -&gt; 2 -&gt; 1)  
+
+### setZIndex()
+해당 layer의 z-index 수정
+ 
+
+### setMap()
+해당 layer를 map 객체와 연결
+ 
+
+### getMap() → Map
+해당 layer와 연결된 map 객체 반환
+ 
+
+→ Map: 해당 layer와 연결된 map 객체  
+
+### getVisible()
+해당 layer의 가시성 정보 조회
+ 
+
+### setVisible()
+해당 layer의 가시성 정보 수정
+ 
+
+### refresh()
+해당 layer refresh
+ 
+
+### on()
+해당 layer에 이벤트 연결
+ 
+
+### un()
+해당 layer의 이벤트 연결 해제
+ 
+
+### getMinResolution() → Number
+해당 layer 뷰잉 최소 해상도 조회
+ 
+
+→ Number: 최소 해상도 설정값  
+
+### setMinResolution(최소)
+해당 layer 뷰잉 최소 해상도 설정
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| 최소 | `Number` | 해상도 설정값 |
+
+### getMaxResolution() → Number
+해당 layer 뷰잉 최대 해상도 조회
+ 
+
+→ Number: 최대 해상도 설정값  
+
+### setMaxResolution(최대)
+해당 layer 뷰잉 최대 해상도 설정
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| 최대 | `Number` | 해상도 설정값 |
+
+### setMaxZoom(최대)
+해당 layer 뷰잉 최대 줌레벨 설정
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| 최대 | `Number` | 줌레벨 설정값 |
+
+### setMinZoom(최소)
+해당 layer 뷰잉 최소 줌레벨 설정
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| 최소 | `Number` | 줌레벨 설정값 |
+
+### getOriginCRS() → Array
+해당 layer 지오서버 발행 좌표계 조회
+ 
+
+→ Array: 해당 layer의 서버 발행 원본 좌표계  
+
+### cropByFeature(feature)
+해당 layer를 feature 모양만큼만 보이게 처리
+ 
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `Feature` | geometry 타입이 circle 또는 polygon 또는 multiPolygon인 feature |
+
+### revertLayer()
+feature 모양만큼만 보이게 처리한 레이어를 원래 상태로 원복
+
+ 
+
+### getLegendUrl()
+WMS 범례(GetLegendGraphic) URL을 만들어주는 함수
+
+ 
+
+## LayerOption
+**Type**: `Object`
+레이어 생성 옵션 (LayerFactory.produce에서 사용)
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [server] | `string` \| `Object` | 서버 URL 또는 서버 옵션 객체 |
+| [layer] | `string` | 레이어명 (저장소명:레이어명) |
+| [service] | `string` | 서비스 타입 (wfs, wms, group 등) |
+| [limit] | `number` | 호출 제한 수 |
+| [crtfckey] | `string` | API 인증 키 |
+| [bbox] | `boolean` | bbox 사용 여부 (wfs) |
+| [method] | `&#x27;get&#x27;` \| `&#x27;post&#x27;` | HTTP 메소드 |
+| [tiled] | `boolean` | 타일링 여부 (wms) |
+| [geoJson] | `Object` | GeoJSON 데이터 |
+| [style] | `Object` | 스타일 옵션 |
+| [odfId] | `string` | 레이어 ID |
+| [cqlFilter] | `string` | CQL 필터 |
+| [projection] | `string` | 좌표계 |
+| [opacity] | `number` | 투명도 |
+| [visible] | `boolean` | 가시성 |
+| [zIndex] | `number` | z-index |
+| [minZoom] | `number` | 최소 줌 |
+| [maxZoom] | `number` | 최대 줌 |
+
+## odf_extent
+**Type**: `Array.<number>`
+영역 배열 타입 [minX, minY, maxX, maxY]
+
+## odf_attribute
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| name | `String` | 속성명 |
+| type | `String` | 데이터 타입  (ex) string, int, geometry |
+
+## odf_attribute_dataType
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| 'geometry' | `String` | 지오메트리(table) |
+| 'string' | `String` | 문자열 |
+| 'int' | `String` | 숫자 |
+
+## odf_attribute_range
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| values | `Object` | 속성값을 키로, 해당 속성 값을 갖는 요소의 갯수를 count 속성 값으로 갖는 Object (ex) &#123; 'aaa' : &#123;count : 1&#125;, 'bbb' : &#123;count : 5&#125;, 'ccc' : &#123;count : 3&#125;, &#125; |
+| min | `String` | 해당 속성 값들의 최소값 |
+| max | `String` | 해당 속성 값들의 최대값 |
+
+## odf_layer_geoJson_object
+**Type**: `Object`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| features | `Array.<odf_feature_geojson_object>` | feature 정보 |
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| type | `String` | geoJson 타입. 'FeatureCollection' |
+
+---
+
+## Type Definitions
+
+## LayerType : `&#x27;image&#x27;` \| `&#x27;vector&#x27;` \| `&#x27;heatmap&#x27;` \| `&#x27;imagetile&#x27;` \| `&#x27;cluster&#x27;` \| `&#x27;geotiff&#x27;` \| `&#x27;vectortile&#x27;` \| `&#x27;geoImage&#x27;`
+레이어 타입
+
+## LayerEventType : `&#x27;change&#x27;` \| `&#x27;change:extent&#x27;` \| `&#x27;change:maxResolution&#x27;` \| `&#x27;change:minResolution&#x27;` \| `&#x27;change:opacity&#x27;` \| `&#x27;change:visible&#x27;` \| `&#x27;change:zIndex&#x27;` \| `&#x27;change:source&#x27;` \| `&#x27;propertychange&#x27;` \| `&#x27;prerender&#x27;` \| `&#x27;postrender&#x27;` \| `&#x27;rendercomplete&#x27;`
+레이어 이벤트 타입

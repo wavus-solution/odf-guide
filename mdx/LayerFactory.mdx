@@ -1,0 +1,510 @@
+---
+title: "LayerFactory"
+description: "레이어 생성 클래스"
+---
+## API
+```
+produce(type, params): Layer
+getWmtsLayerOpt(opt): Json
+intersect(al, tla): Feature
+fromGeoJson(geoJson): Layer
+layerValidationCheck(type, params): boolean
+paramValidationCheck(params): boolean
+```
+
+## LayerFactory
+
+### produce(type, params) → Layer
+레이어 객체 생성
+
+```javascript
+let option = {
+  server: 'GeoServer URL 입력',
+  layer: 'Store 명칭:Layer 명칭 입력',
+  service: '서비스 종류', //wfs, wms, wcs, wmts
+  //matrixSet: 'GeoServer에 발행된 타일매트릭스 중 선택', // wmts 일 경우에 사용. 생략하면 지도 좌표계 이용
+}
+
+let sample = odf.LayerFactory.produce(type, option);
+sample.setMap(map);
+```
+
+   
+
+   
+
+   
+
+   
+
+   
+
+   
+
+   
+
+   
+
+레이어 생성 함수
+  
+→ Layer: 레이어 객체  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| type | `type` | `empty` | 레이어 생성 방법 종류  - 'geoserver' : GeoServer에 발행되어 있는 데이터를 호출하여 레이어 생성  - 'geojson' : GeoJson 형태의 데이터를 이용하여 레이어 생성  - 'kml' : KML 형태의 데이터를 이용하여 레이어 생성  - 'csv' : CSV 형태의 데이터를 이용하여 레이어 생성  - 'empty' : 빈 벡터 레이어 생성  - 'api' : 빈 벡터 레이어 생성  - 'geoImage' : 이미지 레이어 생성  - 'geotiff' : geotiff 레이어 생성  - 'svg' :  SVG 이미지 레이어 |
+| params | [`geoserverOption`](#geoserverOption) \| [`geojsonOption`](#geojsonOption) \| [`kmlOption`](#kmlOption) \| [`csvOption`](#csvOption) \| [`apiOption`](#apiOption) \| [`imageOption`](#imageOption) \| [`geotiffOption`](#geotiffOption) \| [`svgOption`](#svgOption) |  | 레이어 생성 옵션 |
+
+### getWmtsLayerOpt(opt) → Json
+wmts 옵션값 생성(기준, OpenLayers)
+
+→ Json: 옵션 객체  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opt | `Json` | 옵션을 생성하기 위한 값 |
+| opt.level | `option` | WMTS Zoom Level Step |
+| opt.epsg | `option` | WMTS 옵션 생성에 기준이 될 좌표 |
+
+### intersect(al, tla) → Feature
+레이어 교체값 추출
+
+→ Feature: 교차된 대상  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| al | `Layer` \| `Extent` |  | 조회하고자 하는 영역(Layer or Extent) |
+| tla | `Array` | `` | 비교하고자 하는 LayerList |
+
+### fromGeoJson(geoJson) → Layer
+GeoJSON 객체로부터 레이어 생성
+
+→ Layer: 생성된 레이어 객체  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| geoJson | `Object` | GeoJSON 형식의 객체 |
+| geoJson.type | `string` | GeoJSON 타입 (FeatureCollection) |
+| geoJson.features | `Array.<Object>` | Feature 배열 |
+| [geoJson.odfId] | `string` | 레이어 ID (선택) |
+
+### layerValidationCheck(type, params) → boolean
+레이어 생성 파라미터 유효성 검사 (타입별 필수 값 확인)
+
+→ boolean: 유효성 검사 통과 여부  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | `string` | 레이어 타입 ('geoserver'|'geojson'|'csv'|'kml'|'empty'|'url'|'api') |
+| params | `Object` | 레이어 생성 파라미터 |
+
+### paramValidationCheck(params) → boolean
+GeoServer 레이어 필수 파라미터 유효성 검사
+
+→ boolean: 필수 파라미터 존재 여부  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| params | `Object` | 레이어 생성 파라미터 |
+| params.server | `string` | GeoServer URL |
+| params.layer | `string` | 레이어 이름 |
+| params.service | `string` | 서비스 타입 |
+
+## geoserverOption
+**Type**: `Object`
+레이어 생성을 위한 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| server | `String` | 레이어 호출 서버 주소 |
+| server | `Object` | 레이어 호출 서버 옵션 |
+| server.url | `String` | 레이어 호출 서버 주소 |
+| server.version | `String` | 레이어 호출 서버 버전 |
+| server.proxyURL | `String` | 프록시 url |
+| server.proxyParam | `String` | 프록시 매개변수 명 |
+| layer | `String` | 레이어 저장소명과 레이어 명칭 (ex) nsid_dev:L100000254 |
+| service | [`service`](#service) | 레이어 호출 종류 |
+| limit | `Number` | 레이어 호출 제한 수 |
+| [crtfckey] | `String` | api 사용시 인증 키 |
+| [bbox] | `Boolean` | bbox 사용 여부(wfs 레이어일 때만 의미 있음) - true :  feature 정보를 사용자가 보는 영역만큼 매번 요청하여 가져옴 - false : feature정보를 한번에 다 가져옴 (기본값) |
+| [method] | `&#x27;get&#x27;` \| `&#x27;post&#x27;` | 정보를 조회할때 get 요청을 할지, post 요청을할지 |
+| [tiled] | `Boolean` | (wms 레이어일 때만 의미 있음) 이미지를 타일링하여 요청할지 여부 |
+| className | `String` | 레이어 element의 클래스 명 |
+| webGLRender | `Boolean` | webGL을 이용하여 렌더링(기본값 false) |
+| renderOptions | `Object` | 렌더링 옵션(webGLRender가 true일때 사용됨) |
+| renderOptions.style | [`odfFlatStyle`](#odfFlatStyle) \| [`odfStyleRule`](#odfStyleRule) \| [`odfWebGLVectorTileStyle`](#odfWebGLVectorTileStyle) | flat style 형식 |
+| attributions | `Array.<String>` | 귀속 정의 |
+| gmlStorePrefix | `String` | gml 생성시 저장소명에 붙일 프리픽스 문자열 정의 |
+| parameterFilter | `function` | 서버에 요청시 사용하는 파라미터 편집(추가/삭제/수정)을 위한 필터(getMap, getFeature, GetTile, GetCapabilities, GetStyles, DescribeFeatureType) |
+
+## odfWebGLAttributeObject
+**Type**: `Object`
+사용자 정의 속성 정보
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| size | `Number` |  |
+| callback | [`odfWebGLCustomAttributeDefine`](#odfWebGLCustomAttributeDefine) | 사용자 정의 속성 값을 반환하는 함수 |
+
+## odfWebGLVectorTileStyle
+**Type**: `Object`
+webGL vector tile 레이어 스타일 렌더 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| builder | [`odfFlatStyle`](#odfFlatStyle) | 사용자 정의 속성 값을 사용할 수 있는 flat style |
+| attributes | [`Array.<odfWebGLAttributeObject>`](#odfWebGLAttributeObject) | 사용자 정의 속성 정보  (예제 코드 참조) |
+
+## imageOption
+**Type**: `Object`
+이미지 레이어 생성을 위한 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| url | `String` | 이미지 경로 |
+| projection | `String` | 레이어 좌표계 정보 (ex)'EPSG:5186' |
+| imageCenter | `Array.<Number>` | 레이어 중심점 |
+| extent | `Array.<Number>` | 이미지가 뿌려질 extent(extent 정의시 imageCenter값, scale값 무시) |
+| editMenu | `Array.<String>` | 이미지 위치/회전 편집 기능 사용 정의 - ['translate'] : 편집 기능 사용 - [] | undefined : 편집기능 사용 안함 |
+| imageRotate | `Number` | 이미지 회전 각도(도) |
+| className | `String` | 레이어 element의 클래스 명 |
+| attributions | `Array.<String>` | 귀속 정의 |
+
+## geotiffSourceOption
+**Type**: `Object`
+geotiff 레이어 생성 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| url | `String` | geoTiff 파일 경로. tileGrid가 정의되어있다면 '~/~//&#123;&#123;z&#125;&#125;/&#123;&#123;y&#125;&#125;/&#123;&#123;x&#125;&#125;.tif' 이와 같이 사용 가능 |
+| overviews | `Array.<String>` | 원본 GeoTIFF 파일의 저해상도 버전 파일. url이 정의됬을때 사용됨 |
+| proxyURL | `String` | 프록시 url |
+| proxyParam | `String` | 프록시 매개변수 명 |
+| blob | `Blob` | goeTiff를 blob 타입으로 받아 생성 |
+| bands | `Array.<Number>` | 읽을 밴드 번호. 제공되지 않으면 모든 밴드를 읽습니다. 예를 들어 GeoTIFF에 파란색(1), 녹색(2), 빨간색(3) 및 근적외선(4) 대역이 있고 근적외선 대역만 필요한 경우 'band : [4]'로 설정 |
+| min | `Number` | 최소 소스 데이터 값. 렌더링된 값은 구성된 최소 및 최대 값을 기준으로 0에서 1까지 조정 (기본값 0)    이 값을 설정하지 않으면 래스터 통계를 사용합니다. 이 동작을 비활성화하려면 normalize 옵션을 false로 설정하세요 |
+| max | `Number` | 최대 소스 데이터 값. 렌더링된 값은 구성된 최소 및 최대 값을 기준으로 0에서 1까지 조정. 이 값을 설정하지 않으면 래스터 통계를 사용합니다. 이 동작을 비활성화하려면 normalize 옵션을 false로 설정하세요 |
+| nodata | `Number` | 삭제할 값. geoTiff의 메타데이터의 nodata 값을 덮어씌움 |
+
+## geotiffOption
+**Type**: `Object`
+geotiff 레이어 생성 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| tileGrid | `Object` | 타일링 정보 |
+| tileGrid.extent | `Array.<Number>` | 타일 ​​그리드의 범위. 이 범위를 벗어나는 타일은 소스에서 요청되지 않습니다. |
+| resolutions | `Array.<Number>` | 제공 레졸루션 목록 정의 |
+| tileSizes | `Array.<Array.<Number>>` | 타일 ​​크기 |
+| normalize | `Boolean` | 기본적으로 소스 데이터는 래스터 통계 또는 각 소스의 min 또는 max 속성을 기반으로 한 배율 인수를 사용하여 0과 1 사이의 값으로 정규화됩니다.(default true)  대신 스타일 표현식의 원시 값으로 작업하려면, 이 값을 false로 설정하세요.  이 옵션을 false로 설정하면 소스의 모든 속성 min과 max속성이 무시됩니다. |
+| wrapX | `Boolean` | 타일 ​그리드 범위를 넘어 타일을 렌더링할지 여부. (defualt false) |
+| sources | [`Array.<geotiffSourceOption>`](#geotiffSourceOption) | GeoTIFF 소스에 대한 정보 목록, 배율을 적용한 후 해상도 세트가 동일하다면 여러 소스를 결합할 수 있음 |
+| opaque | `Boolean` | 레이어가 불투명한지여부 |
+| transition | `Number` | 불투명도. 불투명도 전환을 비활성화하려면 0 전달 |
+| renderOptions | `Object` | 렌더링 옵션 |
+| renderOptions.style | [`odfFlatStyle`](#odfFlatStyle) \| [`odfStyleRule`](#odfStyleRule) \| [`odfWebGLVectorTileStyle`](#odfWebGLVectorTileStyle) | flat style 형식 |
+| attributions | `Array.<String>` | 귀속 정의 |
+
+## svgOption
+**Type**: `Object`
+svg 레이어 생성 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| svgContainer | `HTMLElement` | svg html element |
+| extent | `Array.<Number>` |  |
+| attributions | `Array.<String>` | 귀속 정의 |
+
+## odfFlatStyle
+**Type**: `Object`
+odf flat 스타일
+
+**Properties**
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| [valiables] | `Object` |  | 사용자 정의 변수(스타일 표현식에서 ['var','[사용자정의변수명]']으로 사용 가능) |
+| [fill-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 채우기 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [stroke-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 윤곽선 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [stroke-width] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 너비 |
+| [stroke-line-cap] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 선의 끝 모양  - `butt`, `round`(기본값), `square`. |
+| [stroke-line-join] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 선이 꺾이는 부분의 모양  - `bevel`, `round`(기본값), `miter`. |
+| [stroke-line-dash] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 점선 모양 |
+| [stroke-line-dash-offset] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | Line dash offset. 기본값 0 |
+| [stroke-miter-limit] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) | `10` | Miter limit. |
+| [text-value] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트 값 |
+| [text-font] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 폰트 크기(필수) 및 글씨체(필수), 두께(옵션) (ex) 'bold 10px sans-serif', 기본값 :'10px sans-serif' |
+| [text-max-angle] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트가 꺾이는 정도를 제한(placement 속성이 'line'일때 적용) (단위:라디안) (ex)Math.PI*270/180 |
+| [text-offset-x] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트의 수평 이동(양수일 때 오른쪽으로 이동) |
+| [text-offset-y] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트의 수직 이동(양수일 때 아래로 이동) |
+| [text-overflow] | `Boolean` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트를 나열한 길이보다 선이 짧을 경우, 넘치는 글자를 쭉 나열할지 여부(placement 속성이 'line'일때 적용). 기본값 false |
+| [text-placement] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트를 타나낼 위치를 점 기준으로 할지, 피쳐의 모양에 따라 나타나게 할지 여부.'line' 또는 'point'(default) |
+| [text-repeat] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 간격을 픽셀 단위로 반복합니다. 설정하면 이 간격으로 텍스트가 반복됩니다.(placement 속성이 'line'일때 적용되며 'text-align'속성보다 우선 적용됩니다.) |
+| [text-scale] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트 크기를 정해진 값의 n배로 적용 |
+| [text-rotate-with-view] | `Boolean` \| [`odfStyleExpression`](#odfStyleExpression) |  | 지도가 회전할때 텍스트도 적절하게 회전할지 여부(기본값 false) |
+| [text-rotation] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트 회전 각도(단위:라디안) (ex)Math.PI*270/180 |
+| [text-align] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트 수직정렬 - 'left', 'right', 'center', 'end', 'start' |
+| [text-justify] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트 상자 내의 텍스트 맞춤 - 'left', 'center', 'right' |
+| [text-baseline] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트 수직정렬 -'bottom', 'top', 'middle'(기본값), 'alphabetic','hanging', 'ideographic' |
+| [text-padding] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | text와 background영역 사이의 여백(placement 속성이 'point'일때 적용) (ex)[10,5,5,5] |
+| [text-fill-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트 색상 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [text-background-fill-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 텍스트 배경 채우기 색상(ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [text-stroke-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트  색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [text-stroke-line-cap] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 선의 끝 모양 - `butt`, `round`(기본값), `square`. |
+| [text-stroke-line-join] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 선이 꺾이는 부분의 모양  - `bevel`, `round`(기본값), `miter`. |
+| [text-stroke-line-dash] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 점선 모양 |
+| [text-stroke-line-dash-offset] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 선 Line dash offset. 기본값 0 |
+| [text-stroke-miter-limit] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 선 Miter limit. |
+| [text-stroke-width] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 선 두께 |
+| [text-background-stroke-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 배경 테두리 선 색상 |
+| [text-background-stroke-line-cap] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 배경 테두리 선의 끝 모양 - `butt`, `round`(기본값), `square`. |
+| [text-background-stroke-line-join] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 배경 테두리 선이 꺾이는 부분의 모양  - `bevel`, `round`(기본값), `miter`. |
+| [text-background-stroke-line-dash] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 배경 테두리 점선 모양 |
+| [text-background-stroke-line-dash-offset] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 배경 테두리 선 Line dash offset. 기본값 0 |
+| [text-background-stroke-miter-limit] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 배경 테두리 선 Miter limit. |
+| [text-background-stroke-width] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 택스트 배경 테두리 선 두께 |
+| [icon-src] | `String` |  | 이미지 소스 URI |
+| [icon-anchor] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | Anchor. Default value is the icon center.(기본값 [0.5, 0.5]) |
+| [icon-anchor-origin] | `&#x27;bottom-left&#x27;` \| `&#x27;bottom-right&#x27;` \| `&#x27;top-left&#x27;` \| `&#x27;top-right&#x27;` |  | 기준점으로부터의 아이콘 위치 (기본값 'top-left') |
+| [icon-anchor-x-units] | `&#x27;fraction&#x27;` \| `&#x27;pixels&#x27;` |  | 아이콘 x축 위치 조정 단위.(기본값 'fraction') |
+| [icon-anchor-y-units] | `&#x27;fraction&#x27;` \| `&#x27;pixels&#x27;` |  | 아이콘 y축 위치 조정 단위.(기본값 'fraction') |
+| [icon-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 이미지 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [icon-cross-origin] | `null` \| `String` |  | CORS 관련 셋팅. (기본값 'anonymous') |
+| [icon-offset] | `Array.<Number>` |  | x축 y축 좌표위치 이동 (기본값 [0, 0]) |
+| [icon-displacement] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 위치이동. 양수 값은 모양을 오른쪽 및 위쪽으로 이동 (기본값 [0,0]) |
+| [icon-offset-origin] | `&#x27;bottom-left&#x27;` \| `&#x27;bottom-right&#x27;` \| `&#x27;top-left&#x27;` \| `&#x27;top-right&#x27;` |  | 오프셋 원점(기본값 'top-left') |
+| [icon-opacity] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 투명도(기본값 1) |
+| [icon-scale] | `Number` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 크기를 정해진 값의 n배로 셋팅(기본값 1) |
+| [icon-width] | `Number` |  | 아이콘의 너비(픽셀). `scale`과 함께 이용할 수 없음 |
+| [icon-height] | `Number` |  | 아이콘의 높이(픽셀). `scale`과 함께 이용할 수 없음 |
+| [icon-rotation] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 회전(기본값 0) (ex) 30*Math.PI/180 |
+| [icon-rotate-with-view] | `Boolean` \| [`odfStyleExpression`](#odfStyleExpression) |  | 지도가 회전할 때 이미지도 적절하게 회전할지 여부 (기본값 false) |
+| [icon-size] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 자연수 배열 (단위 : 픽셀) |
+| [icon-declutter-mode] | `&quot;declutter&quot;` \| `&quot;obstacle&quot;` \| `&quot;none&quot;` \| `undefined` |  | 디클러터 모드. |
+| [shape-points] | `Number` |  | 정다각형의 점 수. 다각형의 경우 점의 개수는 변의 개수 |
+| [shape-fill-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 정다각형의 채우기 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [shape-stroke-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 정다각형 윤곽선 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [shape-stroke-width] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 정다각형 윤곽선 두께 |
+| [shape-stroke-line-cap] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 정다각형 윤곽선의 끝 모양 - `butt`, `round`(기본값), `square`. |
+| [shape-stroke-line-join] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 정다각형 윤곽선이 꺾이는 부분의 모양  - `bevel`, `round`(기본값), `miter`. |
+| [shape-stroke-line-dash] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 정다각형 윤곽선 점선 모양 |
+| [shape-stroke-line-dash-offset] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 정다각형 윤곽선 Line dash offset. 기본값 0 |
+| [shape-stroke-miter-limit] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 정다각형 윤곽선 Miter limit. |
+| [shape-radius] | `Number` |  | 정다각형의 반경 |
+| [shape-radius2] | `Number` |  | 정다각형의 내부 반경 |
+| [shape-angle] | `Number` |  | 모양의 각도(라디안). 값이 0이면 모양의 점 중 하나가 위를 향하게 됩니다. 기본값은 0 |
+| [shape-displacement] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 모양의 변위(픽셀). 양수 값은 모양을 오른쪽 및 위쪽으로 이동 (기본값 [0,0]) |
+| [shape-rotation] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 라디안 단위의 회전입니다(시계 방향으로 양의 회전)(기본값 0) |
+| [shape-rotate-with-view] | `Boolean` \| [`odfStyleExpression`](#odfStyleExpression) |  | 뷰와 함께 모양을 회전할지 여부(기본값 false) |
+| [shape-scale] | `Number` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 규모. (기본값 1) 2차원 스케일링이 필요하지 않은 경우 반경, 반경1 및 반경2에 대한 적절한 설정을 사용하면 더 나은 결과를 얻을 수 있음 |
+| [shape-declutter-mode] | `&quot;declutter&quot;` \| `&quot;obstacle&quot;` \| `&quot;none&quot;` \| `undefined` |  | 디클러터 모드. |
+| [circle-radius] | `Number` |  | 원의 반지름 |
+| [circle-fill-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 채우기 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [circle-stroke-color] | `String` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 윤곽선 색상 (ex) 'red' | '#55dd20' | [255,0,0,0.5] |
+| [circle-stroke-width] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 테두리 선 두께 |
+| [circle-stroke-line-cap] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 테두리 선의 끝 모양 - `butt`, `round`(기본값), `square`. |
+| [circle-stroke-line-join] | `String` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 테두리 선이 꺾이는 부분의 모양  - `bevel`, `round`(기본값), `miter`. |
+| [circle-stroke-line-dash] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 테두리 선 점선 모양 |
+| [circle-stroke-line-dash-offset] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 테두리 선 Line dash offset. 기본값 0 |
+| [circle-stroke-miter-limit] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 테두리 선 Miter limit. |
+| [circle-displacement] | `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 위치이동. 양수 값은 모양을 오른쪽 및 위쪽으로 이동 (기본값 [0,0]) |
+| [circle-scale] | `Number` \| `Array.<Number>` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 크기(radius로 정해진 크기의 n배). 배열일 때, [가로  축척, 세로 축척] 형태임 |
+| [circle-rotation] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 원의 회전각도 (circle-scale이 배열형태로 되어 타원형태가 되었을때 의미있음) |
+| [circle-rotate-with-view] | `Boolean` \| [`odfStyleExpression`](#odfStyleExpression) |  | 뷰와 함께 모양을 회전할지 여부(기본값 false) |
+| [circle-declutter-mode] | `&quot;declutter&quot;` \| `&quot;obstacle&quot;` \| `&quot;none&quot;` \| `undefined` |  | 디클러터 모드. |
+| [z-index] | `Number` \| [`odfStyleExpression`](#odfStyleExpression) |  | 스타일 z-index |
+
+## odfStyleExpression
+**Type**: `Array.<(Sting\|Number\|odfStyleExpression)>`
+odf 표현식
+
+* 읽기 연산자
+   * `['band', bandIndex, xOffset, yOffset]` [타일 ​​레이어]
+   * `['get', 'attributeName', typeHint]` 레이어에서 프로퍼티 명이 'attributeName'인 값 조회. typeHint는 옵셔널한 값
+ 'string', 'color', 'number', 'boolean', 'number[]'
+   * `['geometry-type']` 도형의 지오메트리 타입
+ 'LineString', 'Point', 'Polygon', `MultiLineString`, `MultiPoint`, `MultiPolygon`
+   * `['resolution']` 현재 해상도 값
+   * `['time']` 현재 해상도 값
+   * `['var', 'varName']` 스타일 변수에서 값을 가져옵니다. 해당 변수가 정의되지 않은 경우 오류가 발생
+   * `['zoom']` 현재 확대/축소 수준
+   * `['id']` feature의 id
+
+* 수학 연산자
+   * `['*', value1, value2, ...]` `value1` * `value2` * ...
+   * `['/', value1, value2]` `value1` / `value2`
+   * `['+', value1, value2, ...]` `value1` + `value2` + ...
+   * `['-', value1, value2]` `value1` - `value2`
+   * `['clamp', value, low, high]` `low`와 `high` 사이에 값을 고정. `value`가 `low`보다 작으면 `low` 반환, `value`가 `high`보다 크면 `high` 반환
+   * `['%', value1, value2]` `value1 % value2`
+   * `['^', value1, value2]` `value1` ^ `value2`
+   * `['abs', value1]` `value1`의 절대값
+   * `['floor', value1]` `value1`과 작거나 같은 가장 가까운 정수 반환(내림)
+   * `['round', value1]` `value1`과 가장 가까운 정수 반환(반올림)
+   * `['ceil', value1]` `value1`과 크나 같은 가장 가까운 정수 반환(올림)
+   * `['sin', value1]` `value1`의 sin값 반환
+   * `['cos', value1]` `value1`의 cosine값 반환
+   * `['atan', value1, value2]` atan2(value1, value2) 반환. `value2`가 없을 경우 atan(value1) 반환
+   * `['sqrt', value1]` `value1`의 제곱근 반환
+
+* 변환 연산자
+   * `['case', condition1, output1, ...conditionN, outputN, fallback]` `condition1` 조건이 참이면 `output1` 반환, `conditionN`이 참이면 `outputN` 반환. 일치하는 조건이 없으면 `fallback` 반환
+   * `['match', input, match1, output1, ...matchN, outputN, fallback]` `input` 값이 `match1`과 같으면 `output1` 반환,`matchN`과 같으면 `outputN` 반환. 일치하는 값이 없으면 `fallback` 반환
+   * `['interpolate', interpolation, input, stop1, output1, ...stopN, outputN]` 값을 보간하여 반환. `input` 값이 `stop1`과 같으면 `output1` 반환,`stopN`과 같으면 `outputN` 반환
+- `input`값이 `stop1`과 `stop2` 사이의 값이라면 `output1`과  `output2`사이의 값을 보간하여 반환
+- interpolation은 보간 방법 정의. ['linear'] :  선형 보간법 ,['exponential', base] : 지수보간법(base는 stop A에서 stop B까지의 증가율)
+
+* 논리 연산자
+  * `['<', value1, value2]` `value1` &lt; `value2`
+  * `['<=', value1, value2]` `value1` &lt;= `value2`
+  * `['>', value1, value2]` `value1` &gt; `value2`
+  * `['>=', value1, value2]` `value1` &gt;= `value2`
+  * `['==', value1, value2]` `value1` == `value2`
+  * `['!=', value1, value2]` `value1` != `value2`
+  * `['!', value1]` !`value1`
+  * `['all', value1, value2, ...]` `value1`과 `value2` ...가 모두 true일때 true 반환, 그 외 모두 false
+  * `['any', value1, value2, ...]` `value1` 또는 `value2` ... 중 하나라도 true면 true 반환. 모두 false일때 false 반환
+  * `['between', value1, value2, value3]`  `value1`이 `value2`와 `value3` 사이에 있으면 true, 아니면 false 반환. `value1`이 `value2` 또는 `value3`과 동일해도 true
+  * `['in', needle, haystack]` `needle`이 `haystack`안에서 발견되면  true, 아니면 false.
+- `haystack`은 숫자 또는 문자열로 구성된 배열. 현재는 상수만 지원됨.
+
+* 변환 연산자
+  * `['concat', value1, ...valueN]` 문자열을 합쳐서 반환
+  * `['array', value1, ...valueN]` 숫자 배열 생성. 현재는 2~4개 요소만 생성 가능
+  * `['color', red, green, blue, alpha]` 색상 값 생성. alpha 값은 0~1 사이의 값
+  * `['palette', index, colors]` colors(색상배열)에서 index 위치의 색상 추출
+- colors는 문자열의 배열이며, 색상은 hex 형태('#aaa') 또는 rgb(a) 형태(`'rgb(134, 161, 54)'` 또는 `'rgba(134, 161, 54, 1)'`)가 가능
+
+## odfStyleRuleObject
+**Type**: `Object`
+odf 스타일 규칙
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter | [`odfStyleExpression`](#odfStyleExpression) | 스타일 적용 조건. |
+| else | `Boolean` | true이면 해당 스타일 적용 |
+| style | [`odfFlatStyle`](#odfFlatStyle) | 적용 스타일(flat 스타일) |
+
+## geojsonOption
+**Type**: `Object`
+geojson 레이어 생성을 위한 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| data | `Object` | geojson 형식의 object 데이터 |
+| dataProjectionCode | `String` | 원본 좌표계 코드 ex)'EPSG:5179' |
+| featureProjectionCode | `String` | 변환활 좌표계 코드 ex)'EPSG:5179' |
+| className | `String` | 레이어 element의 클래스 명 |
+| webGLRender | `Boolean` | webGL을 이용하여 렌더링(기본값 false) |
+| renderOptions | `Object` | 렌더링 옵션(webGLRender가 true일때 사용됨) |
+| renderOptions.style | [`odfFlatStyle`](#odfFlatStyle) \| [`odfStyleRule`](#odfStyleRule) \| [`odfWebGLVectorTileStyle`](#odfWebGLVectorTileStyle) | flat style 형식 |
+| attributions | `Array.<String>` | 귀속 정의 |
+
+## kmlOption
+**Type**: `Object`
+KML 레이어 생성을 위한 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| data | `String` | KML 형식의 텍스트 데이터 |
+| dataProjectionCode | `String` | 원본 좌표계 코드 ex)'EPSG:5179' |
+| featureProjectionCode | `String` | 변환활 좌표계 코드 ex)'EPSG:5179' |
+| className | `String` | 레이어 element의 클래스 명 |
+| webGLRender | `Boolean` | webGL을 이용하여 렌더링(기본값 false) |
+| renderOptions | `Object` | 렌더링 옵션(webGLRender가 true일때 사용됨) |
+| renderOptions.style | [`odfFlatStyle`](#odfFlatStyle) \| [`odfStyleRule`](#odfStyleRule) \| [`odfWebGLVectorTileStyle`](#odfWebGLVectorTileStyle) | flat style 형식 |
+| attributions | `Array.<String>` | 귀속 정의 |
+
+## csvOption
+**Type**: `Object`
+CSV 레이어 생성을 위한 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| data | `String` | CSV 형식의 텍스트 데이터 |
+| dataProjectionCode | `String` | 원본 좌표계 코드 ex)'EPSG:5179' |
+| featureProjectionCode | `String` | 변환활 좌표계 코드 ex)'EPSG:5179' |
+| geometryColumnName | `String` | csv 파일의 geometry column 이름  ex)'the_geom' |
+| delimiter | `String` | csv 파일의 컴럼을 구분할 구분자 (기본값 콤마(,)) |
+| className | `String` | 레이어 element의 클래스 명 |
+| webGLRender | `Boolean` | webGL을 이용하여 렌더링(기본값 false) |
+| renderOptions | `Object` | 렌더링 옵션(webGLRender가 true일때 사용됨) |
+| renderOptions.style | [`odfFlatStyle`](#odfFlatStyle) \| [`odfStyleRule`](#odfStyleRule) \| [`odfWebGLVectorTileStyle`](#odfWebGLVectorTileStyle) | flat style 형식 |
+| attributions | `Array.<String>` | 귀속 정의 |
+
+## apiOption
+**Type**: `Object`
+api 레이어 생성을 위한 옵션
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| server | `String` | (필수값)API 주소 |
+| server | `Object` \| `String` | 레이어 호출 서버 옵션, API 서버 주소 |
+| server.url | `String` | (필수값) API 주소 |
+| server.proxyURL | `String` | 프록시 url |
+| server.proxyParam | `String` | 프록시 매개변수 명 |
+| service | `String` | (필수값) 적용 서비스 'wms' 또는 'wfs' |
+| bbox | `Boolean` | wfs 레이어의 경우 이용됨. 기본값 false  - true : 사용자가 보고있는 지도 영역에 걸치는 도형만 조회  - false : 최초 1회 모든 도형을 조회 |
+| tiled | `Boolean` | wms 레이어 타일링 옵션. 기본값 false  - true : 사용자가 보고있는 지도 영역을 이미지 여러 장으로 조회  - false : 사용자가 보고있는 지도 영역을 이미지 1장으로 조회 |
+| tileGrid | `Object` | wmts tileGrid(service값이 wmts일 경우 필수값) |
+| tileGrid.origin | `Array.<Number>` | wmts origin |
+| tileGrid.resolutions | `Array.<Number>` | wmts resolutions |
+| tileGrid.matrixIds | `Array.<String>` \| `Array.<Number>` | wmts matrixIds |
+| originalOption | `Object` | odf 기본 적용 파라미터 |
+| originalOption.REQUEST | `Boolean` | (wms/wfs)odf 기본 적용 REQUEST 파라미터 사용 여부 (기본값 true) |
+| originalOption.SERVICE | `Boolean` | (wms/wfs)odf 기본 적용 SERVICE 파라미터 사용 여부 (기본값 true) |
+| originalOption.BBOX | `Boolean` \| `String` | (wms/wfs)odf 기본 적용 BBOX 파라미터 사용 여부 (기본값 true) odf에서 기본 제공하는 bbox 배열은 minx,miny,maxx,maxy 순, 하지만 api에 따라 x와 y가 반전되어 bbox 배열이 miny,minx, maxy,maxx 순인 경우가 있다. 해당 경우에는 BBOX 값을 '&#123;&#123;miny&#125;&#125;,&#123;&#123;minx&#125;&#125;,&#123;&#123;maxy&#125;&#125;,&#123;&#123;maxx&#125;&#125;' 와같이 입력하면 x와 y의 순서가 바뀌어 적용됨. bbox는 기본적으로 지도 좌표계의 값을 따라가는데, 지도 좌표계와 api 레이어의 좌표계가 상이한 경우, 좌표변환을 위해서 LAYER_PROJECTION 값 또한 정의해야함 |
+| originalOption.LAYER_PROJECTION | `String` | 지도 좌표계와 api 레이어의 좌표계가 상이할때 API의 레이어 좌표계 정의, 지도좌표계와 API 레이어의 좌표계가 같은 경우 정의 안해도 됨  - (ex) 'EPSG:5186'  (입력포멧 'EPSG:[숫자]') |
+| originalOption.TILEROW_TILECOL_INVERTED_STATE | `Boolean` | WMTS 레이어일 경우, tileRow 값 tileCol 값 반전 여부 (기본값 false) |
+| originalOption.WIDTH | `Boolean` | (wms)odf 기본 적용 WIDTH 파라미터 사용 여부 (기본값 true) |
+| originalOption.HEIGHT | `Boolean` | (wms)odf 기본 적용 HEIGHT 파라미터 사용 여부 (기본값 true) |
+| originalOption.VERSION | `Boolean` | (wms)odf 기본 적용 VERSION 파라미터 사용 여부 (기본값 false) |
+| originalOption.TRANSPARENT | `Boolean` | (wms)odf 기본 적용 TRANSPARENT 파라미터 사용 여부 (기본값 false) |
+| originalOption.STYLES | `Boolean` | (wms)odf 기본 적용 STYLES 파라미터 사용 여부 (기본값 false) |
+| originalOption.CRS | `Boolean` | (wms)odf 기본 적용 CRS 파라미터 사용 여부 (기본값 false) |
+| className | `String` | 레이어 element의 클래스 명 |
+| webGLRender | `Boolean` | webGL을 이용하여 렌더링(기본값 false) |
+| renderOptions | `Object` | 렌더링 옵션(webGLRender가 true일때 사용됨) |
+| renderOptions.style | [`odfFlatStyle`](#odfFlatStyle) \| [`odfStyleRule`](#odfStyleRule) \| [`odfWebGLVectorTileStyle`](#odfWebGLVectorTileStyle) | flat style 형식 |
+| attributions | `Array.<String>` | 귀속 정의 |
+| parameterFilter | `function` | 서버에 요청시 사용하는 파라미터 편집(추가/삭제/수정)을 위한 필터(getMap, getFeature, GetTile, GetCapabilities, GetStyles, DescribeFeatureType) |
+
+---
+
+## Type Definitions
+
+## service : `&#x27;wfs&#x27;` \| `&#x27;wms&#x27;` \| `&#x27;group&#x27;` \| `&#x27;cluster&#x27;` \| `&#x27;hotspot&#x27;` \| `&#x27;heatmap&#x27;` \| `&#x27;aggregate&#x27;`
+레이어 호출 종류 리터럴 유니온
+
+## odfWebGLCustomAttributeDefine → `?`
+→ ?: 사용자 정의 속성 값  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| 대상 | `Feature` | feature |
+
+## odfStyleRule : [`Array.<odfStyleRuleObject>`](#odfStyleRuleObject)
+odf 스타일 규칙

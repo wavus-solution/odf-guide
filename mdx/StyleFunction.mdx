@@ -1,0 +1,51 @@
+---
+title: "StyleFunction"
+description: "스타일 Function 생성 클래스"
+---
+## API
+```
+StyleFunction(json): void
+getJSON(): String
+getObject(): Object
+```
+
+## StyleFunction
+
+스타일 펑션 생성  
+
+### new StyleFunction(json)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| json | `Array.<odf_StyleFunctionOption>` \| `String` | 스타일 생성을 위한 option |
+
+**Example**  
+```js
+let sf = odf.StyleFactory.produceFunction([
+        {
+          seperatorFunc :"default",
+          style :{
+            fill:{color:[0,0,0,0.5]},//채우기
+            stroke: {color:'red',width:3,},//윤곽선
+            text : {font : 'bold 14px Courier New',fill : {color:'red'},},//텍스트
+          },
+          callbackFunc : function(style,feature,resolution){
+            style.getText().setText(feature.getProperties().속성명);
+          },
+        }
+      ]);//StyleFunction 객체
+```
+
+### getJSON() → String
+style function 생성 옵션을 JSON string 타입으로 반환
+```javascript
+    let clusterStyle = odf.StyleFactory.produceFunction([...]);//StyleFunction 객체
+    clusterStyle.getJSON();//스타일펑션을 JSON string 형태로 변환
+```
+
+→ String: 스타일 펑션 생성을 위한 옵션을 json string 타입으로 표현한 문자열  
+
+### getObject() → Object
+style function 생성 옵션을 JSON string 타입으로 반환
+
+→ Object: 스타일 펑션 생성을 위한 Option

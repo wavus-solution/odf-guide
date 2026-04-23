@@ -1,0 +1,72 @@
+---
+title: "Easing"
+description: "애니메이션 효과"
+---
+## API
+```
+easeIn(percent): Number
+easeOut(percent): Number
+inAndOut(percent): Number
+upAndDown(percent): Number
+linear(percent): Number
+```
+
+## Easing
+
+### easeIn(percent) → Number
+천천히 시작해서 점점 속도를 올림
+```javascript
+      odf.Easing.easeIn(0.0)//0
+      odf.Easing.easeIn(0.1)//0.0010000000000000002
+      odf.Easing.easeIn(0.2)//0.008000000000000002
+      odf.Easing.easeIn(0.3)//0.02700000000000001
+      odf.Easing.easeIn(0.4)//0.06400000000000002
+      odf.Easing.easeIn(0.5)//0.125
+      odf.Easing.easeIn(0.6)//0.21600000000000008
+      odf.Easing.easeIn(0.7)//0.3430000000000001
+      odf.Easing.easeIn(0.8)//0.5120000000000001
+      odf.Easing.easeIn(0.9)//0.7290000000000001
+      odf.Easing.easeIn(1.0)//1
+```
+
+→ Number: 0에서 1 사이의 값  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| percent | `Number` | 0에서 1 사이의 값 |
+
+### easeOut(percent) → Number
+빠르게 시작해서 점점 속도를 내림
+
+→ Number: 0에서 1 사이의 값  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| percent | `Number` | 0에서 1 사이의 값 |
+
+### inAndOut(percent) → Number
+천천히 시작해서 속도를 올렸다가 속도를 내림
+
+→ Number: 0에서 1 사이의 값  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| percent | `Number` | 0에서 1 사이의 값 |
+
+### upAndDown(percent) → Number
+천천히 시작해서 속도를 올렸다가 속도를 내림
+
+→ Number: 0에서 1 사이의 값  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| percent | `Number` | 0에서 1 사이의 값 |
+
+### linear(percent) → Number
+일정한 속도를 유지
+
+→ Number: 0에서 1 사이의 값  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| percent | `Number` | 0에서 1 사이의 값 |

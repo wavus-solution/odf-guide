@@ -1,0 +1,61 @@
+---
+title: "BookmarkControl"
+description: "북마크 컨트롤 생성 클래스"
+---
+## API
+```
+BookmarkControl(options): void
+setMap(_map, createElementFlag): void
+removeMap(): void
+getBookmarkList(): Object
+removeBookmark(): void
+addbookmark([Object]): void
+```
+
+## BookmarkControl
+
+BookmarkControl 생성자
+
+```javascript
+ let bookmarkControl = new odf.BookmarkControl([
+{zoom : 14, center : [36,127], name : '북마크1'},
+]);//BookmarkControl 생성
+```  
+
+### new BookmarkControl(options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Array` \| `Object` | 북마크 초기값 리스트 |
+| options.zoom | `Number` | 북마크 줌레벨 |
+| options.center | `Coordinate` | 북마크 지도 중심 좌표 값 |
+| options.name | `String` | 북마크 명칭 |
+
+### setMap(_map, createElementFlag)
+BookmarkControl map 객체 연결
+clear HTMLElement를 만들고, 이벤트 바인딩 시켜, map 객체와 연결
+
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| _map | `Map` | BookmarkControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | BookmarkControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+BookmarkControl map 객체 연결 해제
+
+### getBookmarkList() → Object
+BookmarkControl 북마크 리스트 조회
+
+→ Object: 추가된 북마크 리스트  
+
+### removeBookmark()
+BookmarkControl 북마크 삭제
+
+### addbookmark([Object])
+BookmarkControl 북마크 추가
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [Object] | `Object` | 북마크 추가 Object &#123;zoom : 줌레벨 , center : [x,y], name : '명칭'&#125; |

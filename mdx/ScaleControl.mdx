@@ -1,0 +1,70 @@
+---
+title: "ScaleControl"
+description: "축척 표시 설정 클래스"
+---
+## API
+```
+ScaleControl(options): void
+getConstructorOptions(): Array
+setMap(_map, createElementFlag): void
+removeMap(): void
+setPixelSize(): void
+getScaleValue(): void
+setScaleValue(scale): void
+getPixelSize(size): void
+```
+
+## ScaleControl
+
+ScaleControl 생성자
+
+ ```javascript
+ let scaleControl = new odf.ScaleControl(options);//ScaleControl 생성
+```  
+
+### new ScaleControl(options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Object` | ScaleControl 생성 옵션 |
+| options.size | `Number` | pixelSize 설정 최소 10 최대 2000 |
+| options.scaleInput | `Boolean` | 축척입력창 true/false |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(_map, createElementFlag)
+ScaleControl map 객체 연결
+clear HTMLElement를 만들고, 이벤트 바인딩 시켜, map 객체와 연결
+
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| _map | `Map` | ScaleControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | ScaleControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+ScaleControl map 객체 연결 해제
+
+### setPixelSize()
+ScaleControl의 기준 픽셀 크기 변경
+
+### getScaleValue()
+현재 지도 축척 산출 기준에따른 축척 깂 조회
+
+### setScaleValue(scale)
+현재 지도 축척 산출 기준에따른 축척 깂 조회
+
+| Param | Type | Description |
+| --- | --- | --- |
+| scale | `Number` | 설정을 원하는 scale 값 (cm단위) |
+
+### getPixelSize(size)
+ScaleControl의 축척 산출 기준 size(단위: pixel) 조회
+
+| Param | Type | Description |
+| --- | --- | --- |
+| size | `Number` | 설정을 원하는 pixel 값 (px단위) |

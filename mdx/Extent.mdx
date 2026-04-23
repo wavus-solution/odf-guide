@@ -1,0 +1,221 @@
+---
+title: "Extent"
+description: "영역 관련 클래스"
+---
+## API
+```
+boundingExtent(coordinates): odf_extent
+buffer(extent, value, opt_extent): void
+containsCoordinate(extent, coordinate): Boolean
+containsExtent(extent1, extent2): Boolean
+containsXY(extent, x, y): Boolean
+createEmpty(): odf_extent
+equals(extent1, extent2): Boolean
+extend(extent1, extent2): odf_extent
+getArea(extent): Number
+getBottomLeft(extent): odf_coordinate
+getBottomRight(extent): odf_coordinate
+getCenter(extent): odf_coordinate
+getHeight(extent): Number
+getSize(extent): Array
+getTopLeft(extent): odf_coordinate
+getTopRight(extent): odf_coordinate
+getWidth(extent): Number
+intersects(extent1, extent2): Boolean
+isEmpty(extent): Boolean
+boundingBoxCoordinates(extent): Array
+```
+
+## Extent
+
+### boundingExtent(coordinates) → odf_extent
+주어진 모든 좌표를 포함하는 범위 계산
+```javascript
+      let extent = odf.Extent.boundingExtent([
+        [1097802.7789468267,1717572.789176268],
+        [1097621.4442271432,1717505.9816479636],
+        [1097535.5488336089,1717315.1029956653],
+        [1097549.8647325314,1717071.7327139848],
+        [1097821.8668120564,1716947.6615899908]
+      ]);
+```
+
+→ odf_extent: 계산된 extent 값  
+
+| Param | Type |
+| --- | --- |
+| coordinates | `Array.<odf_coordinate>` | 
+
+### buffer(extent, value, opt_extent)
+extent를 버퍼링
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 확장 대상 extent. opt_extent 매개변수를 입력하지 않으면 extent에 적용됨 |
+| value | `Number` | 버퍼링할 값 |
+| opt_extent | `odf_extent` | 확장된 extent값을 적용할 배열 |
+
+### containsCoordinate(extent, coordinate) → Boolean
+특정 좌표가 특정 영역에 포함되있는지 여부를 확인
+
+→ Boolean: - 포함여부  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 검사 대상 영역 |
+| coordinate | `odf_coordinate` | 검사할 좌표 |
+
+### containsExtent(extent1, extent2) → Boolean
+extent2 영역이 extent1 영역에 포함되는지 여부 확인
+
+→ Boolean: - 포함여부  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent1 | `odf_extent` | 검사 대상 영역 |
+| extent2 | `odf_extent` | 검사할 영역 |
+
+### containsXY(extent, x, y) → Boolean
+[x,y] 좌표가 extent 영역에 포함되는지 여부 확인
+
+→ Boolean: - 포함여부  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 검사 대상 영역 |
+| x | `Number` | 검사할 좌표의 x좌표 |
+| y | `Number` | 검사할 좌표의 y좌표 |
+
+### createEmpty() → odf_extent
+빈 영역 생성
+
+→ odf_extent: - 빈 영역  
+
+### equals(extent1, extent2) → Boolean
+extent1과 extent2를 비교
+
+→ Boolean: - 비교결과  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent1 | `odf_extent` | 비교대상 영역 1 |
+| extent2 | `odf_extent` | 비교대상 영역 2 |
+
+### extend(extent1, extent2) → odf_extent
+extent1과 extent2를 모두 포함하는 영역으로 확장. extent1의 값이 변경됨
+
+→ odf_extent: - 확장된 영역  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent1 | `odf_extent` | 확장 대상 영역 1. 확장된 영역이 덮어쓰기됨 |
+| extent2 | `odf_extent` | 확장 대상 영역 2 |
+
+### getArea(extent) → Number
+영역의 크기 계산
+
+→ Number: - 범위의 크기  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 크기 산정 대상 영역 |
+
+### getBottomLeft(extent) → odf_coordinate
+영역의 왼쪽 아래 꼭지점 좌표 조회
+
+→ odf_coordinate: - 영역의 왼쪽 아래 꼭지점 좌표  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 대상 영역 |
+
+### getBottomRight(extent) → odf_coordinate
+영역의 오른쪽 아래 꼭지점 좌표 조회
+
+→ odf_coordinate: - 영역의 오른쪽 아래 꼭지점 좌표  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 대상 영역 |
+
+### getCenter(extent) → odf_coordinate
+영역의 중심 좌표 조회
+
+→ odf_coordinate: - 영역의 줌심 좌표  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 대상 영역 |
+
+### getHeight(extent) → Number
+영역의 높이 조회
+
+→ Number: - 영역의 높이  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 대상 영역 |
+
+### getSize(extent) → Array.<Number>
+영역의 높이,너비 조회
+
+→ Array.<Number>: - 영역의 높이,너비  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 대상 영역 |
+
+### getTopLeft(extent) → odf_coordinate
+영역의 왼쪽 위 꼭지점 좌표 조회
+
+→ odf_coordinate: - 영역의 왼쪽 위 꼭지점 좌표  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 대상 영역 |
+
+### getTopRight(extent) → odf_coordinate
+영역의 오른쪽 위 꼭지점 좌표 조회
+
+→ odf_coordinate: - 영역의 오른쪽 위 꼭지점 좌표  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 대상 영역 |
+
+### getWidth(extent) → Number
+영역의 너비 조회
+
+→ Number: - 영역의 높이  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 대상 영역 |
+
+### intersects(extent1, extent2) → Boolean
+extent1 영역과 extent2 영역의 교차 여부 조회
+
+→ Boolean: - extent1 영역과 extent2 영역의 교차 여부  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent1 | `odf_extent` | 대상 영역 1 |
+| extent2 | `odf_extent` | 대상 영역 2 |
+
+### isEmpty(extent) → Boolean
+영역이 비어있는지 확인
+
+→ Boolean: - 비어있는지 여부  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 비었는지 확인할 영역 |
+
+### boundingBoxCoordinates(extent) → Array.<odf_coordinate>
+해당 영역을 box 형태의 좌표값으로 계산
+
+→ Array.<odf_coordinate>: 계산된 box 형태의 좌표값  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `odf_extent` | 계산 대상 영역 |

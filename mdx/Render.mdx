@@ -1,0 +1,53 @@
+---
+title: "Render"
+description: "렌더링 유틸리티 클래스"
+---
+## API
+```
+getVectorContext(event): CanvasImmediateRenderer
+getRenderPixel(event, pixel): Array
+toContext(context, options): CanvasImmediateRenderer
+```
+
+## Render
+
+지도 렌더링 관련 유틸리티 메서드 제공  
+
+### getVectorContext(event) → CanvasImmediateRenderer
+render 이벤트 객체로부터 vectorContext를 가져옴
+```javascript
+
+      odf.event.addListener(layer, 'pointermove', (event) => {
+        	var vectorContext = odf.Render.getVectorContext(event);
+          ....
+      })
+```
+
+→ CanvasImmediateRenderer: 벡터 컨텍스트  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| event | `Event` | 렌더 이벤트 객체 |
+
+### getRenderPixel(event, pixel) → Array.<Number>
+지도 뷰포트의 CSS 픽셀에서 이벤트 캔버스 컨텍스트의 픽셀을 가져옵니다
+
+→ Array.<Number>: 이벤트 컨텍스트의 픽셀  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| event | `Event` | 렌더 이벤트 객체 |
+| pixel | `Array.<Number>` | 지도 뷰포트 왼쪽 상단을 기준으로 하는 css 픽셀 |
+
+### toContext(context, options) → CanvasImmediateRenderer
+컨텍스트의 캔버스에 도형을 그릴 수 있도록 함
+지오메트리 좌표의 단위는 캔버스 요소의 왼쪽 상단을 기준으로 하는 CSS 픽셀
+
+→ CanvasImmediateRenderer: 벡터 컨텍스트  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| context | `CanvasRenderingContext2D` | 캔버스 컨텍스트 |
+| options | `Object` | 캔버스 컨텍스트 |
+| options.size | `Array.<Number>` | 캔버스 크기 - 제공되면 캔버스와 CSS 크기가 모두 pixelRatio에 따라 설정됩니다.  - 제공되지 않으면 현재 캔버스 및 CSS 크기가 변경되지 않습니다. |
+| options.pixelRatio | `Number` | 캔버스의 픽셀 비율(캔버스 픽셀 대 CSS 픽셀 비율) |

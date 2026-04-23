@@ -1,0 +1,158 @@
+---
+title: "MeasureControl"
+description: "지도 측정 도구 클래스"
+---
+## API
+```
+MeasureControl([options], rightClickDelete): void
+getConstructorOptions(): Array
+getMap(): Map
+getControlId(): String
+setMap(map, createElementFlag): void
+removeMap(): void
+executeArea(): void
+executeRound(): void
+clear(): void
+removeHelpTooltip(): void
+```
+
+## MeasureControl
+
+지도 측정 도구 생성 
+
+```javascript
+ let measureControl = new odf.MeasureControl({
+   //id : 'myMeasureControl' //measureControl 고유 ID (createNewLayer: true 시 자동 생성됨),
+ });
+  ```  
+
+### new MeasureControl([options], rightClickDelete)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | [`MeasureControlOption`](#MeasureControlOption) | MeasureControl 객체생성 옵션 |
+| options.id | `String` | measureControl 고유 ID 설정. 미지정 시 createNewLayer가 true면 자동 생성, false면 'measure' |
+| options.displayOption | `Object` | 거리 측정 표시 옵션 |
+| options.displayOption.area | `Object` | 면적 측정 표시 옵션 |
+| options.displayOption.area.decimalPoint | `Number` | 면적 측정 소수점 표기 자리수 (소수몇번째자리까지 표출) default : 2 |
+| options.displayOption.area.transformUnit | `Number` | 면적 측정 단위 변경 제곱미터기준(㎡ -&gt; ㎢ 단위로 변경) ex) 1000000 -&gt; 1000000㎡ 부터 1 ㎢로 표출 default : 1000000 |
+| options.displayOption.distance | `Object` | 거리 측정 표시 옵션 |
+| options.displayOption.distance.decimalPoint | `Number` | 거리측정 소수점 표기 자리수 (소수몇번째자리까지 표출) default : 2 |
+| options.displayOption.distance.transformUnit | `Number` | 거리 측정 단위 변경 미터기준(m -&gt; km 단위로 변경) ex) 1000 -&gt; 1000m 부터 1 km로 표출 default : 1000 |
+| options.displayOption.round | `Object` | 반경 측정 표시 옵션 |
+| options.displayOption.round.decimalPoint | `Number` | 반경 측정 소수점 표기 자리수 (소수몇번째자리까지 표출) default : 2 |
+| options.displayOption.round.transformUnit | `Number` | 반경 측정 단위 변경 미터기준(m -&gt; km 단위로 변경) ex) 1000 -&gt; 1000m 부터 1 km로 표출 default : 1000 |
+| options.style | `odf_styleOption` | 측정 도형 style 설정 옵션 |
+| options.message | `Object` | 툴팁 메세지 |
+| options.message.DRAWSTART | `String` | 그리기 시작 안내 메세지 (기본값) '클릭하여 측정을 시작하세요' |
+| options.message.DRAWEND_POLYGON | `String` | 면 그리기 종료 안내 메세지 (기본값) '클릭하여 폴리곤을 그리거나, 더블클릭하여 그리기를 종료하세요' |
+| options.message.DRAWEND_LINE | `String` | 선 그리기 종료 안내 메세지 (기본값) '클릭하여 라인을 그리거나, 더블클릭하여 그리기를 종료하세요' |
+| options.continuity | `Boolean` | 연속 측정 여부 (기본값 false) |
+| rightClickDelete | `Boolean` | 우클릭 삭제 기능 활성화 여부 (기본값 false) |
+| options.tools | `Array.<(&#x27;distance&#x27;\|&#x27;area&#x27;\|&#x27;round&#x27;\|&#x27;spot&#x27;)>` | 생성할 툴 배열 |
+| options.tools.distance | `&#x27;distance&#x27;` | 거리 측정 툴 |
+| options.tools.area | `&#x27;area&#x27;` | 면적측정 툴 |
+| options.tools.round | `&#x27;round&#x27;` | 원의 면적측정 툴 |
+| options.tools.spot | `&#x27;spot&#x27;` | 좌표 측정 툴 |
+| options.spotProjection | `String` | 좌표측정시 사용할 좌표계 (기본값 지도의 좌표계) |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### getMap() → Map \| `undefined`
+MeasureControl에 연결된 Map 객체 반환
+
+**Returns**: `Map` \| `undefined` - 연결된 Map 객체  
+
+### getControlId() → String
+MeasureControl의 controlId 반환
+
+→ String: controlId  
+
+### setMap(map, createElementFlag)
+측정 도구 설정
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | MeasureControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | MeasureControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+측정 도구에 연결된 map 객체 제거
+
+javascript
+measureControl.executeOff();
+
+<a name="MeasureControl+executeArea"></a>
+
+### executeArea()
+MeasureControl 면적 측정
+
+javascript
+measureControl.executeDistance();
+
+<a name="MeasureControl+executeRound"></a>
+
+### executeRound()
+MeasureControl 거리 측정
+
+javascript
+measureControl.executeSpot();
+
+<a name="MeasureControl+clear"></a>
+
+### clear()
+측정 인터렉션 삭제 및 측정 오버레이 삭제, 측정 중 도형 삭제
+
+<a name="MeasureControl+removeHelpTooltip"></a>
+
+### removeHelpTooltip()
+MeasureControl 툴팁 삭제 함수
+
+javascript
+// drawend: 측정 완료 시 발생
+measureControl.connectEvent('drawend', (feature) => {
+  console.log('측정 완료:', feature);
+});
+```
+
+→ string: 이벤트 ID  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| eventType | `&#x27;drawend&#x27;` |  | 이벤트 타입 |
+| callback | [`MeasureEventCallback`](#MeasureEventCallback) |  | 이벤트 콜백 함수 |
+| [expiration] | `string` \| `boolean` | `&quot;&#x27;odfDeleted&#x27;&quot;` | 이벤트 만료 시점 |
+
+## MeasureControlOption
+**Type**: `Object`
+MeasureControl 생성 옵션 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [id] | `string` | measureControl 고유 ID |
+| [displayOption] | `Object` | 측정 표시 옵션 |
+| [style] | `Object` | 측정 도형 스타일 옵션 |
+| [message] | `Object` | 툴팁 메세지 옵션 |
+| [continuity] | `boolean` | 연속 측정 여부 (기본값 false) |
+| [rightClickDelete] | `boolean` | 우클릭 삭제 기능 활성화 여부 (기본값 false) |
+| [tools] | [`Array.<MeasureToolType>`](#MeasureToolType) | 생성할 툴 배열 |
+| [spotProjection] | `string` | 좌표측정시 사용할 좌표계 |
+
+---
+
+## Type Definitions
+
+## MeasureEventCallback → `void`
+측정 이벤트 콜백 함수 타입
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `Feature` | 측정된 피처 (drawend 이벤트에서 직접 전달됨) |
+
+## MeasureToolType : `&#x27;distance&#x27;` \| `&#x27;area&#x27;` \| `&#x27;round&#x27;` \| `&#x27;spot&#x27;`
+측정 도구 타입 리터럴 유니온

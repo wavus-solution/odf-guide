@@ -1,0 +1,108 @@
+---
+title: "ColorFactory"
+description: "색 생성 클래스"
+---
+## API
+```
+produce(type, size, Alpha, order): Array
+produceRandomColor(size, alpha): Array
+produceGradientColor(fromColor, toColor, size, alpha): Array
+produceGradientColorWitPropotion(colors, size, alpha): Array
+packColor(color): Array
+```
+
+## ColorFactory
+
+### produce(type, size, Alpha, order) → Array.<odf_rgba_color>(#odf_rgba_color)
+colorArray 생성
+
+```javascript
+odf.ColorFactory.produce('red',10);//빨간색 계열로 10개의 색상 값 추출
+```
+
+→ Array.<odf_rgba_color>: 생성된 색의 배열  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | [`odf_color_type`](#odf_color_type) | 생성할 색의 계열 |
+| size | `number` | 생성할 색의 개수 1~ |
+| Alpha | `number` | 투명도 0~1 |
+| order | `boolean` | 색 표현 순서(true =&gt; 옅은색에서 진한색 순, false=&gt;진한색 색에서 옅은색 순) |
+
+### produceRandomColor(size, alpha) → Array.<odf_rgba_color>(#odf_rgba_color)
+랜덤 색상 조회
+
+→ Array.<odf_rgba_color>: 생성된 색의 배열  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| size | `number` | `1` | 생성할 색의 개수 |
+| alpha | `number` |  | rgba의 alpha값. 0이면 투명, 1이면 불투명, 0~1 사이의 값 |
+
+### produceGradientColor(fromColor, toColor, size, alpha) → Array.<odf_rgba_color>(#odf_rgba_color)
+fromColor에서 toColor까지의 색상 추출
+
+→ Array.<odf_rgba_color>: 생성된 색의 배열  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| fromColor | [`odf_rgba_color`](#odf_rgba_color) \| [`odf_hex_color`](#odf_hex_color) |  | 시작 색상(rgb 또는 hex 색상) |
+| toColor | [`odf_rgba_color`](#odf_rgba_color) \| [`odf_hex_color`](#odf_hex_color) |  | 종료 색상(rgb 또는 hex 색상) |
+| size | `number` |  | 생성할 색의 개수 |
+| alpha | `number` | `1` | rgba의 alpha값. 0이면 투명, 1이면 불투명, 0~1 사이의 값 |
+
+### produceGradientColorWitPropotion(colors, size, alpha) → Array.<odf_rgba_color>(#odf_rgba_color)
+비율을 이용한 색상 추출(2개 이상 추출)
+
+→ Array.<odf_rgba_color>: 생성된 색의 배열  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| colors | [`Array.<odf_graiden_color_info>`](#odf_graiden_color_info) |  | 비율 정보를 포함한 색상정보 |
+| size | `number` |  | 생성할 색의 개수 (2 이상) |
+| alpha | `number` | `1` | rgba의 alpha값. 0이면 투명, 1이면 불투명, 0~1 사이의 값 |
+
+### packColor(color) → Array.<number>
+모든 유형의 색상 값을 두개의 부동소수점 배열로 묶는다(압축)
+
+→ Array.<number>: 두개의 부동소수점 배열로 압축한 값  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| color | `Array.<Number>` \| `string` | rgb/rgba, hex 색상 값 |
+
+## odf_rgba_color
+**Type**: `Array`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| odf_rgba_color[0]; | `number` | 빨간색 값(0~255의 값) |
+| odf_rgba_color[1]; | `number` | 초록색 값(0~255의 값) |
+| odf_rgba_color[2]; | `number` | 파란색 값(0~255의 값) |
+| odf_rgba_color[3]; | `number` | 투명도(0~1의 값) |
+
+## odf_hex_color
+**Type**: `String`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| '#[숫자][숫자][숫자][숫자][숫자][숫자]'; | `String` | hex 색상(숫자 6자리) |
+| '#[숫자][숫자][숫자][숫자][숫자][숫자][숫자][숫자]'; | `String` | hex 색상(숫자 6자리 +투명도 포함) |
+
+## odf_graiden_color_info
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| color | [`odf_rgba_color`](#odf_rgba_color) \| [`odf_hex_color`](#odf_hex_color) | 색상 값 |
+| propotion | `number` | 적용할 색상의 비율   - 0~1 사이의 값  - 첫번째 인덱스는 0으로 고정, 마지막 인덱스는 1로 고정  - propotion 값은 이전 propotion 값보다 커야함 |
+
+---
+
+## Type Definitions
+
+## odf_color_type : `&#x27;red&#x27;` \| `&#x27;blue&#x27;` \| `&#x27;yellow&#x27;` \| `&#x27;green&#x27;` \| `&#x27;purple&#x27;` \| `&#x27;brown&#x27;` \| `&#x27;black&#x27;` \| `&#x27;red2blue&#x27;` \| `&#x27;red2green&#x27;` \| `&#x27;red2purple&#x27;` \| `&#x27;red2yellow&#x27;` \| `&#x27;yellow2blue&#x27;` \| `&#x27;yellow2purple&#x27;` \| `&#x27;yellow2green&#x27;` \| `&#x27;yellow2brown&#x27;` \| `&#x27;yellow2black&#x27;` \| `&#x27;blue2green&#x27;` \| `&#x27;random&#x27;`
+색상 타입 리터럴 유니온

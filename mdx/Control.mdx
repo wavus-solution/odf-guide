@@ -1,0 +1,120 @@
+---
+title: "Control"
+description: "사용자 정의 컨트롤 클래스"
+---
+## API
+```
+Control(setMap, removeMap, clear): void
+getMap(): Map
+setMap(map): void
+getElements(): Array
+getElement(contentId): HTMLElement
+removeMap(): void
+clear(): void
+registControl(map, _class): void
+```
+
+## Control
+
+사용자가 정의한 컨트롤을 생성한다.
+```javascript
+//서브그룹 컨트롤
+      class NewControl extends odf.Control {
+        constructor() {
+          super({
+            setMap: () => {},
+            removeMap: () => {},
+            clear: () => {},
+          });
+        }
+      }
+      //서브그룹 컨트롤일 경우,
+      NewControl.subGroup = [
+        {
+          id: 'new01',
+          name: '뉴1',
+          click: (evt) => {
+
+            alert('서브그룹 컨트롤 클릭  뉴1');
+          },
+        },
+        {
+          id: 'new02',
+          name: '뉴2',
+          click: (evt) => {
+            alert('서브그룹 컨트롤 클릭  뉴2');
+          },
+        },
+      ];
+      //controlId와 groupIdx는 서브그룹 컨트롤이든, 단일컨트롤이든 필수 정의
+      NewControl.controlId = 'newControl';// (필수값)사용자정의 컨트롤 id
+      NewControl.groupIdx = 3;// (필수값)사용자정의 컨트롤 그룹 순번
+
+      //해당 컨트롤을 map 객체에 등록 분할지도 등에 사용하고 싶을 경우 (한번만 호출)
+      NewControl.registControl(map, NewControl);
+```
+
+     
+
+    * _instance_
+    * _static_
+
+### new Control(setMap, removeMap, clear)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| setMap | `function` | 사용자 정의 컨트롤을 지도에 셋팅한 후 호출되는 callback function |
+| removeMap | `function` | 사용자 정의 컨트롤을 지도에서 삭제한 후 호출되는 callback function |
+| clear | `function` | 다른 컨트롤을 클릭하여 사용자정의 컨트롤이 닫힐 경우 호출되는 callback function |
+
+### getMap() → Map
+사용자정의 컨트롤 연결된 map 반환
+
+→ Map: 사용자정의 컨트롤에 연결된 map 객체  
+
+### setMap(map)
+사용자정의 컨트롤에 map 연결 한 후 생성자의 매개변수로 넘어온 setMap 호출
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | 사용자정의 컨트롤에 연결할 Map 객체 |
+
+### getElements() → Array.<HTMLElement>
+서브그룹 컨트롤일 경우, 사용자정의 컨트롤 button Element 배열 반환
+
+→ Array.<HTMLElement>: 사용자정의 컨트롤 button Element  
+
+### getElement(contentId) → HTMLElement
+버튼 elment반환
+
+→ HTMLElement: contentId에 해당하는 button Element  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| contentId | `String` | 조회할 버튼 id (단일 컨트롤의 경우 undefined) |
+
+### removeMap()
+map과 연결 해제 한 후 생성자의 매개변수로 넘어온 removeMap 호출
+
+### clear()
+생성자의 매개변수로 넘어온 clear 함수 호출
+
+### registControl(map, _class)
+control 등록
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Object` | DrawControl 객체생성 옵션 |
+| _class | `Class` | 사용자 정의 컨트롤을 상속받은 클래스 |
+
+**Example**  
+class NewControl extends odf.Control &#123;
+        ...
+      &#125;
+      //controlId와 groupIdx는 서브그룹 컨트롤이든, 단일컨트롤이든 필수 정의
+      NewControl.controlId = 'newControl';// (필수값)사용자정의 컨트롤 id
+      NewControl.groupIdx = 3;// (필수값)사용자정의 컨트롤 그룹 순번
+
+      //해당 컨트롤을 map 객체에 등록 분할지도 등에 사용하고 싶을 경우 (한번만 호출)
+      NewControl.registControl(map, NewControl);
+```

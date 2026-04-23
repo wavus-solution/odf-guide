@@ -1,0 +1,74 @@
+---
+title: "OverviewMapControl"
+description: "인덱스맵 생성 클래스"
+---
+## API
+```
+getConstructorOptions(): Array
+setMap(map, createElementFlag): void
+removeMap(): void
+changeState(): void
+getState(): void
+changeOverviewMapPosition(positionType): void
+updateSize(): void
+```
+
+## OverviewMapControl
+
+오버뷰 맵 클래스
+
+```javascript
+let overviewMapControl = new odf.OverviewMapControl();
+```  
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(map, createElementFlag)
+OverviewMap을 map객체와 연결 설정
+     OverviewMap HTMLElement를 만들고, 이벤트 바인딩 시켜, map 객체와 연결
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | OverviewMapControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | OverviewMapControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+OverviewMapControl map 객체 해제
+
+### changeState()
+OverviewMap 상태 변경
+OverviewMap 상태값에 따라 활성화/비활성화하고 상태값 변경
+ 
+
+### getState()
+OverviewMap 상태 조회
+OverviewMap 상태값 조회 함수
+ 
+
+### changeOverviewMapPosition(positionType)
+OverviewMap 표출 위치 변경
+매개변수 positionType 값에 따라 OverviewMap  위치 변경
+
+| Param | Type | Description |
+| --- | --- | --- |
+| positionType | [`positionType`](#positionType) | 위치 유형 ('right-up' / 'right-down' / 'left-up' / 'left-down') |
+
+### updateSize()
+OverviewMap viewport 크기를 강제로 재계산
+
+## positionType
+**Type**: `Array`
+아래 값들중 선택하여 배열에 넣을 수 있다.
+위치 유형 ('right-up' / 'right-down' / 'left-up' / 'left-down')
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| right-up | `String` | 오른쪽 위 : 위치가 개요지도 버튼의 오른쪽 위에 위치 |
+| right-down | `String` | 오른쪽 아래 : 위치가 개요지도 버튼의 오른쪽 아래에 위치 |
+| left-up | `String` | 왼쪽 위 : 위치가 개요지도 버튼의 왼쪽 위에 위치 |
+| left-down | `String` | 왼쪽 아래 : 위치가 개요지도 버튼의 왼쪽 아래에 위치 |

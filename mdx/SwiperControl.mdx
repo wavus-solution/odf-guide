@@ -1,0 +1,127 @@
+---
+title: "SwiperControl"
+description: "지도 스와이퍼 설정 클래스"
+---
+## API
+```
+SwiperControl(options): void
+getConstructorOptions(): Array
+setMap(map, createElementFlag): void
+setLayers(layers): void
+setSliderValue(value): void
+getSliderValue(): number
+setState(stateFlag): void
+getState(): boolean
+```
+
+## SwiperControl
+
+SwiperControl 생성자
+
+```javascript
+//왼쪽에는 일어 배경지도, 오른쪽에는 항공지도 표현
+ let swiperControl = new odf.SwiperControl({
+   layers : [
+     basemapControl.getBaseLayer('eMapJapanese')
+     ,basemapControl.getBaseLayer('eMapAIR')],
+    size : 200,
+    useOriginalLayerFlag : false
+ });
+```
+
+  
+
+### new SwiperControl(options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Object` | 스와이퍼 컨트롤 생성에 사용할 옵션 |
+| options.layers | `Array.<odf.Layer>` \| `Array.<Array.<odf.Layer>>` | 스와이퍼로 나타낼 레이어 배열 |
+| options.size | `Number` | 스와이퍼의 크기. default값 100px 최소 0, 최대 2000 |
+| options.useOriginalLayerFlag | `Boolean` | 기존 사용중이던 레이어를 swiper레이어로 이용 - 그 외 default 값 true |
+| options.swipeStrictFlag | `Boolean` | 베이스레이어만 오른쪽 그리기로 제한. 나머지 레이어는 오른쪽 영역에도 표시됨 |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(map, createElementFlag)
+SwiperControl 객체에 map 객체 연결
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | SwiperControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | SwiperControl 버튼 생성 여부 |
+
+### setLayers(layers)
+SwiperControl과 연결될 레이어 설정
+
+| Param | Type | Description |
+| --- | --- | --- |
+| layers | `Array.<Layer>` | 스와이핑으로 나타낼 레이어 배열. 두개의 레이어가 배열로 구성되어있어야. |
+
+### setSliderValue(value)
+SwiperControl의 슬라이더 값 셋팅
+
+| Param | Type | Description |
+| --- | --- | --- |
+| value | `number` | 셋팅할 슬라이더 값 (0~100사이의 숫자) |
+
+### getSliderValue() → number
+SwiperControl의 슬라이더 값 조회
+javascript
+ //SwiperControl 생성
+ let swiperControl = new odf.SwiperControl({
+   layers : [
+     basemapControl.getBaseLayer('eMapJapanese')
+     ,basemapControl.getBaseLayer('eMapAIR')
+   ],
+   size : 200,
+ });
+ swiperControl.setMap(map); //SwiperControl과 객체에 map 객체 연결
+ swiperControl.setSwipeStrictFlag(true); //엄격모드 적용
+
+| Param | Type | Description |
+| --- | --- | --- |
+| strictFlag | <code>boolean</code> | 엄격모드 여부(왼쪽영역의 레이어 중 베이스레이어를 제외한 레이어가 오른쪽 영역으로도 표기(=>false) 여부) |
+
+<a name="SwiperControl+setState"></a>
+
+### setState(stateFlag)
+슬라이더 적용 여부 정의
+
+| Param | Type | Description |
+| --- | --- | --- |
+| stateFlag | `boolean` | 슬라이더 적용 여부(true=&gt;적용/false=&gt;미적용) |
+
+### getState() → boolean
+슬라이더 적용 여부 조회
+javascript
+ //SwiperControl 생성
+ let swiperControl = new odf.SwiperControl(&#123;
+   layers : [
+     basemapControl.getBaseLayer('eMapJapanese')
+     ,basemapControl.getBaseLayer('eMapAIR')
+   ],
+   size : 200,
+ &#125;);
+ swiperControl.setMap(map); //SwiperControl과 객체에 map 객체 연결
+ swiperControl.getLayers(); //컨트롤에 셋팅된 레이어 목록 조회
+
+→ Array.<Array.<Layer>, Array.<Layer>>: layers
+ - 배열의 첫번째 요소 : 슬라이더 왼쪽 표현 레이어 목록
+ - 배열의 두번째 요소 :  슬라이더 오른쪽 표현 레이어 목록  
+
+## SwiperControlOption
+**Type**: `Object`
+SwiperControl 생성 옵션 타입
+
+**Properties**
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| layers | `Array.<Layer>` \| `Array.<Array.<Layer>>` |  | 스와이퍼로 나타낼 레이어 배열 |
+| [size] | `number` | `100` | 스와이퍼의 크기 (px, 최소 0, 최대 2000) |
+| [useOriginalLayerFlag] | `boolean` | `true` | 기존 사용중이던 레이어를 swiper레이어로 이용 |
+| [swipeStrictFlag] | `boolean` |  | 베이스레이어만 오른쪽 그리기로 제한 |

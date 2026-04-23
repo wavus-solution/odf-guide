@@ -1,0 +1,105 @@
+---
+title: "Projection"
+description: "좌표 변환 클래스"
+---
+## API
+```
+Projection([param]): void
+project(point, epsgCd): Array
+getExtent(projection): Array
+unproject(point, epsgCd): Array
+projectGeom(feature, epsgCd): ODF_Feature
+unprojectGeom(feature, epsgCd): ODF_Feature
+projectExtent(extent, epsgCd): Array
+unprojectExtent(extent, epsgCd): Array
+```
+
+## Projection
+
+좌표 변환 제공 클래스
+
+  ```javascript
+    var map = new odf.Map(...);
+
+    //방법 1. map의 projection 가져오기
+    var projection = map.getProjection();
+
+    //방법 2. projection 선언하기
+    var projection = new odf.Projection({ EPSG: '5179' });
+  ```  
+
+### new Projection([param])
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [param] | `Object` | 좌표계 설정 옵션 |
+| [param.EPSG] | `string` | EPSG 코드 (예: '5179', '4326') |
+
+### project(point, epsgCd) → Array
+좌표변환 시, 입력 좌표계 -&gt; 지도 좌표계로 변환한다.
+
+→ Array: 변경된 좌표값(배열형태)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| point | `Array` | 변환하고자 하는 X,Y 좌표(배열형태) |
+| epsgCd | `String` | 입력한 좌표의 좌표계 |
+
+### getExtent(projection) → Array.<number>
+좌표계의 범위(Extent) 조회
+
+→ Array.<number>: 좌표계 범위 [minX, minY, maxX, maxY]  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| projection | `Object` | 좌표계 객체 |
+
+### unproject(point, epsgCd) → Array
+좌표변환 시, 지도 자표계 -&gt; 입력 좌표계로 변환한다.
+
+→ Array: 변경된 좌표값(배열형태)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| point | `Array` | 변환하고자 하는 X,Y 좌표(배열형태) |
+| epsgCd | `String` | 변경하고자 하는 좌표계 |
+
+### projectGeom(feature, epsgCd) → ODF_Feature
+도형정보(Geometry) 좌표변환 시, 입력 좌표계 -&gt; 지도 자표계로 변환한다.
+
+→ ODF_Feature: 도형정보가 변경 된 ODF_Feature(배열형태)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `ODF_Feature` | 변환하고자 하는 feature |
+| epsgCd | `String` | 입력한 Feature의 좌표계 |
+
+### unprojectGeom(feature, epsgCd) → ODF_Feature
+도형정보(Geometry) 좌표변환 시, 지도 자표계 -&gt; 입력 좌표계로 변환한다.
+
+→ ODF_Feature: 도형정보가 변경 된 ODF_Feature(배열형태)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `ODF_Feature` | 변환하고자 하는 feature |
+| epsgCd | `String` | 변경하고자 하는 좌표계 |
+
+### projectExtent(extent, epsgCd) → Array
+Extent 좌표변환 시, 입력 좌표계 -&gt; 지도 자표계로 변환한다.
+
+→ Array: 변경된 Extent 값(배열형태)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `Array` | 변환하고자 하는 Extent(배열형태) |
+| epsgCd | `String` | 입력한 Extent의 좌표계 |
+
+### unprojectExtent(extent, epsgCd) → Array
+Extent 좌표변환 시, 지도 자표계 -&gt; 입력 좌표계로 변환한다.
+
+→ Array: 변경된 Extent 값(배열형태)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| extent | `Array` | 변환하고자 하는 Extent(배열형태) |
+| epsgCd | `String` | 변경하고자 하는 좌표계 |

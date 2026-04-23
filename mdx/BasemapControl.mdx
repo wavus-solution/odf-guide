@@ -1,0 +1,257 @@
+---
+title: "BasemapControl"
+description: "배경지도 설정 클래스"
+---
+## API
+```
+BasemapControl(basemapOption, options): void
+getConstructorOptions(): Array
+getMap(): void
+setMap(map, createElementFlag): void
+hasGrp(grpKey): Boolean
+setGrp(grpKey): void
+removeGrp(grpKey): void
+hasBaseLayer(layerKey): Boolean
+setBaseLayer(grpKey, layerKey, layerName, layer): void
+removeBaseLayer(layerKey): void
+rebuildElement(): void
+setSwitchBaseLayerCallback(callback): void
+switchBaseLayer(layerKey): void
+getPresentBaseGrpKey(): String
+getPresentBaseLayerKey(): String
+getPresentBaseLayer(): Layer
+getSetableBasemapList(): Json
+getBaseLayer(key): void
+```
+
+## BasemapControl
+
+BasemapControl 생성자
+
+```javascript
+기본지도와 항공지도를 베이스맵으로 선택하여 생성(프록시 사용)
+ let basemapControl = new odf.BasemapControl({
+   baroEMap:['eMapBasic','eMapAIR']
+ },{
+proxyURL : '/proxy.jsp',
+proxyParam : 'url',});//BasemapControl 생성
+```
+
+  
+
+### new BasemapControl(basemapOption, options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| basemapOption | [`odf_basemap_option`](#odf_basemap_option) | 사용자가 어떤 그룹의 어떤 베이스맵을 사용할지 정의한 Object (ex) &#123;baroEMap :['eMapKorean','eMapAIR'] &#125;; |
+| options | `Object` | proxyURL, baroEMapURL,baroEMapAirURL,vWorldURL, 바로e맵 API KEY를 정의 |
+| options.proxyURL | `String` | [선택] 프록시를 사용하고자 하는경우 프록시 URL을 정의 |
+| options.proxyParam | `String` | [선택] 프록시를 사용하고자 하는경우 프록시파라미터 정의 |
+| options.baroEMapURL | `String` | 일반 바로 eMap url |
+| options.vWorldURL | `String` | vWord url |
+| options.kakaoURL | `String` | kakao url |
+| options.kakaoSkyviewURL | `String` | kakao 스카이뷰 url |
+| options.baroEMapAirURL | `String` | [선택] 바로e맵 영상지도 url |
+| options.baroEMapKey | `String` | [선택] 바로e맵 API KEY |
+| options.vWorldKey | `String` | [선택] vWord API KEY |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### getMap()
+BasemapControl 객체와 연결된 Map 객체 반환
+
+### setMap(map, createElementFlag)
+BasemapControl 객체와 Map 객체를 연결
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | BasemapControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | BasemapControl 버튼 생성 여부 |
+
+### hasGrp(grpKey) → Boolean
+베이스맵 그룹 존재 여부 확인
+
+→ Boolean: 입력한 베이스맵 그룹 key가 존재하는지 여부  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| grpKey | `String` | 베이스맵 그룹이 존재하는지 확인할 grpKey |
+
+### setGrp(grpKey)
+베이스맵 그룹 생성
+
+| Param | Type | Description |
+| --- | --- | --- |
+| grpKey | `String` | 베이스맵 그룹으로 등록할 grpKey. |
+
+### removeGrp(grpKey)
+베이스맵 그룹 제거
+
+| Param | Type | Description |
+| --- | --- | --- |
+| grpKey | `String` | 제거할 대상이 되는 베이스맵 그룹으로 등록된 grpKey |
+
+### hasBaseLayer(layerKey) → Boolean
+특정 키를 갖는 베이스 레이어가 존재하는지 확인
+
+→ Boolean: 입력한 베이스레이어 key가 존재하는지 여부  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| layerKey | `String` | 등록할 베이스레이어의 key 값 |
+
+### setBaseLayer(grpKey, layerKey, layerName, layer)
+사용자 정의 베이스레이어 추가 및 베이스맵 컨트롤 재구축
+
+| Param | Type | Description |
+| --- | --- | --- |
+| grpKey | `String` | 베이스맵 그룹으로 등록된 grpKey |
+| layerKey | `String` | 등록할 베이스레이어의 key 값 |
+| layerName | `String` | 컨트롤에서 나타날 베이스 레이어 명 |
+| layer | `odf.Layer` | 베이스맵으로 등록할 레이어 객체 |
+
+### removeBaseLayer(layerKey)
+사용자 정의 베이스레이어 제거
+
+| Param | Type | Description |
+| --- | --- | --- |
+| layerKey | `String` | 등록할 베이스레이어의 key 값. 영문 대/소문자와 언더바(_)로 구성 |
+
+### rebuildElement()
+정의된 베이스맵 그룹과 베이스맵 레이어 정보에따라 basemap 컨트롤을 지우고 다시 생성
+
+### setSwitchBaseLayerCallback(callback)
+배경지도 변경 완료 후 호출할 콜백
+
+| Param | Type | Description |
+| --- | --- | --- |
+| callback | `function` | beforeLayer와 afterLayer를 매개변수로 갖는 사용자 정의 callback function -  첫번째 매개변수(beforeLayer) : 변경 이전 layer -  두번째 매개변수(afterLayer) : 변경될 layer |
+
+### switchBaseLayer(layerKey)
+배경지도 변경
+
+| Param | Type | Description |
+| --- | --- | --- |
+| layerKey | [`odf_basemap_baroEMapKey`](#odf_basemap_baroEMapKey) \| [`odf_basemap_vWorldMapKey`](#odf_basemap_vWorldMapKey) \| [`odf_basemap_kakaoMapKey`](#odf_basemap_kakaoMapKey) \| [`odf_basemap_OSMMapKey`](#odf_basemap_OSMMapKey) \| `String` | 변경할 baselayer의 키 값  - 사용자정의 베이스맵의 키 값 허용  - undefined 또는 null 입력시 배경지도 삭제 |
+
+### getPresentBaseGrpKey() → String
+현재 설정된 베이스맵 그룹 key 조회
+
+→ String: 현재 설정된 베이스맵 그룹 key  
+
+### getPresentBaseLayerKey() → String
+현재 설정된 베이스맵 key 조회
+
+→ String: 현재 설정된 베이스맵 key  
+
+### getPresentBaseLayer() → Layer
+현재 설정된 베이스맵 레이어 조회
+
+→ Layer: 현재 설정된 베이스맵 레이어  
+
+### getSetableBasemapList() → Json
+설정가능한 BasemapList 조회
+
+→ Json: 배경지도로 설정가능한 목록 및 상세 명칭  
+
+### getBaseLayer(key)
+베이스맵의 key 값으로 baselayer 조회
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | `odf.baseMapKey` | 조회할 베이스맵의 key 값 |
+
+## BasemapItem
+**Type**: `Object`
+베이스맵 항목 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| key | `string` | 베이스맵 키 |
+| name | `string` | 베이스맵 이름 |
+| [thumbnail] | `string` | 썸네일 이미지 URL |
+
+## BasemapUrls
+**Type**: `Object`
+URL 설정 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [baroEMapURL] | `string` | 바로e맵 URL |
+| [vWorldURL] | `string` | vWorld URL |
+| [kakaoURL] | `string` | Kakao URL |
+
+## odf_basemap_baroEMapKey
+**Type**: `String`
+baseMap 생성 키
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| 'eMapBasic' | `String` | 바로e맵 기본 지도(table) |
+| 'eMapColor' | `String` | 바로e맵 색각 지도 |
+| 'eMapLowV' | `String` | 바로e맵 큰글씨 지도 |
+| 'eMapWhite' | `String` | 바로e맵 백지도 |
+| 'eMapEnglish' | `String` | 바로e맵 영어 지도 |
+| 'eMapChinese' | `String` | 바로e맵 중어 지도 |
+| 'eMapJapanese' | `String` | 바로e맵 일어 지도 |
+| 'eMapWhiteEdu' | `String` | 바로e맵 교육용 백지도 |
+| 'eMapSatellite' | `String` | 바로e맵 위성 지도 |
+| 'eMapAIR' | `String` | 바로e맵  영상지도 |
+
+## odf_basemap_vWorldMapKey
+**Type**: `String`
+vWorld 생성 키
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| 'vWorldBase' | `String` | vWorld 기본 지도(table) |
+| 'vWorldWhite' | `String` | vWorld 회색 지도 |
+| 'vWorldMidnight' | `String` | vWorld 야간 지도 |
+| 'vWorldHybrid' | `String` | vWorld 하이브리드 지도 |
+| 'vWorldSatellite' | `String` | vWorld 영상 지도 |
+
+## odf_basemap_kakaoMapKey
+**Type**: `String`
+kakao 생성 키
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| 'kakaoBase' | `String` | kakao 기본 지도(table) |
+| 'kakaoSkyview' | `String` | kakao 영상 지도 |
+
+## odf_basemap_OSMMapKey
+**Type**: `String`
+kakao 생성 키
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| 'OSM' | `String` | OSM 기본 지도(table) |
+
+## odf_basemap_option
+**Type**: `Object`
+사용자가 어떤 그룹의 어떤 베이스맵을 사용할지 정의
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| baroEMap | [`Array.<odf_basemap_baroEMapKey>`](#odf_basemap_baroEMapKey) \| `boolean` | 바로e맵 그룹 내 어떤 배경 지도를 사용할지 정의 (ex) ['eMapBasic','eMapColor','eMapLowV','eMapWhite','eMapEnglish','eMapChinese','eMapKorean','eMapJapanese','eMapWhiteEdu','eMapSatellite', 'eMapAIR']  :  바로e맵 그룹의 기본지도와 영상 지도 사용 (ex) true  :  바로e맵 그룹의 모든 배경지도 사용 |
+| vWorld | [`Array.<odf_basemap_vWorldMapKey>`](#odf_basemap_vWorldMapKey) \| `boolean` | 바로e맵 그룹 내 어떤 배경 지도를 사용할지 정의 (ex) ['vWorldBase', 'vWorldWhite' ,'vWorldMidnight','vWorldHybrid','vWorldSatellite']  :  vWorld 그룹의 기본지도와 회색 지도 사용 (ex) true  :  vWorld 그룹의 모든 배경지도 사용 |
+| kakao | [`Array.<odf_basemap_kakaoMapKey>`](#odf_basemap_kakaoMapKey) \| `boolean` | 바로e맵 그룹 내 어떤 배경 지도를 사용할지 정의 (ex) ['kakaoBase','kakaoSkyview' ] :  카카오 그룹의 기본지도와 영상 지도 사용 (ex) true  :  카카오 그룹의 모든 배경지도 사용 |
+| OSM | [`Array.<odf_basemap_OSMMapKey>`](#odf_basemap_OSMMapKey) \| `boolean` | 바로e맵 그룹 내 어떤 배경 지도를 사용할지 정의 (ex) ['OSM']  :  OSM 지도 사용 (ex) true  :  OSM 그룹의 모든 배경지도 사용 |
+| custom | `Object` | LayerFactory 스타일의 사용자 정의 배경지도 정의 (ex) &#123; myLayer: &#123; type: 'api', name: '내 레이어', params: &#123; server: &#123;...&#125;, service: 'xyz', ... &#125; &#125; &#125; |

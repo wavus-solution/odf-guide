@@ -1,0 +1,318 @@
+---
+title: "DrawControl"
+description: "그리기 도구 클래스"
+---
+## API
+```
+DrawControl([options]): void
+getConstructorOptions(): Array
+on(type, listener, [opt_this]): void
+un(type, listener, [opt_this]): void
+getMap(): Map
+getControlId(): String
+connectEvent(eventType, callback, [expiration]): string
+hasEvent(eventType): number
+trigger(eventType, param): void
+setMap(_map, createElementFlag): void
+removeMap(): void
+drawText(): void
+drawPolygon(): void
+drawPoint(): void
+drawBox(): void
+drawCircle(): void
+buffer([targetFeature]): void
+clear(): void
+removeToolTip(): void
+removeDrawInteraction(): void
+```
+
+## DrawControl
+
+지도에 그릴수 있는 다양한 그리기 도구를 제공
+
+```javascript
+let drawControl = new odf.DrawControl({
+        //id : 'myDrawControl' //drawControl 고유 ID (createNewLayer: true 시 자동 생성됨),
+        //style : {} //그리기 피쳐 odf 스타일 옵션,
+        //bufferStyle : {} //버퍼 도형 odf 스타일 옵션,
+        //createNewLayer : true //drawControl 생성 시 새로운 레이어 생성 여부
+        //message : { //그리기 도구 시작시 툴팁 메세지
+          //DRAWSATRT_POINT : '점 그리기 측정입니다.',
+          //DRAWSTART_LINESTRING : '',
+          //DRAWSTART_POLYGON : '',
+          //DRAWSTART_CURVE : '' ,
+          //DRAWSTART_TEXT : '',
+          //DRAWSTART_BUFFER : '',
+          //DRAWSTART_CIRCLE : '',
+          //DRAWSTART_BOX : '',
+          //DRAWEND_DRAG : '',
+          //DRAWEND_DBCLICK : '',
+        //},
+        //measure : false, 측정 옵션 활성화 여부, (선, 원형만 측정 가능)
+        //continuity : false, 연속 측정 여부  (기본값 false),
+        //rightClickDelete : false, 우클릭 삭제 기능 활성화 여부,
+        //tools : ['text', 'polygon','lineString','point','circle','curve','box','square','buffer'],
+});
+```  
+
+### new DrawControl([options])
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [options] | [`DrawControlOption`](#DrawControlOption) | DrawControl 객체생성 옵션 |
+| options.id | `String` | drawControl 고유 ID 설정. 미지정 시 createNewLayer가 true면 자동 생성, false면 'draw' |
+| options.style | `odf_styleOption` | 그리기 도형 style 설정 옵션 |
+| options.bufferStyle | `odf_styleOption` | 버퍼 그리기 도형 style 설정 옵션 |
+| options.createNewLayer | `boolean` | drawControl 생성 시 마다 새 레이어 생성 여부 |
+| options.message | `Object` | 툴팁 메세지 |
+| options.message.DRAWSTART_POINT | `String` | 점 그리기 시작 안내 메세지 (기본값) '점을 그리기 위해 지도를 클릭해주세요' |
+| options.message.DRAWSTART_LINESTRING | `String` | 선 그리기 시작 안내 메세지 (기본값) '선을 그리기 위해 지도를 클릭해주세요' |
+| options.message.DRAWSTART_POLYGON | `String` | 면 그리기 시작 안내 메세지 (기본값) '면을 그리기 위해 지도를 클릭해주세요' |
+| options.message.DRAWSTART_CURVE | `String` | 곡선 그리기 시작 안내 메세지 (기본값) '곡선을 그리기 위해 지도를 드래그해주세요' |
+| options.message.DRAWSTART_TEXT | `String` | 텍스트 그리기 시작 안내 메세지 (기본값) '텍스트를 입력하기 위해 지도를 클릭해주세요.' |
+| options.message.DRAWSTART_BUFFER | `String` | 버퍼 그리기 시작 안내 메세지 (기본값) '버퍼를 생성하기 위해 레이어를 선택해주세요.' |
+| options.message.DRAWSTART_CIRCLE | `String` | 원 그리기 시작 안내 메세지 (기본값) '원을 그리기 위해 지도를 클릭해주세요.' |
+| options.message.DRAWSTART_BOX | `String` | 사각형 그리기 시작 안내 메세지 (기본값) '사각형을 그리기 위해 지도를 클릭해주세요.' |
+| options.message.DRAWEND_DRAG | `String` | 그리기 종료 안내 메세지(드래그) (기본값) '드래그를 멈추면 그리기가 종료됩니다.' |
+| options.message.DRAWEND_DBCLICK | `String` | 그리기 종료 안내 메세지(더블클릭) (기본값) '더블클릭시 그리기가 종료됩니다.' |
+| options.measure | `Boolean` | 측정 옵션 활성화 여부(기본값 false) |
+| options.continuity | `Boolean` | 연속 그리기 여부 (기본값 false) |
+| options.rightClickDelete | `Boolean` | 우클릭 삭제 기능 활성화 여부 (기본값 false) |
+| options.maxAreaSize | `Number` | 그리기 도형 면적 제한 (1000000 = 1㎢). box, circle, square 그리기 중 도형 크기가 maxAreaSize를 초과하지 않도록 제한 |
+| options.tools | `Array.<String>` | 생성할 툴 배열 |
+| options.tools.text | `String` | 텍스트 그리기 툴 |
+| options.tools.polygon | `String` | 다각형 그리기 툴 |
+| options.tools.lineString | `String` | 선 그리기 툴 |
+| options.tools.box | `String` | 사각형 그리기 툴 |
+| options.tools.square | `String` | 정사각형 그리기 툴 |
+| options.tools.point | `String` | 점 그리기 툴 |
+| options.tools.circle | `String` | 원 그리기 툴 |
+| options.tools.curve | `String` | 곡선 그리기 툴 |
+| options.tools.buffer | `String` | 버퍼 그리기 툴 |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### on(type, listener, [opt_this])
+이벤트 리스너 등록 (미구현)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | `string` | 이벤트 타입 |
+| listener | `function` | 이벤트 리스너 |
+| [opt_this] | `Object` | 리스너 내 this 컨텍스트 |
+
+### un(type, listener, [opt_this])
+이벤트 리스너 해제 (미구현)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | `string` | 이벤트 타입 |
+| listener | `function` | 이벤트 리스너 |
+| [opt_this] | `Object` | 리스너 내 this 컨텍스트 |
+
+### getMap() → Map \| `undefined`
+DrawControl에 연결된 Map 객체 반환
+
+**Returns**: `Map` \| `undefined` - 연결된 Map 객체  
+
+### getControlId() → String
+DrawControl의 controlId 반환
+
+→ String: controlId  
+
+### connectEvent(eventType, callback, [expiration]) → string
+DrawControl에 이벤트 연결
+
+→ string: 이벤트 ID  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| eventType | `&#x27;drawstart&#x27;` \| `&#x27;drawend&#x27;` |  | 이벤트 타입 |
+| callback | [`DrawEventCallback`](#DrawEventCallback) |  | 이벤트 콜백 함수 |
+| [expiration] | `string` \| `boolean` | `&quot;&#x27;odfDeleted&#x27;&quot;` | 이벤트 만료 시점 |
+
+### hasEvent(eventType) → number
+DrawControl에 특정 타입의 이벤트가 등록되어 있는지 확인
+
+→ number: 등록된 이벤트 수  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| eventType | `string` | 이벤트 타입 |
+
+### trigger(eventType, param)
+DrawControl에 등록된 이벤트 강제 실행
+
+| Param | Type | Description |
+| --- | --- | --- |
+| eventType | `string` | 이벤트 타입 |
+| param | `\*` | 이벤트에 전달할 파라미터 |
+
+### setMap(_map, createElementFlag)
+DrawControl map 객체 연결
+
+| Param | Type | Description |
+| --- | --- | --- |
+| _map | `Map` | DrawControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | DrawControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+그리기 도구에 연결된 map 객체 제거
+
+javascript
+drawControl.draw('text');
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | [<code>DrawType</code>](#DrawType) | 그리기 유형  - 'text' : 텍스트  - 'polygon' : 다각형  - 'lineString' : 선  - 'box' : 사각형  - 'square' : 정사각형  - 'point' : 점  - 'circle' : 원  - 'curve' : 곡선  - 'buffer' : 버퍼 |
+
+<a name="DrawControl+drawText"></a>
+
+### drawText()
+DrawControl 텍스트 그리기
+
+### drawPolygon()
+DrawControl 폴리곤 그리기
+
+javascript
+drawControl.drawLineString();
+
+<a name="DrawControl+drawPoint"></a>
+
+### drawPoint()
+DrawControl 점 그리기
+
+javascript
+drawControl.drawCurve();
+
+<a name="DrawControl+drawBox"></a>
+
+### drawBox()
+DrawControl 사각형 그리기
+
+javascript
+drawControl.drawSquare();
+
+<a name="DrawControl+drawCircle"></a>
+
+### drawCircle()
+DrawControl 원 그리기
+
+javascript
+drawControl.findDrawVectorLayer();
+```
+
+→ Layer: 그리기 레이어 반환  
+
+### buffer([targetFeature])
+버퍼 그리기 실행. 대상 피처가 없으면 피처 선택 모드로 진입
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [targetFeature] | `Feature` | 버퍼를 생성할 대상 피처 |
+
+### clear()
+그리기 인터렉션 삭제 및 그리기 오버레이 삭제, 그리던 도형 삭제
+
+### removeToolTip()
+DrawControl 툴팁 삭제 함수
+
+javascript
+drawControl.setStyle({
+             fill : {
+          color : [1,10,100,0.4]
+      },
+      stroke : {
+          color : [1,10,100,0.4],
+          width : 3,
+      },
+      image : { // 점 스타일
+         icon : {
+              width : 20, // scale 옵션과 함께 사용할 수 없습니다.
+              height: 20, // scale 옵션과 함께 사용할 수 없습니다.
+              scale: 1,
+              color: 'red',
+              opacity: 1,
+              img: HTMLImageElement // src 옵션과 함께 사용할 수 없습니다.
+              src: 'images/icon.png' // img 옵션과 함께 사용할 수 없습니다.
+         },
+         circle : {
+              radius: 10,
+              fill: { color: [255, 0, 0, 0.8] },
+              stroke: { color: [0, 0, 0, 1], width: 2 }
+         }
+      },
+      text : {
+          text: '',
+          fill: { color: [1, 10, 100, 1] },
+          stroke: { color: [1, 10, 100, 1] },
+          font: '20px sans-serif',
+      },
+     bufferStyle : {
+          stroke: {
+              color: [67, 116, 217, 1],
+              width: 2,
+            },
+            fill: { color: [178, 204, 255, 0.3] },
+      },
+
+})
+
+| Param | Type | Description |
+| --- | --- | --- |
+| styleObject | <code>Object</code> | 스타일을 생성할 Object |
+
+<a name="DrawControl+getActiveType"></a>
+
+### drawControl.getActiveType() → [<code>DrawType</code>](#DrawType) \| <code>&#x27;none&#x27;</code>
+어떤 그리기가 활성화 상태인지 조회
+
+→ DrawType: 'none' : 그리기 활성화상태 x
+ - 'text' : 텍스트 그리기 활성화 상태
+ - 'polygon' : 다각형 그리기 활성화 상태
+ - 'lineString' : 선 그리기 활성화 상태
+ - 'point' : 점 그리기 활성화 상태
+ - 'circle' : 원 그리기 활성화 상태
+ - 'box' : 사각형 그리기 활성화 상태
+ - 'square' : 정사각형 그리기 활성화 상태
+ - 'curve' : 곡선 그리기 활성화 상태
+ - 'buffer' : 버퍼 그리기 활성화 상태  
+
+### removeDrawInteraction()
+그리기 인터렉션 및 툴팁 오버레이 제거
+
+## DrawControlOption
+**Type**: `Object`
+DrawControl 생성 옵션 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [id] | `string` | drawControl 고유 ID |
+| [style] | `Object` | 그리기 도형 스타일 옵션 |
+| [bufferStyle] | `Object` | 버퍼 도형 스타일 옵션 |
+| [createNewLayer] | `boolean` | 생성 시 새 레이어 생성 여부 |
+| [message] | `Object` | 툴팁 메세지 옵션 |
+| [measure] | `boolean` | 측정 옵션 활성화 여부 (기본값 false) |
+| [continuity] | `boolean` | 연속 그리기 여부 (기본값 false) |
+| [rightClickDelete] | `boolean` | 우클릭 삭제 기능 활성화 여부 (기본값 false) |
+| [maxAreaSize] | `number` | 그리기 도형 면적 제한 (1000000 = 1㎢) |
+| [tools] | [`Array.<DrawType>`](#DrawType) | 생성할 툴 배열 |
+
+---
+
+## Type Definitions
+
+## DrawEventCallback → `void`
+그리기 이벤트 콜백 함수 타입
+
+| Param | Type | Description |
+| --- | --- | --- |
+| feature | `Feature` | 그려진 피처 (drawstart, drawend 이벤트에서 직접 전달됨) |
+
+## DrawType : `&#x27;text&#x27;` \| `&#x27;polygon&#x27;` \| `&#x27;lineString&#x27;` \| `&#x27;box&#x27;` \| `&#x27;square&#x27;` \| `&#x27;point&#x27;` \| `&#x27;circle&#x27;` \| `&#x27;curve&#x27;` \| `&#x27;buffer&#x27;`
+그리기 도형 타입 리터럴 유니온

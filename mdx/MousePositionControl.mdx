@@ -1,0 +1,67 @@
+---
+title: "MousePositionControl"
+description: "마우스 좌표 생성 클래스"
+---
+## API
+```
+MousePositionControl(options): void
+getConstructorOptions(): Array
+setMap(map): void
+removeMap(): void
+```
+
+## MousePositionControl
+
+지도 위 좌표를 표기
+```javascript
+MousePositionControl 생성
+   [TYPE 01] 마우스 위치를 htmlElemnt에 바인딩
+   let mousePositionControl = new MousePositionControl({
+     element : document.querySelector('#positionStr')
+   })
+
+   [TYPE 02]  마우스 위치를 callback fucntion 으로 보냄
+   let mousePositionControl = new MousePositionControl({
+     callback : function(position){console.log(position)}
+   })
+
+   [TYPE 03]  마우스 위치를 htmlElemnt에 바인딩하고, 마우스 위치를 callback fucntion 으로 보냄
+   let mousePositionControl = new MousePositionControl({
+     element : document.querySelector('#positionStr'),
+     callback : function(position){console.log(position)}
+   })
+   ```  
+
+### new MousePositionControl(options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Object` | 마우스 좌표 생성에 사용할 옵션 |
+| options.element | `Element` | 마우스 좌표를 나타낼 Element |
+| options.callback | `function` | 마우스 좌표를 마라미터로 받는 함수 |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(map)
+마우스 좌표 지도에 설정
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | MousePositionControl 객체와 연결할 Map 객체 |
+
+### removeMap()
+마우스 좌표 지도에서 제거
+
+## MousePositionControlOption
+**Type**: `Object`
+MousePositionControl 생성 옵션 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [element] | `Element` | 마우스 좌표를 나타낼 Element |
+| [callback] | `function` | 마우스 좌표를 파라미터로 받는 콜백 함수 |

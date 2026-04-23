@@ -1,0 +1,46 @@
+---
+title: "MoveControl"
+description: "현재 화면 기준으로 이전/다음 화면 이동 생성 클래스"
+---
+## API
+```
+getConstructorOptions(): Array
+setMap(map, createElementFlag): void
+removeMap(): void
+capture(): void
+back(): void
+forward(): void
+```
+
+## MoveControl
+
+화면의 이동/줌 레벨 저장하고 실행 하는 클래스
+
+```javascript
+let moveControl = new odf.MoveControl();
+```  
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(map, createElementFlag)
+MoveControl을 Map 객체에 추가
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | MoveControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | MoveControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+MoveControl map 객체 해제
+
+### capture()
+MoveControl 화면 저장 함수
+
+### back()
+MoveControl 이전화면 실행함수
+
+### forward()
+MoveControl 다음화면 실행함수

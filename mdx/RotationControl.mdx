@@ -1,0 +1,50 @@
+---
+title: "RotationControl"
+description: "화면을 회전 시키는 기능alt + shift 드래그로 지도 회전"
+---
+## API
+```
+getConstructorOptions(): Array
+setMap(_map, createElementFlag): void
+removeMap(): void
+setRotation(value): void
+getRotation(): Number
+```
+
+## RotationControl
+
+RotationControl 생성자
+ ```javascript
+ let RotationControl = new odf.RotationControl();//RotationControl 생성
+```  
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(_map, createElementFlag)
+RotationControl map 객체 연결
+RotationControl HTMLElement를 만들고, 이벤트 바인딩 시켜, map 객체와 연결
+
+ 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| _map | `Map` | RotationControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | RotationControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+RotationControl map 객체 연결 해제
+
+### setRotation(value)
+RotationControl 활성화/비활성화
+
+| Param | Type | Description |
+| --- | --- | --- |
+| value | `Number` | 회전시킬 값 (단위:라디안) |
+
+### getRotation() → Number
+RotationControl의 상태 반환 
+
+→ Number: 회전값

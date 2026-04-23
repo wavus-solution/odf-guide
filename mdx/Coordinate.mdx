@@ -1,0 +1,54 @@
+---
+title: "Coordinate"
+description: "좌표 설정 클래스"
+---
+## API
+```
+Coordinate(x, [y]): void
+get(): Array
+set(x, y): void
+```
+
+## Coordinate
+
+좌표 클래스  
+
+### new Coordinate(x, [y])
+
+| Param | Type | Description |
+| --- | --- | --- |
+| x | `number` \| `Array.<number>` | x 좌표값 또는 [x, y] 배열 |
+| [y] | `number` | y 좌표값 (x가 숫자일 때 필수) |
+
+**Example**  
+```js
+// 방법1: 개별 좌표
+let coord = new odf.Coordinate(955156.7761, 1951925.0984);
+// 방법2: 배열
+let coord = new odf.Coordinate([955156.7761, 1951925.0984]);
+```
+
+### coordinate._x : `number`
+x 좌표값
+
+### coordinate._y : `number`
+y 좌표값
+
+### coordinate.x : `number`
+x 좌표값
+
+### coordinate.y : `number`
+y 좌표값
+
+### get() → Array.<number>
+좌표값을 배열 형태로 반환
+
+→ Array.<number>: [x, y] 좌표 배열  
+
+### set(x, y) → void
+객체의 x, y 좌표를 설정합니다.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| x | `Array` \| `number` | x 좌표값 혹은 x와 y 좌표를 포함하는 배열. |
+| y | `number` | y 좌표값 (optional). |

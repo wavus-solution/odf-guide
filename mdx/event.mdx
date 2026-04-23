@@ -1,0 +1,206 @@
+---
+title: "event"
+description: "이벤트 생성 클래스"
+---
+## API
+```
+addListener(target, eventType, callback, expiration): String
+removeListener(evtneId): void
+trigger(target, eventType, param): void
+hasEventId(eventId): Boolean
+hasEvent(target, eventType): number
+stateChange(eventId, state, excludeThis): boolean
+excludeEvent(parameter): Array
+```
+
+## event
+
+### addListener(target, eventType, callback, expiration) → String
+이벤트 등록
+
+```javascript
+//이벤트 연결
+   let map = new odf.Map(document.getElementById('map'), {
+  center: new odf.Coordinate(955673.3095379177, 1954893.4607722224),
+  zoom: 17,
+  projection: 'EPSG:5179',
+  maxZoom: 20,
+  minZoom: 8,
+});
+   //map 객체에 클릭 이벤트 연결
+   let clickEventId = odf.event.addListener(map,'click',(evt)=>{
+    //클릭한 위치에 마커 추가
+  let marker = new odf.Marker({
+    position : new odf.Coordinate(evt.coordinate)
+  });
+  marker.setMap(map);
+});
+```
+
+→ String: 이벤트를 특정하는 Id  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| target | `String` \| `HTMLElement` \| `odf.ExtObject` |  | 이벤트를 연결할 대상(css 선택자 텍스트, odf.ExtObject) (ex)   '#moveBtn' | '.mtbBtn' | (new Map(&#123;...&#125;)) |
+| eventType | [`event_type`](#event_type) |  | target에 연결 가능한 이벤트 종류 (ex) 'click', 'mousedown',   'moveend','custom-event-01' |
+| callback | `function` |  | 이벤트가 발생 될때 실행할 function |
+| expiration | [`event_expiration`](#event_expiration) | `odfDeleted` | event 해제 시기별 type. |
+
+### removeListener(evtneId)
+이벤트 해제
+
+| Param | Type | Description |
+| --- | --- | --- |
+| evtneId | `String` | 이벤트를 특정하는 Id |
+
+### trigger(target, eventType, param)
+이벤트 강제로 실행
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | `String` \| `HTMLElement` \| `odf.ExtObject` \| `MapBase` | - 강제로 이벤트를 실행시킬 대상(css 선택자 텍스트, odf.ExtObject)         (ex) '#moveBtn' | '.mtbBtn' | (new Map(&#123;...&#125;)) |
+| eventType | `String` | 강제로 실행시킬 이벤트의 종류         (ex) 'click', 'mousedown', 'moveend','custom-event-01' |
+| param | `Object` | 이벤트를 강제 실행시키면서 해당 콜백 function에 넘길 파라미터 |
+
+### hasEventId(eventId) → Boolean
+특정 id를 갖는 이벤트가 등록되어있는지 확인
+
+→ Boolean: - 이벤트 등록 여부 반환  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| eventId | `String` | 이벤트 등록 여부를 확인할 eventId |
+
+### hasEvent(target, eventType) → number
+특정 객체에 특정 타입의 이벤트가 있는지 확인
+
+→ number: 이벤트 타겟에 등록된 이벤트 갯수  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | `String` \| `HTMLElement` \| `odf.ExtObject` | 이벤트 타겟 |
+| eventType | [`event_type`](#event_type) | target에 연결 가능한 이벤트 종류         (ex) 'click', 'mousedown', 'moveend','custom-event-01' |
+
+### stateChange(eventId, state, excludeThis) → boolean
+queue에 등록된 event의 상태값 변경
+
+→ boolean: - 작업 성공 여부 (ex) true=&gt; 성공, false =&gt;실패  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| eventId | `string` | 상태를 변경할 이벤트의 id |
+| state | `event_state` | 이벤트 상태 |
+| excludeThis | `boolean` | 입력한 eventId를 제외하고 eventId에 해당하는 이벤트 target과 이벤트 type이 일치하는 다른 이벤트들을 대상으로 할지 여부 - true : 입력한 eventId를 제외하고 eventId에 해당하는 이벤트 target과 이벤트 type이 일치하는 다른 이벤트들을 대상으로 처리 - false : (기본값)입력한 eventId를 대상으로 처리 |
+
+### excludeEvent(parameter) → Array.<event_excludeEvent_item>(#event_excludeEvent_item)
+queue에 등록된 event의 상태값 변경
+
+→ Array.<event_excludeEvent_item>: 대상 이벤트 id 배열  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| parameter | `Object` | 대상 이벤트 |
+| parameter.eventId | `string` | 이벤트 id |
+| parameter.target | `String` \| `HTMLElement` \| `odf.ExtObject` | 이벤트 타겟 |
+| parameter.eventType | [`event_type`](#event_type) | 이벤트 타입 |
+
+## event_type
+**Type**: `String`
+이벤트 target에 따라 적용 가능한 event 종류
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| 'change' | `String` | [map] 일반적인 변경 이벤트. revision counter가 증가 하면 발생(table) |
+| 'change:layerGroup' | `String` | [map] layerGroup 속성 변경시 발생 |
+| 'change:size' | `String` | [map] size 속성 변경시 발생 |
+| 'change:target' | `String` | [map] target 속성 변경시 발생 |
+| 'change:view' | `String` | [map] view 속성 변경시 발생 |
+| 'click' | `String` | [map] drag 없는 클릭. 더블 클릭을 하면 두 번 발생 |
+| 'dblclick' | `String` | [map] drag 없는 더블 클릭 |
+| 'moveend' | `String` | [map] 지도가 이동 된 후 발생 |
+| 'movestart' | `String` | [map] 지도가 이동을 시작할 때 발생 |
+| 'pointerdrag' | `String` | [map] 마우스 drag 할 때 발생 |
+| 'pointermove' | `String` | [map] 마우스 포인터가 이동할 때 마다 발생 |
+| 'precompose' | `String` | [map] layer를 그리기 전에 발생 |
+| 'postcompose' | `String` | [map] layer를 모두 그린 후 발생 |
+| 'postrender' | `String` | [map] 지도 프레임이 렌더링 된 후에 발생 (precompose → postcompose → postrender 순서) |
+| 'propertychange' | `String` | [map] 속성이 변경 되면 발생 |
+| 'singleclick' | `String` | [map] drag 와 더블 클릭이 없는 단일 클릭. 더블클릭과 구분하기 위해 |
+| 'contextmenu' | `String` | [map] 우클릭시 트리거 |
+| 'modifyend' | `String` | [map] 레이어 수정 완료 시 (피쳐 이동 종료) 발생 |
+| 'editend' | `String` | [map] 레이어 편집 종료 시(종료 버튼 클릭) 발생 (현재 우클릭으로 편집 가능한 레이어는 geoImageLayer뿐) |
+| 'editstart' | `String` | [map] 레이어 편집 시작 시(이동/회전/크기조절 버튼 클릭) 발생 (현재 우클릭으로 편집 가능한 레이어는 geoImageLayer뿐)   250ms 지연발생 |
+| 'change' | `String` | [view] 일반적인 변경 이벤트. revision counter가 증가 하면 발생 |
+| 'change:center' | `String` | [view] center 속성 변경시 발생 |
+| 'change:resolution' | `String` | [view] resolution 속성 변경시 발생 |
+| 'change:rotation' | `String` | [view] rotation 속성 변경시 발생 |
+| 'propertychange' | `String` | [view] 속성이 변경 되면 발생 |
+| 'change' | `String` | [layer 공통] 일반적인 변경 이벤트. revision counter가 증가 하면 발생 |
+| 'change:extent' | `String` | [layer 공통] extent 속성 변경시 발생 |
+| 'change:maxResolution' | `String` | [layer 공통] maxResolution 속성 변경시 발생 |
+| 'change:minResolution' | `String` | [layer 공통] minResolution 속성 변경시 발생 |
+| 'change:opacity' | `String` | [layer 공통] opacity 속성 변경시 발생 |
+| 'change:visible' | `String` | [layer 공통] visible 속성 변경시 발생 |
+| 'change:zIndex' | `String` | [layer 공통] zIndex 속성 변경시 발생 |
+| 'propertychange' | `String` | [layer 공통] 속성이 변경되면 발생 |
+| 'precompose' | `String` | [WebGL 레이어]  레이어가 구성되기 전에 트리거 |
+| 'prerender' | `String` | [layer 공통] layer 렌더링 전 트리거 |
+| 'postcompose' | `String` | [WebGL 레이어]  레이어가 구성된 후에 트리거 |
+| 'postrender' | `String` | [layer 공통] layer 렌더링 후 트리거 |
+| 'rendercomplete' | `String` | [layer 공통] 렌더링 완료시 트리거 (precompose → prerender → postcompose → postrender → rendercomplete 순서) |
+| 'change:blur' | `String` | [Heatmap 레이어] blur 속성 변경시 발생 |
+| 'change:gradient' | `String` | [Heatmap 레이어] gradient 속성 변경시 발생 |
+| 'change:radius' | `String` | [Heatmap 레이어] radius 속성 변경시 발생 |
+| 'change:source' | `String` | [Heatmap|Image|Tile|Vector|VectorTile 레이어] source 속성   변경시 발생 |
+| 'change:preload' | `String` | [Tile|VectorTile 레이어] preload 속성 변경시 발생 |
+| 'change:useInterimTilesOnError | `String` | [Tile|VectorTile  레이어]   useInterimTilesOnError 속성 변경시 발생 |
+| 'change' | `String` | [source 공통] 일반적인 변경 이벤트. revision counter가 증가 하면 발생 |
+| 'propertychange' | `String` | [source 공통] 속성이 변경되면 발생 |
+| 'imageloadend' | `String` | [ImageArcGISRest|ImageMapGuide|ImageWMS 소스] 이미지로드가 완료되면   발생 |
+| 'imageloaderror' | `String` | [ImageArcGISRest|ImageMapGuide|ImageWMS 소스] 이미지로드로 인해 오류가   발생하면 발생 |
+| 'imageloadstart' | `String` | [ImageArcGISRest|ImageMapGuide|ImageWMS 소스] 이미지로드가 시작될 때   발생 |
+| 'afteroperations' | `String` | [Raster 소스] 작업이 실행 된 후에 발생 |
+| 'beforeoperations' | `String` | [Raster 소스] 작업이 실행 되기 전에 발생 |
+| 'tileloadstart' | `String` | [UrlTile|TileImage|BingMaps|TileArcGISRest|TileJSON|TileWMS|WMTS|XYZ|VectorTile 소스] 타일 load가   시잘할때 발생 |
+| 'tileloadend' | `String` | [UrlTile|TileImage|BingMaps|TileArcGISRest|TileJSON|TileWMS|WMTS|XYZ|VectorTile 소스] 데이터로드시   또는 타일이 더 이상 필요 없기 때문에로드가 중단 된 경우 타일로드가 완료되면 발생 |
+| 'tileloaderror' | `String` | [UrlTile|TileImage|BingMaps|TileArcGISRest|TileJSON|TileWMS|WMTS|XYZ|VectorTile 소스] 타일로드로 인해   오류가 발생하면 발생 |
+| 'addfeature' | `String` | [Vector|Cluster 소스] Feature가 source에 추가 되면 발생 |
+| 'featureloadend' | `String` | [Vector|Cluster 소스] Feature가 source에 모두 로드되면 발생 |
+| 'changefeature' | `String` | [Vector|Cluster 소스] Feature가 업데이트 되면 발생 |
+| 'clear' | `String` | [Vector|Cluster 소스] source에서 clear 메소드가 호츨 되면 발생 |
+| 'removefeature' | `String` | [Vector|Cluster 소스] feature가 제거되면 발생. source.clear 제외 |
+| 'change' | `String` | [Marker]  일반 변경 이벤트.position,draggable,map 값 변경시 발생 |
+| 'change:position' | `String` | [Marker]  position 변경시 발생 |
+| 'change:draggable' | `String` | [Marker]  draggable 변경시 발생 |
+| 'change:map' | `String` | [Marker]  map 변경시 발생 |
+| 'click' | `String` | [Marker]  marker 클릭시 발생 |
+| 'markerdragstart' | `String` | [Marker]  draggable 마커 drag를 시작했을때 발생 |
+| 'markerdrag' | `String` | [Marker]  draggable 마커를 중 마우스 이동 발생했을때 발생 |
+| 'markerdragend' | `String` | [Marker]  draggable 마커 drag가 종료됬을때 발생 |
+| 'drawstart' | `String` | [DrawControl]  DrawControl을 이용하여 그리기를 시작할때 발생                     (buffer 도형 그리기에서는 트리거 되지 않음) |
+| 'drawend' | `String` | [DrawControl] DrawControl을 이용하여 그리기를 종료할때 발생 |
+
+## event_excludeEvent_item
+**Type**: `Object`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| eventId | `string` | 대상 이벤트의 id |
+| state | `event_state` | 이벤트 상태 |
+
+---
+
+## Type Definitions
+
+## event_expiration : `Boolean` \| `String`
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| true | `Boolean` | 한번만 호출하고 해제 |
+| false | `Boolean` | 지도객체가 없어지거나 disconncet 할 때 해제 |
+| customize | `String` | 사용자가 원하는 시점에서 1번 호출하고 해제 |
+| odfDeleted | `String` | (기본값) 지도객체가 없어지면 해제 |

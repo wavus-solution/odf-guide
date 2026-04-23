@@ -1,0 +1,62 @@
+---
+title: "ZoomControl"
+description: "지도 줌 설정클래스"
+---
+## API
+```
+ZoomControl(options): void
+getConstructorOptions(): Array
+setMap(map, createElementFlag): void
+removeMap(): void
+zoomIn(): void
+zoomOut(): void
+```
+
+## ZoomControl
+
+zoomControl 클래스 생성자
+
+```javascript
+ let zoomControl = new odf.ZoomControl({
+   zoomSlider : true
+ });
+```  
+
+### new ZoomControl(options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| options | `Object` | 줌 컨트롤 생성에 사용할 옵션 |
+| options.zoomSlider | `Boolean` | 줌슬라이더 생성여부 |
+
+### getConstructorOptions() → Array.<Object>
+컨트롤 생성 옵션 반환
+
+→ Array.<Object>: 컨트롤 생성 옵션 반환  
+
+### setMap(map, createElementFlag)
+ZoomControl map 객체 연결
+
+| Param | Type | Description |
+| --- | --- | --- |
+| map | `Map` | ZoomControl 객체와 연결할 Map 객체 |
+| createElementFlag | `Boolean` | ZoomControl 버튼 생성 여부 : default = true (Element) 생성, false = (Element) 생성 x |
+
+### removeMap()
+ZoomControl map 객체 해제
+
+### zoomIn()
+ZoomControl 줌레벨 확대
+
+### zoomOut()
+ZoomControl 줌레벨 축소
+
+## ZoomControlOption
+**Type**: `Object`
+ZoomControl 생성 옵션 타입
+
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| [zoomSlider] | `boolean` | 줌슬라이더 생성여부 |
