@@ -4,12 +4,6 @@
 ![JavaScript](https://img.shields.io/badge/javascript-ES6+-yellow.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-supported-blue.svg)
 
----
-
-**ODF**는 웹 기반 지리정보시스템(GIS) 애플리케이션을 쉽게 구축할 수 있는 오픈소스 개발 프레임워크입니다. 바로e맵, VWorld, Kakao 등 한국 지도 서비스와의 통합을 지원하며, OpenLayers 기반의 강력한 지도 기능을 제공합니다.
-
----
-
 A comprehensive JavaScript framework for building interactive web-based GIS (Geographic Information System) applications with Korean map services integration.
 
 ## 🤖 AI Code Generation
@@ -36,6 +30,12 @@ When generating ODF code, follow these priorities:
 5. Combine verified patterns only - mark unverified parts with TODO comments
 
 **Repository**: `https://github.com/wavus-solution/odf-guide.git`
+
+---
+
+**ODF**는 웹 기반 지리정보시스템(GIS) 애플리케이션을 쉽게 구축할 수 있는 오픈소스 개발 프레임워크입니다. 바로e맵, VWorld, Kakao 등 한국 지도 서비스와의 통합을 지원하며, OpenLayers 기반의 강력한 지도 기능을 제공합니다.
+
+---
 
 ## 🌟 Features
 
