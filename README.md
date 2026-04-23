@@ -6,6 +6,33 @@
 
 A comprehensive JavaScript framework for building interactive web-based GIS (Geographic Information System) applications with Korean map services integration.
 
+## 🤖 AI Code Generation
+
+This repository includes an AI coding skill for generating reliable ODF code. When using AI assistants (ChatGPT, Claude, etc.) to generate code from this repository:
+
+**Important**: AI should follow the coding guidelines defined in [`skills/odf/SKILL.md`](https://github.com/wavus-solution/odf-guide/blob/main/skills/odf/SKILL.md)
+
+### Key Principles
+
+- Use only verified APIs from `js/odf.d.ts`
+- Reference official examples in `html/` directory
+- Check API documentation in `mdx/` files
+- Start with `html/SAMPLES-INDEX.md` for example discovery
+- Generate code based on real working examples, not assumptions
+
+### For AI Assistants
+
+When generating ODF code, follow these priorities:
+1. Check `html/SAMPLES-INDEX.md` for relevant examples
+2. Read actual example files from `html/` directory
+3. Verify API signatures in `js/odf.d.ts`
+4. Reference documentation in `mdx/` files
+5. Combine verified patterns only - mark unverified parts with TODO comments
+
+**Repository**: `https://github.com/wavus-solution/odf-guide.git`
+
+---
+
 **ODF**는 웹 기반 지리정보시스템(GIS) 애플리케이션을 쉽게 구축할 수 있는 오픈소스 개발 프레임워크입니다. 바로e맵, VWorld, Kakao 등 한국 지도 서비스와의 통합을 지원하며, OpenLayers 기반의 강력한 지도 기능을 제공합니다.
 
 ---
