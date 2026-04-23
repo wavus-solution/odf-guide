@@ -34,59 +34,89 @@ A comprehensive JavaScript framework for building interactive web-based GIS (Geo
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>ODF Map Example</title>
   <!-- ODF CSS -->
-  <link rel="stylesheet" href="asset/odf.css">
+  <link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
   <!-- ODF JavaScript Library -->
-  <script src="js/odf.min.js"></script>
+  <script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
   <style>
-    #map { width: 100%; height: 600px; }
+    #map { width: 100%; height: 550px; }
   </style>
 </head>
 <body>
-  <div id="map"></div>
+  <div id="map" class="odf-view"></div>
   <script>
-    // Create a simple map with OSM basemap
-    const map = new odf.Map({
-      target: 'map',
-      view: {
-        center: [127.0, 37.5], // Seoul, Korea
-        zoom: 10,
-        projection: 'EPSG:4326'
-      }
-    });
+    // Map container
+    var mapContainer = document.getElementById('map');
 
-    // Add basemap control
-    const basemapControl = new odf.BasemapControl({
-      OSM: true
-    });
-    map.addControl(basemapControl);
+    // Map center coordinates (EPSG:5186 - Korean Central Belt)
+    var coord = new odf.Coordinate(199312.9996, 551784.6924);
+
+    // Map options
+    var mapOption = {
+      center: coord,
+      zoom: 11,
+      projection: 'EPSG:5186',
+      vWorldURL: 'https://gsapi.geon.kr/map/api/vworld/wmts',
+      basemap: {
+        vWorld: ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite']
+      }
+    };
+
+    // Create map
+    var map = new odf.Map(mapContainer, mapOption);
+
+    // Set min/max zoom levels
+    map.getView().setMinZoom(8);
+    map.getView().setMaxZoom(23);
   </script>
 </body>
 </html>
 ```
 
-### Basic Map with Korean Basemap (바로e맵)
+### Map with Basemap Control (배경지도 컨트롤)
 
-```javascript
-// 바로e맵을 사용한 기본 지도 생성
-const map = new odf.Map({
-  target: 'map',
-  view: {
-    center: [14141495.0, 4518348.0], // Seoul in EPSG:3857
-    zoom: 12,
-    projection: 'EPSG:3857'
-  }
-});
+Example: [html/mapControl/basemapControl_optimization.html](html/mapControl/basemapControl_optimization.html)
 
-// 바로e맵 배경지도 컨트롤 추가
-const basemapControl = new odf.BasemapControl({
-  baroEMap: ['eMapBasic', 'eMapAIR'] // 기본지도와 항공지도
-}, {
-  baroEMapKey: 'YOUR_API_KEY' // 바로e맵 API 키
-});
-map.addControl(basemapControl);
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
+  <script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
+</head>
+<body>
+  <div id="map" class="odf-view" style="height:550px;"></div>
+  <script>
+    // Map container
+    var mapContainer = document.getElementById('map');
+
+    // Map center coordinates
+    var coord = new odf.Coordinate(199312.9996, 551784.6924);
+
+    // Map options with optimization
+    var mapOption = {
+      center: coord,
+      zoom: 11,
+      projection: 'EPSG:5186',
+      vWorldURL: 'https://gsapi.geon.kr/map/api/vworld/wmts',
+      basemap: {
+        vWorld: ['vWorldBase', 'vWorldWhite', 'vWorldMidnight', 'vWorldHybrid', 'vWorldSatellite']
+      },
+      optimization: true // Basemap optimization
+    };
+
+    // Create map
+    var map = new odf.Map(mapContainer, mapOption);
+
+    // Create and add basemap control
+    var basemapControl = new odf.BasemapControl({});
+    basemapControl.setMap(map);
+  </script>
+</body>
+</html>
 ```
 
 ---
