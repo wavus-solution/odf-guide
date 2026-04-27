@@ -1,30 +1,4 @@
-> **⚠️ MANDATORY FOR AI CODE GENERATION**
- > When generating HTML code or documentation with ODF, you **MUST** use these exact CDN import paths.
-> **DO NOT** use local paths, alternative CDNs, or non-minified versions.
-
-## 📦 Required CDN Imports
-
-### CSS Import (Required)
-```html
-<link href="https://developer.geon.kr/js/odf/odf.css" rel="stylesheet">
-```
-
-### JavaScript Import (Required)
-```html
-<script type="text/javascript" src="https://developer.geon.kr/js/odf/odf.min.js"></script>
-```
-
-### ❌ Prohibited
-- Local paths: `./js/odf.min.js`, `../odf/odf.css`
-- Alternative CDN sources
-- Non-minified: `odf.js` (use `odf.min.js`)
-- Relative paths of any kind
-
 # ODF (OpenSource Development Framework) Guide
-
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![JavaScript](https://img.shields.io/badge/javascript-ES6+-yellow.svg)
-![TypeScript](https://img.shields.io/badge/typescript-supported-blue.svg)
 
 A comprehensive JavaScript framework for building interactive web-based GIS (Geographic Information System) applications with Korean map services integration.
 
